@@ -1,0 +1,4 @@
+[submodule "upstream/qtbase"]
+	path = upstream/qtbase
+	url = https://invent.kde.org/qt/qt/qtbase.git
+	branch = kde/5.15
