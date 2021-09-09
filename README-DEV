@@ -1,0 +1,28 @@
+1. Licensing
+
+1.1. Qt Core
+
+License choices:
+
+  a) Qt Commercial License
+
+  b) GPL v2-only or GPL v3-only
+
+  c) LGPL v3-only
+
+1.2. Meta-Object Compiler (MOC)
+
+License choices:
+
+  a) Qt Commercial License
+
+  b) GPL v3-only with exceptions granted by Qt
+     (upstream/qtbase/LICENSE.GPL3-EXCEPT). These exceptions relax the
+     GPLv3. For example, it allows a work that contains, but does not output
+     itself, MOC output (such as a program compiled with MOC-generated source
+     files) to be distributed under any terms.
+
+2. Qt mailing lists
+
+They're listed on qt-project.org which is a fact not easy to discover starting
+from https://qt.io/ but see https://wiki.qt.io/Online_Communities.

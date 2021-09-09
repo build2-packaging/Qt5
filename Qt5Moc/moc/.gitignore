@@ -1,0 +1,5 @@
+qt5moc
+
+# Testscript output directory (can be symlink).
+#
+test-Qt5Moc
