@@ -26,3 +26,31 @@ License choices:
 
 They're listed on qt-project.org which is a fact not easy to discover starting
 from https://qt.io/ but see https://wiki.qt.io/Online_Communities.
+
+3. qmake notes
+
+Manual: https://doc.qt.io/qt-5/qmake-manual.html
+
+3.1 Platform-specific code
+
+In qmake, platform-specific code is wrapped in a "platform scope" which looks
+like this:
+
+  win32 {...}
+  linux-g++ {...}
+  freebsd-clang {...}
+
+The full set of "toplevel" platform names like `win32`, `linux`, or `mingw`
+can be found out by grepping for all occurrences of "QMAKE_PLATFORM" in *.conf
+under upstream/qtbase/mkspecs/, while the more specific platform names like
+`linux-g++`, `freebsd-clang`, or `win32-clang-msvc` each have a directory
+under upstream/qtbase/mkspecs/.
+
+4. Platform/compiler support issues
+
+Mac OS with GCC is not supported because certain system headers make use of
+Objective-C blocks
+(https://en.wikipedia.org/wiki/Blocks_(C_language_extension)) which are not
+supported by GNU gcc/g++. There is an open issue to add support
+(https://gcc.gnu.org/bugzilla/show_bug.cgi?id=78352) but it's stalled for what
+looks like licensing reasons (see comment 16).

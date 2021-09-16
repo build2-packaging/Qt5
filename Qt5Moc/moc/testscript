@@ -1,9 +1,28 @@
 : basics
+: Check that the MOC binary runs.
 :
-$* 'World' >'Hello, World!'
+$* <<EOI >>~%EOO%
+class MyClass : public QObject
+{
+    Q_OBJECT
 
-: missing-name
-:
-$* 2>>EOE != 0
-error: missing name
-EOE
+public:
+    MyClass(QObject *parent = 0);
+    ~MyClass();
+
+signals:
+    void mySignal();
+
+public slots:
+    void mySlot();
+};
+EOI
+/****************************************************************************
+** Meta object code from reading C++ file ''
+**
+%\*\* Created by: The Qt Meta Object Compiler version .+%
+**
+** WARNING! All changes made in this file will be lost!
+*****************************************************************************/
+%.+
+EOO
