@@ -1,1 +1,1 @@
-../../upstream/qtbase/src/tools/moc/cbordevice.h
+../../downstream/qtbase/src/tools/moc/cbordevice.h

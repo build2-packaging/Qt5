@@ -1,1 +1,1 @@
-../../../../upstream/qtbase/src/corelib/serialization/qcborcommon.cpp
+../../../../downstream/qtbase/src/corelib/serialization/qcborcommon.cpp

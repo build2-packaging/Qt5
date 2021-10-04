@@ -1,1 +1,1 @@
-../../upstream/qtbase/src/tools/moc/generator.cpp
+../../downstream/qtbase/src/tools/moc/generator.cpp
