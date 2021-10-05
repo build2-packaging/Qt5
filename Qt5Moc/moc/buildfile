@@ -1,3 +1,5 @@
+import libs = libtinycbor%lib{tinycbor}
+
 windows = ($cxx.target.class == 'windows')
 unix    = ($cxx.target.class != 'windows')
 macos   = ($cxx.target.class == 'macos')
@@ -133,7 +135,7 @@ macos_core_src_mm = QtCore/global/qoperatingsystemversion_darwin \
                     QtCore/kernel/qcore_foundation               \
                     QtCore/kernel/qcore_mac
 
-exe{qt5moc}: hxx{**} cxx{$core_src $moc_src} testscript
+exe{qt5moc}: hxx{**} cxx{$core_src $moc_src} $libs testscript
 
 exe{qt5moc}: cxx{$unix_core_src}:                include = $unix
 exe{qt5moc}: cxx{QtCore/io/qstandardpaths_unix}: include = ($unix && ! $macos)
@@ -143,10 +145,7 @@ exe{qt5moc}: cxx{$win_core_src}:                 include = $windows
 # Ensure that C and C++ source files that are included by other source files
 # instead of compiled themselves are included in the distribution.
 #
-exe{qt5moc}: 3rdparty/file{freebsd/strtoll.c          \
-                           freebsd/strtoull.c         \
-                           tinycbor/src/cborencoder.c \
-                           tinycbor/src/cborerrorstrings.c}: include = adhoc
+exe{qt5moc}: 3rdparty/freebsd/file{strtoll.c strtoull.c}: include = adhoc
 
 exe{qt5moc}: cxx{keywords                        \
                  ppkeywords                      \
@@ -185,12 +184,9 @@ obje{~'/(.*)/'}: mm{~'/\1/'}
 #
 # Add moc/QtCore/private/ for include paths such as <qglobal_p.h>.
 #
-# Add moc/3rdparty/tinycbor/src/ because of a single inclusion of <cbor.h>.
-#
 cxx.poptions =+ "-I$src_root/moc"                \
                 "-I$src_root/moc/QtCore"         \
-                "-I$src_root/moc/QtCore/private" \
-                "-I$src_root/moc/3rdparty/tinycbor/src"
+                "-I$src_root/moc/QtCore/private"
 
 # Define macros from the upstream build.
 #

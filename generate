@@ -21,7 +21,7 @@ function error () { info "$*"; exit 1; }
 
 # Remove previously-generated files and directories.
 #
-rm -f Qt5Moc/moc/*.h Qt5Moc/moc/*.cpp
+rm -f Qt5Moc/moc/*.{h,cpp,orig}
 rm -rf Qt5Moc/moc/QtCore/
 rm -f Qt5Moc/moc/mkspecs
 rm -rf Qt5Moc/moc/3rdparty
@@ -42,7 +42,7 @@ ln -s ../../upstream/qtbase/mkspecs Qt5Moc/moc/
 
 # Symlink the upstream third-party directories required to build moc.
 #
-ln -s ../../../upstream/qtbase/src/3rdparty/{freebsd,tinycbor,sha1} \
+ln -s ../../../upstream/qtbase/src/3rdparty/{freebsd,sha1} \
       Qt5Moc/moc/3rdparty/
 
 # Symlink all QtCore sources into Qt5Moc/moc/QtCore/.
@@ -95,24 +95,46 @@ for d in upstream/qtbase/src/corelib/*/; do
   # src/corelib/'s subdirectories (that is, nested no deeper).
   #
   for f in "$d"/*; do
+    f="${f#upstream/}" # Strip "upstream/" prefix.
+
+    tpp= # Symlink target path prefix.
+    spp= # Symlink path prefix.
     case "$f" in
       # Private header.
       #
       *_p.h)
-        ln -s "../../../../$f" Qt5Moc/moc/QtCore/private/
+        tpp="../../../.."
+        spp="Qt5Moc/moc/QtCore/private"
         ;;
       # Public header.
       #
       *.h)
-        ln -s "../../../$f" Qt5Moc/moc/QtCore/
+        tpp="../../.."
+        spp="Qt5Moc/moc/QtCore"
         ;;
       # C++ source file.
       # Objective-C++ source file.
       #
       *.cpp | *.mm)
-        ln -s "../../../../$f" "$sdd/"
+        tpp="../../../.."
+        spp="$sdd"
         ;;
+      # Not a source file.
+      #
+      *) continue ;;
     esac
+
+    # If there is a downstream version of this file, its symlink gets the
+    # upstream filename while the upstream original's symlink gets the
+    # upstream filename with a ".orig" extension.
+    #
+    fn="$(basename "$f")" # File name.
+    if [[ -f "downstream/$f" ]]; then
+      ln -s "$tpp/upstream/$f"   "$spp/$fn.orig"
+      ln -s "$tpp/downstream/$f" "$spp/$fn"
+    else
+      ln -s "$tpp/upstream/$f"   "$spp/$fn"
+    fi
   done
 
   # Remove the source file destination directory if it is empty (which would
@@ -126,6 +148,16 @@ done
 # Symlink all of the moc application's headers and source files into
 # Qt5Moc/moc/.
 #
-for f in upstream/qtbase/src/tools/moc/{*.h,*.cpp}; do
-  ln -s "../../$f" Qt5Moc/moc/
+for f in upstream/qtbase/src/tools/moc/*.{h,cpp}; do
+  f="${f#upstream/}"    # Strip "upstream/" prefix.
+  fn="$(basename "$f")" # File name.
+
+  # See the symlinking of the QtCore sources above.
+  #
+  if [[ -f "downstream/$f" ]]; then
+    ln -s "../../upstream/$f"   "Qt5Moc/moc/$fn.orig"
+    ln -s "../../downstream/$f" "Qt5Moc/moc/$fn"
+  else
+    ln -s "../../upstream/$f"   "Qt5Moc/moc/$fn"
+  fi
 done
