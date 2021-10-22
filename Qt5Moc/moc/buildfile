@@ -190,23 +190,22 @@ cxx.poptions =+ "-I$src_root/moc"                \
 
 # Define macros from the upstream build.
 #
-cxx.poptions +=                                                       \
-  -D_LARGEFILE64_SOURCE                                               \
-  -D_LARGEFILE_SOURCE                                                 \
-  -DQT_BUILDING_QT                                                    \
-  -DQT_BOOTSTRAPPED                                                   \
-  -DQT_MOC                                                            \
-  -DQT_NO_CAST_TO_ASCII                                               \
-  -DQT_NO_CAST_FROM_ASCII                                             \
-  -DQT_NO_COMPRESS                                                    \
-  -DQT_NO_FOREACH                                                     \
-  -DQT_NO_JAVA_STYLE_ITERATORS                                        \
-  -DQT_USE_QSTRINGBUILDER                                             \
-  -DQT_NO_DEBUG                                                       \
-  -DQT_DEPRECATED_WARNINGS_SINCE=0x060000                             \
-  -DQT_VERSION_STR="\"$version.major.$version.minor.$version.patch\"" \
-  -DQT_VERSION_MAJOR="$version.major"                                 \
-  -DQT_VERSION_MINOR="$version.minor"                                 \
+cxx.poptions +=                                                         \
+  -D_LARGEFILE64_SOURCE                                                 \
+  -D_LARGEFILE_SOURCE                                                   \
+  -DQT_BOOTSTRAPPED                                                     \
+  -DQT_NO_CAST_TO_ASCII                                                 \
+  -DQT_NO_CAST_FROM_ASCII                                               \
+  -DQT_NO_COMPRESS                                                      \
+  -DQT_NO_FOREACH                                                       \
+  -DQT_NO_JAVA_STYLE_ITERATORS                                          \
+  -DQT_NO_LINKED_LIST                                                   \
+  -DQT_USE_QSTRINGBUILDER                                               \
+  -DQT_NO_DEBUG                                                         \
+  -DQT_DEPRECATED_WARNINGS_SINCE=0x060000                               \
+  -DQT_VERSION_STR="\"$version.major.$version.minor.$version.patch\""   \
+  -DQT_VERSION_MAJOR="$version.major"                                   \
+  -DQT_VERSION_MINOR="$version.minor"                                   \
   -DQT_VERSION_PATCH="$version.patch"
 
 if $windows
@@ -272,6 +271,8 @@ switch $cxx.target.class, $cxx.id, $cxx.target.system
   }
 }
 
-# This macro disables implicit conversions of QByteArray to char* and void*.
+# QT_NO_CAST_FROM_BYTEARRAY disables implicit conversions of QByteArray to
+# char* and void*.
 #
-obj{$moc_src}: cxx.poptions += -DQT_NO_CAST_FROM_BYTEARRAY
+obj{$moc_src}: cxx.poptions += -DQT_MOC \
+                               -DQT_NO_CAST_FROM_BYTEARRAY
