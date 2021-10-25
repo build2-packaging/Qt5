@@ -1,5 +1,19 @@
 import libs = libtinycbor%lib{tinycbor}
 
+# Target metadata, see also --build2-metadata in main.cpp.
+#
+# Note that qt5moc does not query any environment variables that can affect
+# its output.
+#
+exe{qt5moc}:
+{
+  export.metadata = 1 qt5moc
+  qt5moc.name = [string] moc
+  qt5moc.version  = [string] $version
+  qt5moc.checksum = [string] $version
+  qt5moc.environment = [strings] CPATH CPLUS_INCLUDE_PATH INCLUDE
+}
+
 windows = ($cxx.target.class == 'windows')
 unix    = ($cxx.target.class != 'windows')
 macos   = ($cxx.target.class == 'macos')
