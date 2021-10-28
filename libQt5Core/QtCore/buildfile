@@ -1,26 +1,472 @@
 intf_libs = # Interface dependencies.
-impl_libs = # Implementation dependencies.
-#import xxxx_libs += libhello%lib{hello}
+import impl_libs  = libicuuc%lib{icuuc}
+import impl_libs += libicui18n%lib{icui18n}
 
-lib{Qt5Core}: {hxx cxx}{**} $impl_libs $intf_libs
+import! [metadata] moc = Qt5Moc%exe{qt5moc}
+
+windows = ($cxx.target.class == 'windows')
+unix    = ($cxx.target.class != 'windows')
+linux   = ($cxx.target.class == 'linux')
+freebsd = ($cxx.target.system == 'freebsd')
+openbsd = ($cxx.target.system == 'openbsd')
+netbsd  = ($cxx.target.system == 'netbsd')
+macos   = ($cxx.target.class == 'macos')
+
+# Source files.
+#
+src = kernel/qabstracteventdispatcher   \
+      kernel/qabstractnativeeventfilter \
+      kernel/qbasictimer                \
+      kernel/qcoreapplication           \
+      kernel/qcoreevent                 \
+      kernel/qcoreglobaldata            \
+      kernel/qdeadlinetimer             \
+      kernel/qelapsedtimer              \
+      kernel/qeventloop                 \
+      kernel/qmetaobject                \
+      kernel/qmetaobjectbuilder         \
+      kernel/qmetatype                  \
+      kernel/qmath                      \
+      kernel/qmimedata                  \
+      kernel/qobject                    \
+      kernel/qobjectcleanuphandler      \
+      kernel/qpointer                   \
+      kernel/qsharedmemory              \
+      kernel/qsignalmapper              \
+      kernel/qsocketnotifier            \
+      kernel/qsystemerror               \
+      kernel/qsystemsemaphore           \
+      kernel/qtestsupport_core          \
+      kernel/qtimer                     \
+      kernel/qtranslator                \
+      kernel/qvariant
+
+# Headers to be moc'ed.
+#
+moc_hdr = qabstracteventdispatcher              \
+          qcoreapplication                      \
+          qcoreevent                            \
+          qeventloop                            \
+          qmimedata                             \
+          qnamespace                            \
+          qobject                               \
+          qobjectcleanuphandler                 \
+          qsignalmapper                         \
+          qsharedmemory                         \
+          qsocketnotifier                       \
+          qtimer                                \
+          qtranslator                           \
+          private/qeventdispatcher_unix_p       \
+          private/qeventdispatcher_cf_p
+
+# Source files to be moc'ed.
+#
+moc_src = kernel/qtimer
+
+# UNIX source files.
+#
+unix_src = kernel/qcore_unix                    \
+           kernel/qeventdispatcher_unix         \
+           kernel/qsharedmemory_posix           \
+           kernel/qsharedmemory_systemv         \
+           kernel/qsharedmemory_unix            \
+           kernel/qsystemsemaphore_posix        \
+           kernel/qsystemsemaphore_systemv      \
+           kernel/qsystemsemaphore_unix         \
+           kernel/qtimerinfo_unix
+
+# Windows source files.
+#
+win_src = kernel/qcoreapplication_win   \
+          kernel/qelapsedtimer_win      \
+          kernel/qeventdispatcher_win   \
+          kernel/qsharedmemory_win      \
+          kernel/qsystemsemaphore_win   \
+          kernel/qwineventnotifier      \
+          kernel/qwinregistry
+
+# Mac OS source files.
+#
+macos_src = kernel/qcfsocketnotifier    \
+            kernel/qcoreapplication_mac \
+            kernel/qelapsedtimer_mac
+
+# Define the Objective-C++ source file type.
+#
+define mm: file
+mm{*}: extension = mm
+
+macos_mm = kernel/qcore_foundation  \
+           kernel/qcore_mac         \
+           kernel/qeventdispatcher_cf
+
+# Mac OS Objective-C++ source files to be moc'ed.
+#
+moc_mm = kernel/qeventdispatcher_cf
+
+# Headers, source files, and libraries.
+#
+lib{Qt5Core}: hxx{** Q*.} cxx{$src} libul{Qt5CoreMeta}
+
+# The "metadata library": its purpose is to make sure all the imported
+# libraries are resolved for the ad hoc .mm compilation rules below.
+#
+libul{Qt5CoreMeta}: $impl_libs $intf_libs
+
+# Generated headers and source files.
+#
+lib{Qt5Core}: hxx{qconfig       private/qconfig_p               \
+                  qtcore-config private/qtcore-config_p}        \
+              global/cxx{qconfig}
+
+# Platform-specific source files.
+#
+lib{Qt5Core}: cxx{$unix_src}:                 include = $unix
+lib{Qt5Core}: cxx{kernel/qelapsedtimer_unix}: include = ($unix && ! $macos)
+lib{Qt5Core}: cxx{$win_src}:                  include = $windows
+lib{Qt5Core}: cxx{$macos_src}:                include = $macos
+
+# Declare the dependency of the library target on the Objective-C++ source
+# files via the corresponding object files.
+#
+for n: $macos_mm
+{
+  obja{$(n).a.o}: mm{$n}
+  objs{$(n).so.o}: mm{$n}
+}
+
+liba{Qt5Core}: obja{$regex.apply($macos_mm,'(.+)','\1.a.o')}: \
+  include = $macos
+libs{Qt5Core}: objs{$regex.apply($macos_mm,'(.+)','\1.so.o')}: \
+  include = $macos
+
+# Rules for compiling Objective-C++ source files into object files.
+#
+# Note: these rules are only used on Mac OS (so no -fPIC, etc).
+#
+# @@ TODO: check in CI logs for any options we may be missing compared to
+#          C++ compilation.
+#
+# @@ TODO: no header dependency extraction/change tracking.
+#
+obja{~'/(.*).a/'}: mm{~'/\1/'} libua{Qt5CoreMeta}
+{{
+  dep_poptions = $cxx.lib_poptions(libua{Qt5CoreMeta}, obja)
+  depdb hash $dep_poptions
+  depdb dyndep "-I$out_root/QtCore" "-I$src_root/QtCore"                \
+               --what=header --default-prereq-type=h                    \
+               -- $cxx.path $cc.poptions $cxx.poptions $dep_poptions    \
+                  $cc.coptions $cxx.coptions $cxx.mode -M -MG $path($<[0])
+  diag obj-c++ ($<[0])
+  $cxx.path $cc.poptions $cxx.poptions $dep_poptions    \
+            $cc.coptions $cxx.coptions $cxx.mode        \
+            -o $path($>) -c -x objective-c++ $path($<[0])
+}}
+
+objs{~'/(.*).so/'}: mm{~'/\1/'} libus{Qt5CoreMeta}
+{{
+  dep_poptions = $cxx.lib_poptions(libus{Qt5CoreMeta}, objs)
+  depdb hash $dep_poptions
+  diag obj-c++ ($<[0])
+  $cxx.path $cc.poptions $cxx.poptions $dep_poptions    \
+            $cc.coptions $cxx.coptions $cxx.mode        \
+            -o $path($>) -c -x objective-c++ $path($<[0])
+}}
+
+# Rule to generate a header used to make the compiler's predefined macros
+# available to moc.
+#
+# @@ TODO On Windows they use qmake to generate this file because the MSVC
+#    preprocessor doesn't have any option to dump all macros (g++ -dM -E).
+#
+#    $$QMAKE_CXX -Bx$$shell_quote($$shell_path($$QMAKE_QMAKE)) \
+#      $$QMAKE_CXXFLAGS \ -E ${QMAKE_FILE_IN} 2>NUL >${QMAKE_FILE_OUT}
+#
+#    g++ -Bx/home/francois/software/src/qt-build/bin/qmake -pipe -g -std=c++1z
+#    -fvisibility=hidden -fvisibility-inlines-hidden -E
+#    /home/francois/work/build2-packaging/Qt5/upstream/qtbase/mkspecs/features/data/dummy.cpp
+#    2>NUL >.moc/moc_predefs.h
+#
+hxx{moc_predefs}: mkspecs/features/data/cxx{dummy}
+{{
+  diag c++ ($>[0])
+  $cxx.path $cc.poptions $cxx.poptions $cc.coptions $cxx.coptions $cxx.mode \
+            -o $path($>) -dM -E $path($<)
+}}
+
+# Dependencies involving source files generated by moc from headers.
+#
+for s: hxx{$moc_hdr}
+{
+  n = $name($s)
+  lib{Qt5Core}: cxx{moc_$n}: include = adhoc
+  cxx{moc_$n}: $s hxx{moc_predefs} $moc
+}
+
+# Target type for source file generated by moc from a source file.
+#
+define moc: cxx
+moc{*}: extension = moc
+
+# Dependencies involving source files generated by moc from source files.
+#
+for s: cxx{$moc_src} mm{$moc_mm}
+{
+  n = $name($s)
+  lib{Qt5Core}: moc{$n}: include = adhoc
+  moc{$n}: $s hxx{moc_predefs} $moc
+}
+
+# Rule to run moc on a header file.
+#
+# Use -f to override moc's automatic #include of the input file -- which uses
+# a path relative to the output directory -- with just the filename.
+#
+<cxx{~'/moc_(.*)/'}>: hxx{~'/\1/'} hxx{moc_predefs} $moc
+{{
+  diag moc ($<[0])
+  $moc --include $path($<[1]) -f $name($<[0]).$extension($<[0]) \
+       $cc.poptions $cxx.poptions $path($<[0]) -o $path($>[0])
+}}
+
+# Rule to run moc on a source file.
+#
+<moc{~'/(.*)/'}>: cxx{~'/\1/'} hxx{moc_predefs} $moc
+{{
+  diag moc ($<[0])
+  $moc --include $path($<[1]) \
+       $cc.poptions $cxx.poptions $path($<[0]) -o $path($>[0])
+}}
+
+# Rule to run moc on an Objective-C++ source file.
+#
+<moc{~'/(.*)/'}>: mm{~'/\1/'} hxx{moc_predefs} $moc
+{{
+  diag moc ($<[0])
+  $moc --include $path($<[1]) \
+       $cc.poptions $cxx.poptions $path($<[0]) -o $path($>[0])
+}}
+
+# Generated headers.
+#
+# In the Qt source code the features (QT_FEATURE_foo macros) are checked using
+# the QT_CONFIG(foo) macro (defined in qglobal.h) which will not compile
+# unless the macro is defined and has a value of 1 or -1.
+#
+# @@ To find usage instances, grep under ../upstream/qtbase/ for
+#    '(qtConfig|QT_CONFIG)\(<feature-name>\)'
+#
+# The files qtbase/configure.json and qtbase/src/corelib/configure.json are
+# the sources used by qtbase/mkspecs/features/qt_configure.prf to generate
+# qtconfig{,_p}.h and qtcore-config{,_p}.h, respectively. Entries in the
+# `features` array in configure.json files correspond to .prf files under
+# upstream/qtbase/mkspecs/features/. See https://wiki.qt.io/Qt5_Build_System.
+#
+# The configure.json files declare dependencies between features so be sure to
+# consult them before disabling or enabling any features.
+#
+
+# General public configuration header. Included by other Qt libraries via
+# QtCore/qglobal.h.
+#
+# See the .in files for more information.
+#
+hxx{qconfig}: in{qconfig}
+{
+  QT_VERSION_STR="$version.major.$version.minor.$version.patch"
+  QT_VERSION_MAJOR="$version.major"
+  QT_VERSION_MINOR="$version.minor"
+  QT_VERSION_PATCH="$version.patch"
+
+  QT_FEATURE_framework = ($macos ? 1 : -1)
+
+  # Given that SSE4.2 support was added to GCC in version 4.3 (2008), and
+  # AVX512 support in version 4.9 (2014), assume all versions of SSE and all
+  # versions of AVX are supported on all i686 and x86_64 compilers. Disable
+  # SSE and AVX on all other targets.
+  #
+  compiler_supports_sse_avx = ($cxx.target.cpu == 'x86_64' ||       \
+                               $cxx.target.cpu == 'i686'            \
+                               ? 1                                  \
+                               : -1)
+
+  # F16C has been supported since Intel's Ivy Bridge (2012) and AMD's
+  # Bulldozer (2011). Added to GCC 4.6.4 (2013) at the latest. So, like SSE
+  # and AVX, assume it's supported on all i686 and x86_64 compilers.
+  #
+  QT_COMPILER_SUPPORTS_F16C = $compiler_supports_sse_avx
+}
+
+# General private configuration header. Included by a few other Qt libraries
+# via QtCore/qglobal_p.h.
+#
+# See the .in file for more information.
+#
+private/hxx{qconfig_p}: private/in{qconfig_p}
+{
+  QT_FEATURE_dlopen          = ($macos || $windows ? -1 : 1)
+  QT_FEATURE_posix_fallocate = ($linux || $freebsd || $openbsd ? 1 : -1)
+}
+
+# Public QtCore library configuration (mostly high-level features). Included
+# by other Qt libraries via QtCore/qglobal.h.
+#
+# See the .in file for more information.
+#
+hxx{qtcore-config}: in{qtcore-config}
+
+# Private QtCore library configuration (lower-level features and
+# settings). Included by a few other Qt libraries via QtCore/qglobal_p.h.
+#
+# See the .in file for more information.
+#
+private/hxx{qtcore-config_p}: private/in{qtcore-config_p}
+{
+  QT_FEATURE_futimens   = ($windows ? -1 : 1)
+  QT_FEATURE_getauxval  = ($linux ? 1 : -1)
+  QT_FEATURE_getentropy = ($windows || $netbsd ? -1 : 1)
+  QT_FEATURE_glibc      = ($linux ? 1 : -1)
+  QT_FEATURE_inotify    = ($linux ? 1 : -1)
+  QT_FEATURE_linkat     = ($linux ? 1 : -1)
+  QT_FEATURE_renameat2  = ($linux ? 1 : -1)
+  QT_FEATURE_syslog     = ($windows ? -1 : 1)
+
+  QT_FEATURE_poll_select = -1
+  QT_FEATURE_poll_ppoll  = ($linux || $freebsd || $openbsd ? 1 : -1)
+  QT_FEATURE_poll_poll   = ($macos ? 1 : -1)
+  QT_FEATURE_poll_pollts = ($netbsd ? 1 : -1)
+}
+
+# Provides information relating to installation paths. Included only by
+# corelib/global/qlibraryinfo.cpp which implements the QLibraryInfo class (see
+# https://doc.qt.io/qt-5/qlibraryinfo.html).
+#
+# See the .in file for more information.
+#
+global/cxx{qconfig}: global/in{qconfig}
+{
+  # @@ TODO Generate the offsets in qt_configure_str_offsets[] in
+  #    global/qconfig.cpp based on the lengths of the variable values.
+
+  install_prefix = ($config.install.root != [null]      \
+                    ? $config.install.root              \
+                    : $out_root)
+
+  docdir     = $(doc{foo}: install)
+  includedir = $(h{foo}: install)
+  libdir     = $(libs{foo}: install)
+  bindir     = $(exe{foo}: install)
+  libexecdir = ($windows ? bin : libexec)
+  # Ignored on Windows.
+  #
+  settingspath = ($macos ? /Library/Preferences/Qt : etc/xdg)
+}
 
 # Build options.
 #
-cxx.poptions =+ "-I$out_root" "-I$src_root"
+cxx.poptions =+ "-I$out_root" "-I$src_root"                     \
+                "-I$out_root/QtCore" "-I$src_root/QtCore"       \
+                "-I$out_root/QtCore/private" "-I$src_root/QtCore/private"
 
-{hbmia obja}{*}: cxx.poptions += -DQTCORE_STATIC_BUILD
-{hbmis objs}{*}: cxx.poptions += -DQTCORE_SHARED_BUILD
+# @@ TODO When we do corelib/global/: QFLOAT16_INCLUDE_FAST: affects
+#    global/qfloat16.cpp. May require inclusion of qfloat16_f16c.c. Also see:
+#    QT_COMPILER_SUPPORTS_F16C in qconfig.h.in; global/global.pri.
+#
+cxx.poptions += -DQT_BUILDING_QT -DQT_BUILD_CORE_LIB            \
+                -DQT_NO_LINKED_LIST                             \
+                -DQT_NO_JAVA_STYLE_ITERATORS                    \
+                -DQT_NO_USING_NAMESPACE                         \
+                -DQT_NO_FOREACH                                 \
+                -DQT_NO_NARROWING_CONVERSIONS_IN_CONNECT        \
+                -DQT_ASCII_CAST_WARNINGS                        \
+                -DQT_MOC_COMPAT                                 \
+                -DQT_USE_QSTRINGBUILDER                         \
+                -DQT_DEPRECATED_WARNINGS                        \
+                -D_REENTRANT                                    \
+                -DQT_DEPRECATED_WARNINGS_SINCE=0x060000
+
+# @@ TODO -DQT_NO_DEBUG (as one would expect, upstream defines it for release
+#    builds).
+#
+
+if $windows
+{
+  cxx.poptions += -DQT_DISABLE_DEPRECATED_BEFORE=0x040800       \
+                  -D_CRT_SECURE_NO_WARNINGS                     \
+                  -D_USE_MATH_DEFINES                           \
+                  -DUNICODE                                     \
+                  -D_UNICODE                                    \
+                  -DWIN32
+}
+else
+{
+  cxx.poptions += -DQT_DISABLE_DEPRECATED_BEFORE=0x050000 \
+                  -DQT_NO_CAST_TO_ASCII
+
+  if $unix
+    cxx.poptions += -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE
+}
+
+# Add platform-specific header directories, libraries, compilation options,
+# and macro definitions.
+#
+# Every directory under mkspecs/ contains a unique `qplatformdefs.h`.
+#
+# Note that Mac OS with GCC is not supported by upstream (see README-DEV for
+# details).
+#
+switch $cxx.target.class, $cxx.id, $cxx.target.system
+{
+  case 'linux', 'gcc'
+    cxx.poptions += "-I$src_root/QtCore/mkspecs/linux-g++"
+  case 'linux', 'clang'
+    cxx.poptions += "-I$src_root/QtCore/mkspecs/linux-clang"
+  case 'macos', 'clang-apple'
+  {
+    cxx.poptions += "-I$src_root/QtCore/mkspecs/macx-clang"
+    cxx.libs     += -framework AppKit          \
+                    -framework CoreServices    \
+                    -framework Foundation      \
+                    -framework IOKit
+  }
+  case 'bsd', 'clang', 'freebsd'
+    cxx.poptions += "-I$src_root/QtCore/mkspecs/freebsd-clang"
+  case 'bsd', 'gcc', 'openbsd'
+    cxx.poptions += "-I$src_root/QtCore/mkspecs/openbsd-g++"
+  case 'bsd', 'gcc', 'netbsd'
+    cxx.poptions += "-I$src_root/QtCore/mkspecs/netbsd-g++"
+  case 'windows', 'msvc'
+  {
+    cxx.poptions += "-I$src_root/QtCore/mkspecs/win32-msvc" \
+                    -D_ENABLE_EXTENDED_ALIGNED_STORAGE
+
+    cxx.libs += ole32.lib advapi32.lib shell32.lib netapi32.lib
+  }
+  case 'windows', 'msvc-clang' | 'clang'
+  {
+    cxx.poptions += "-I$src_root/QtCore/mkspecs/win32-clang-msvc" \
+                    -D_ENABLE_EXTENDED_ALIGNED_STORAGE
+
+    cxx.libs += ole32.lib advapi32.lib shell32.lib netapi32.lib version.lib
+  }
+  case 'windows', 'gcc', 'mingw32'
+  {
+    cxx.poptions += "-I$src_root/QtCore/mkspecs/win32-g++" \
+                    -DMINGW_HAS_SECURE_API=1
+    cxx.coptions += -fno-keep-inline-dllexport
+    cxx.libs     += -lole32 -ladvapi32 -lshell32 -lnetapi32 -lversion \
+                    -luuid
+  }
+}
 
 # Export options.
 #
 lib{Qt5Core}:
 {
-  cxx.export.poptions = "-I$out_root" "-I$src_root"
+  cxx.export.poptions = "-I$out_root" "-I$src_root"     \
+                        "-I$out_root/QtCore" "-I$src_root/QtCore"
   cxx.export.libs = $intf_libs
 }
-
-liba{Qt5Core}: cxx.export.poptions += -DQTCORE_STATIC
-libs{Qt5Core}: cxx.export.poptions += -DQTCORE_SHARED
 
 # For pre-releases use the complete version to make sure they cannot be used
 # in place of another pre-release or the final version. See the version module
@@ -31,11 +477,10 @@ if $version.pre_release
 else
   lib{Qt5Core}: bin.lib.version = "-$version.major.$version.minor"
 
-# Install into the QtCore/ subdirectory of, say, /usr/include/
-# recreating subdirectories.
+# Install public headers into the QtCore/ subdirectory of, say, /usr/include/.
 #
+private/hxx{*}: install = false
 hxx{*}:
 {
-  install         = include/QtCore/
-  install.subdirs = true
+  install = include/QtCore/
 }

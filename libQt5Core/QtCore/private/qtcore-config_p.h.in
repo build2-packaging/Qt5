@@ -1,0 +1,113 @@
+// "Provides support for parsing date-time texts."
+//
+#define QT_FEATURE_datetimeparser 1
+
+// Basis for Islamic calendar (shared locale data).
+//
+#define QT_FEATURE_hijricalendar 1
+
+// "Built-in copy of the MIME database"
+//
+#define QT_FEATURE_mimetype_database 1
+
+// @@ TMP Widely supported.
+//
+#define QT_FEATURE_clock_gettime 1
+
+// This library provides routines to convert IEEE single and double floats to
+// and from string representations.
+//
+// @@ TMP If `doubleconversion` is 1 and `system_doubleconversion` is 1 then
+//    the system-installed doubleconversion library is used; if it's -1 then
+//    the Qt-bundled doubleconversion library is used.
+//
+// @@ TODO Package this?
+//
+// #define QT_FEATURE_doubleconversion 1
+// #define QT_FEATURE_system_doubleconversion 1
+
+// @@ futimens takes precedence over futimes so always disable the latter.
+//
+// @@ TMP Both futime*s are supported on MacOS, Linux, FreeBSD, OpenBSD, and
+//    NetBSD.
+//
+#define QT_FEATURE_futimens $QT_FEATURE_futimens$
+#define QT_FEATURE_futimes -1
+
+// @@ TMP Linux only.
+//
+#define QT_FEATURE_getauxval $QT_FEATURE_getauxval$
+
+// @@ TMP Linux, FreeBSD, OpenBSD, MacOS. NetBSD is looking at it:
+// https://mail-index.netbsd.org/tech-userlevel/2020/05/02/msg012333.html
+//
+#define QT_FEATURE_getentropy $QT_FEATURE_getentropy$
+
+#define QT_FEATURE_glibc $QT_FEATURE_glibc$
+
+// @@ TMP It's a compiled test in upstream build but inotify() is only
+//        supported by Linux as far as I can tell.
+//
+#define QT_FEATURE_inotify $QT_FEATURE_inotify$
+
+// @@ TMP Supported on Linux, FreeBSD, OpenBSD, NetBSD, MacOS but currently
+//    only used if on Linux.
+//
+#define QT_FEATURE_linkat $QT_FEATURE_linkat$
+
+// Always enabled because these are available as build2 packages.
+//
+#define QT_FEATURE_icu 1
+#define QT_FEATURE_system_pcre2 1
+
+// Disabled upstream if ICU is used.
+//
+// @@ Remember QT_NO_ICONV in qtcore-config.h.in.
+//
+#define QT_FEATURE_iconv -1
+#define QT_FEATURE_posix_libiconv -1
+#define QT_FEATURE_gnu_libiconv -1
+
+#define QT_FEATURE_poll_ppoll $QT_FEATURE_poll_ppoll$
+#define QT_FEATURE_poll_poll $QT_FEATURE_poll_poll$
+#define QT_FEATURE_poll_pollts $QT_FEATURE_poll_pollts$
+#define QT_FEATURE_poll_select $QT_FEATURE_poll_select$
+
+// @@ TMP Added to Linux 3.15 (2017) and glibc in 2018.
+//
+#define QT_FEATURE_renameat2 $QT_FEATURE_renameat2$
+
+// Optimizes SHA3 for speed instead of size.
+//
+// @@ TMP Not conditional in upstream build always enable.
+//
+#define QT_FEATURE_sha3_fast 1
+
+// Logging library for QNX only so always disable.
+//
+#define QT_FEATURE_slog2 -1
+
+// @@ TMP We enable syslog on all non-Windows platforms in libboost-log but
+//    the upstream build disables autodetection (doesn't run its test) and so
+//    this feature was left disabled. Looking at the upstream code it should
+//    work as expected if we enable this.
+//
+#define QT_FEATURE_syslog $QT_FEATURE_syslog$
+
+// @@ TMP Need to have systemd development headers installed (libsystemd-dev
+//    on Debian). Can't assume it's present on all Linuxes (wasn't on mine)
+//    and only way to detect is to compile a program (see upstream build) so
+//    always disable.
+//
+#define QT_FEATURE_journald -1
+
+// @@ The statx(2) syscall was added in Linux 4.11 in 2017 and statx() was
+//    added to glibc 2.28 in 2018 so disable it for now.
+//
+#define QT_FEATURE_statx -1
+
+// Features we have decided not to enable.
+//
+#define QT_FEATURE_glib -1
+#define QT_FEATURE_etw -1   // Event tracing (Windows).
+#define QT_FEATURE_lttng -1 // Event tracing (Linux).

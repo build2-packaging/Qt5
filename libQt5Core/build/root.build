@@ -3,6 +3,7 @@ using in
 cxx.std = latest
 
 using cxx
+using in
 
 hxx{*}: extension = h
 cxx{*}: extension = cpp

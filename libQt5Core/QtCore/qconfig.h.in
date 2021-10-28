@@ -1,0 +1,148 @@
+// @@ TMP RE commented-out QT_FEATURE_* lines: if the build succeeds then
+//    these features are not referenced in the code (see QT_CONFIG() in
+//    qglobal.h) so leave as many as possible commented-out until we've
+//    packaged all Qt libraries, at which point the remaining commented-out
+//    lines can be deleted.
+
+#define QT_VERSION_STR "$QT_VERSION_STR$"
+#define QT_VERSION_MAJOR $QT_VERSION_MAJOR$
+#define QT_VERSION_MINOR $QT_VERSION_MINOR$
+#define QT_VERSION_PATCH $QT_VERSION_PATCH$
+
+// @@ If removing this definition remember to update QT_FEATURE_dbus and
+//    QT_FEATURE_dbus_linked in qconfig_p.h.in.
+//
+#define QT_NO_DBUS
+
+// Note that this macro is not directly related to the _LARGEFILE_SOURCE or
+// _LARGEFILE64_SOURCE macros -- those are UNIX-only while this macro applies
+// to all platforms.
+//
+#define QT_LARGEFILE_SUPPORT 64
+
+// If true and on a non-Windows platform, sets the values of the
+// Q_DECL_EXPORT, Q_DECL_IMPORT, and Q_DECL_HIDDEN macros to the corresponding
+// values of the GCC `visibility` attribute, otherwise they are left
+// undefined. On Windows this macro is ignored.
+//
+#define QT_VISIBILITY_AVAILABLE true
+
+// #define QT_FEATURE_shared 1
+// #define QT_FEATURE_static -1
+#define QT_FEATURE_framework $QT_FEATURE_framework$ // Mac OS frameworks.
+// #define QT_FEATURE_simulator_and_device -1
+// #define QT_FEATURE_debug_and_release -1
+// #define QT_FEATURE_force_asserts -1
+// #define QT_FEATURE_build_all -1
+// #define QT_FEATURE_separate_debug_info -1
+// #define QT_FEATURE_cross_compile -1
+// #define QT_FEATURE_rpath 1
+// #define QT_FEATURE_pkg_config -1
+
+// @@ TMP Widely supported as far as I can tell.
+//
+#define QT_FEATURE_signaling_nan 1
+
+// This macro indicates that the compiler doesn't need special options to
+// enable SSE/AVX/NEON intrinsics and/or code generation.
+//
+// Some source files, such as corelib/tools/qhash.cpp, are not compiled with
+// the special options and so they do not build their optimized code unless
+// this macro is 1. Other source files (only a few) are dedicated to SSE/AVX
+// and compiled with the special options and are therefore not affected by
+// this macro. See qtbase/src/corelib/tools/qsimd_p.h for some informative
+// comments. (Not all files follow the recommendations in that header,
+// however.)
+//
+// @@ According to qtbase/src/corelib/tools/qsimd_p.h, MSVC and GCC >= 4.9
+//    (2014) do not need the special options (and assume the same is true for
+//    Clang).
+//
+//    @@ TMP Otherwise we'll have to add the options for the files that need
+//       them (of which there aren't many so it shouldn't be a problem).
+//
+#define QT_COMPILER_SUPPORTS_SIMD_ALWAYS 1
+
+// According to qtbase/src/corelib/tools/qsimd_p.h, the following macros
+// indicate that the compiler supports the necessary options and headers for
+// the SSE and AVX intrinsics, and this is true for all versions of MSVC and
+// GCC supported upstream; assume the same is true for Clang.
+//
+// @@ Upstream sets these based on compilation tests, one for each macro. All
+//    tests use the code in upstream/qtbase/config.tests/x86_simd/main.cpp,
+//    compiled once for each test with distinct options (for example -msse2;
+//    search for `qtConfTest_x86Simd` (QT_COMPILER_SUPPORTS_{SSE*,AVX*}) and
+//    `qtConfTest_x86SimdAlways` (QT_COMPILER_SUPPORTS_SIMD_ALWAYS) in
+//    upstream/qtbase/configure.pri and see qtbase/configure.json). To find
+//    the compiler options used, grep under upstream/qtbase/ for
+//    `QMAKE_CFLAGS_FOO` where FOO is SSE2, SSE3, AVX2, etc.
+//
+#define QT_COMPILER_SUPPORTS_SSE2 $compiler_supports_sse_avx$
+#define QT_COMPILER_SUPPORTS_SSE3 $compiler_supports_sse_avx$
+#define QT_COMPILER_SUPPORTS_SSSE3 $compiler_supports_sse_avx$
+#define QT_COMPILER_SUPPORTS_SSE4_1 $compiler_supports_sse_avx$
+#define QT_COMPILER_SUPPORTS_SSE4_2 $compiler_supports_sse_avx$
+#define QT_COMPILER_SUPPORTS_AVX $compiler_supports_sse_avx$
+#define QT_COMPILER_SUPPORTS_AVX2 $compiler_supports_sse_avx$
+#define QT_COMPILER_SUPPORTS_AVX512F $compiler_supports_sse_avx$
+#define QT_COMPILER_SUPPORTS_AVX512BW $compiler_supports_sse_avx$
+#define QT_COMPILER_SUPPORTS_AVX512CD $compiler_supports_sse_avx$
+#define QT_COMPILER_SUPPORTS_AVX512DQ $compiler_supports_sse_avx$
+#define QT_COMPILER_SUPPORTS_AVX512ER $compiler_supports_sse_avx$
+#define QT_COMPILER_SUPPORTS_AVX512IFMA $compiler_supports_sse_avx$
+#define QT_COMPILER_SUPPORTS_AVX512PF $compiler_supports_sse_avx$
+#define QT_COMPILER_SUPPORTS_AVX512VBMI $compiler_supports_sse_avx$
+#define QT_COMPILER_SUPPORTS_AVX512VL $compiler_supports_sse_avx$
+
+// Compiler supports AES intrinsics.
+//
+// @@ Uses the AES-NI instructions which are widely supported in CPUs (since
+//    2009 for Intel; also "latest" ARM and SPARC processors) and most modern
+//    compilers (according to Wikipedia). First added to GCC 4.4.7 (2012).
+//
+#define QT_COMPILER_SUPPORTS_AES 1
+
+// Floating-point instructions (conversion between half- and single-precision
+// formats).
+//
+// @@ Intel since Ivy Bridge (2012); AMD since Bulldozer (2011). Added to GCC
+//    4.6.4 (2013) at the latest.
+//
+#define QT_COMPILER_SUPPORTS_F16C $QT_COMPILER_SUPPORTS_F16C$
+
+// #define QT_FEATURE_c__11 1
+// #define QT_FEATURE_c__14 1
+// #define QT_FEATURE_c__17 1
+// #define QT_FEATURE_c__1z 1
+// #define QT_FEATURE_c__2a -1
+// #define QT_FEATURE_c99 1
+// #define QT_FEATURE_c11 1
+
+#define QT_FEATURE_thread 1
+
+// #define QT_FEATURE_future 1
+// #define QT_FEATURE_concurrent 1
+
+// #define QT_COMPILER_SUPPORTS_RDRND 1
+// #define QT_COMPILER_SUPPORTS_RDSEED 1
+
+// "Disables code that is not allowed in platform app stores"
+//
+#define QT_FEATURE_appstore_compliant -1
+
+// @@ If this macro is enabled, remember QT_FEATURE_reduce_relocations in
+//    qconfig_p.h.in. (However, given that all that feature does is cause
+//    -Bsymbolic-functions to be passed to the linker we probably won't ever
+//    want to enable it.)
+//
+// #define QT_REDUCE_RELOCATIONS true
+
+// Compiler supports SHA intrinsics.
+//
+// @@ TMP First added to GCC 4.9.0 (2014). Only supported by a few of Intel's
+//    mobile and Xeon processors and only Zen in the case of AMD (so a simple
+//    architecture check won't do).
+//
+//    Also not referenced anywhere but qtbase/configure.json.
+//
+// #define QT_COMPILER_SUPPORTS_SHA 1

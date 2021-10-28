@@ -1,3 +1,5 @@
+#include <QtCore/QtCoreVersion>
+
 int
 main ()
 {
