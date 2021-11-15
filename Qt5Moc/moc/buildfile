@@ -234,7 +234,8 @@ if $windows
 else
   cxx.poptions += -DQT_DISABLE_DEPRECATED_BEFORE=0x050000
 
-# Add platform-specific header directories.
+# Add platform-specific header directories, libraries, compilation options,
+# and macro definitions.
 #
 # Every directory under mkspecs/ contains a unique `qplatformdefs.h`.
 #
