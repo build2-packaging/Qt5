@@ -451,14 +451,15 @@ private/hxx{qtcore-config_p}: private/in{qtcore-config_p}
 #
 #    Same situation as above in Qt6.
 #
-global/cxx{qconfig}: global/in{qconfig}
+
+global/cxx{qconfig-install}
 {
   # @@ TODO Generate the offsets in qt_configure_str_offsets[] in
   #    global/qconfig.cpp based on the lengths of the variable values.
 
-  install_prefix = ($config.install.root != [null]      \
-                    ? $config.install.root              \
-                    : $out_root)
+  prefix = ($config.install.root != [null]      \
+            ? $config.install.root              \
+            : $out_root)
 
   # Values.
   #
@@ -475,7 +476,36 @@ global/cxx{qconfig}: global/in{qconfig}
   translations = [path] translations
   examples     = [path] examples
   tests        = [path] tests
+}
 
+global/cxx{qconfig-develop}
+{
+  # @@ TODO Generate the offsets in qt_configure_str_offsets[] in
+  #    global/qconfig.cpp based on the lengths of the variable values.
+
+  prefix = ($config.install.root != [null]      \
+            ? $config.install.root              \
+            : $out_root)
+
+  # Values.
+  #
+  doc          = [path] doc
+  incl         = [path] include
+  lib          = [path] lib
+  libexec      = [path] ($windows ? bin : libexec)
+  bin          = [path] bin
+  plugins      = [path] plugins
+  imports      = [path] imports
+  qml          = [path] qml
+  arch_data    = [path] .
+  data         = [path] .
+  translations = [path] translations
+  examples     = [path] examples
+  tests        = [path] tests
+}
+
+global/cxx{qconfig-install qconfig-develop}: global/in{qconfig}
+{
   # Offsets.
   #
   o_doc            = [uint64] 0
