@@ -393,6 +393,32 @@ global/cxx{qconfig}: global/in{qconfig}
                     ? $config.install.root              \
                     : $out_root)
 
+  # Values.
+  #
+  doc     = [path] doc
+  include = [path] include
+  lib     = [path] lib
+  libexec =
+  bin =
+  plugins =
+  imports =
+  qml =
+  arch_data = .
+  data = .
+  translations =
+  examples =
+  tests =
+
+  # Offsets.
+  #
+  o_doc      = [uint64] 0
+  o_include  = $size($doc)
+  o_include += 1
+  o_include += $o_doc
+  o_lib      = $size($include)
+  o_lib     += 1
+  o_lib     += $o_include
+
   docdir     = $(doc{foo}: install)
   includedir = $(h{foo}: install)
   libdir     = $(libs{foo}: install)
