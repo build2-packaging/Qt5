@@ -384,6 +384,73 @@ private/hxx{qtcore-config_p}: private/in{qtcore-config_p}
 #
 # See the .in file for more information.
 #
+# @@ TMP
+#
+#    Inside qlibraryinfo.cpp:
+#
+#      lib/: user calls location(QLibraryInfo::PrefixPath) ("The default prefix
+#           for all paths.") on Windows (and Linux if libQtCore.so is installed
+#           below `lib`); Qt looks up
+#           qt_configure_str_offsets[QLibraryInfo::LibrariesPath - 1]; Starting
+#           point is directory containing libQtCore.so.
+#
+#             getRelocatablePrefix
+#             getPrefix
+#             location(QLibraryInfo::PrefixPath)
+#
+#      *: user calls location(QLibraryInfo::*)
+#
+#      lib/, plugins: to print QtCore info (copyright, Contact, etc.) when
+#      program starts.
+#
+#    Instances of location(QLibraryInfo::*) in upstream/:
+#
+#    gui/text/qplatformfontdatabase.cpp:408:
+#
+#      fontpath = QLibraryInfo::location(QLibraryInfo::LibrariesPath) +
+#        QLatin1String("/fonts");
+#
+#      In QtGui::QPlatformFontDatabase::fontDir(): "Returns the directory
+#      containing the fonts used by the database." Called to populate the font
+#      database.
+#
+#    plugins/platforms/windows/qwindowsopengltester.cpp:286:
+#
+#      const QString settingsPath =
+#        QLibraryInfo::location(QLibraryInfo::SettingsPath);
+#
+#      Looking for file specified by QT_OPENGL_BUGLIST envar ("specifying
+#      which OpenGL implementation to use depending on the graphics card and
+#      driver version") inside the QLibraryInfo::SettingsPath directory.
+#
+#    corelib/io/qsettings.cpp:1062:
+#
+#      QString systemPath = QLibraryInfo::location(QLibraryInfo::SettingsPath)
+#        + QLatin1Char('/');
+#
+#      QSettings building path at which to store Ini- and Native-formatted
+#      settings files on Mac or non-Windows.
+#
+#    corelib/kernel/qcoreapplication.cpp:2750:
+#
+#      QString installPathPlugins =
+#        QLibraryInfo::location(QLibraryInfo::PluginsPath);
+#
+#      Called from QCoreApplication::libraryPaths() "Returns a list of paths
+#      that the application will search when dynamically loading libraries."
+#
+#      libraryPaths() is called from the plugin loader in
+#      corelib/plugin/qpluginloader.cpp.
+#
+#    corelib/io/qloggingregistry.cpp:328:
+#
+#      QDir(QLibraryInfo::location(QLibraryInfo::DataPath)).absoluteFilePath(configFileName);
+#
+#      Loading logging rules from a file inside the QLibraryInfo::DataPath
+#      directory.
+#
+#    Same situation as above in Qt6.
+#
 global/cxx{qconfig}: global/in{qconfig}
 {
   # @@ TODO Generate the offsets in qt_configure_str_offsets[] in
