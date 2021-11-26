@@ -395,35 +395,66 @@ global/cxx{qconfig}: global/in{qconfig}
 
   # Values.
   #
-  doc     = [path] doc
-  include = [path] include
-  lib     = [path] lib
-  libexec =
-  bin =
-  plugins =
-  imports =
-  qml =
-  arch_data = .
-  data = .
-  translations =
-  examples =
-  tests =
+  doc          = [path] doc
+  incl         = [path] include
+  lib          = [path] lib
+  libexec      = [path] ($windows ? bin : libexec)
+  bin          = [path] bin
+  plugins      = [path] plugins
+  imports      = [path] imports
+  qml          = [path] qml
+  arch_data    = [path] .
+  data         = [path] .
+  translations = [path] translations
+  examples     = [path] examples
+  tests        = [path] tests
 
   # Offsets.
   #
-  o_doc      = [uint64] 0
-  o_include  = $size($doc)
-  o_include += 1
-  o_include += $o_doc
-  o_lib      = $size($include)
-  o_lib     += 1
-  o_lib     += $o_include
+  o_doc            = [uint64] 0
+  o_incl           = $size($doc)
+  o_incl          += 1
+  o_incl          += $o_doc
+  o_lib            = $size($incl)
+  o_lib           += 1
+  o_lib           += $o_incl
+  o_libexec        = $size($lib)
+  o_libexec       += 1
+  o_libexec       += $o_lib
+  o_bin            = $size($libexec)
+  o_bin           += 1
+  o_bin           += $o_libexec
+  o_plugins        = $size($bin)
+  o_plugins       += 1
+  o_plugins       += $o_bin
+  o_imports        = $size($plugins)
+  o_imports       += 1
+  o_imports       += $o_plugins
+  o_qml            = $size($imports)
+  o_qml           += 1
+  o_qml           += $o_imports
+  o_arch_data      = $size($qml)
+  o_arch_data     += 1
+  o_arch_data     += $o_qml
+  o_data           = $size($arch_data)
+  o_data          += 1
+  o_data          += $o_arch_data
+  o_translations   = $size($data)
+  o_translations  += 1
+  o_translations  += $o_data
+  o_examples       = $size($translations)
+  o_examples      += 1
+  o_examples      += $o_translations
+  o_tests          = $size($examples)
+  o_tests         += 1
+  o_tests         += $o_examples
 
-  docdir     = $(doc{foo}: install)
-  includedir = $(h{foo}: install)
-  libdir     = $(libs{foo}: install)
-  bindir     = $(exe{foo}: install)
-  libexecdir = ($windows ? bin : libexec)
+  # docdir     = $(doc{foo}: install)
+  # includedir = $(h{foo}: install)
+  # libdir     = $(libs{foo}: install)
+  # bindir     = $(exe{foo}: install)
+  # libexecdir = ($windows ? bin : libexec)
+
   # Ignored on Windows.
   #
   settingspath = ($macos ? /Library/Preferences/Qt : etc/xdg)

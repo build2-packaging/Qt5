@@ -16,34 +16,34 @@ static const char qt_configure_prefix_path_str  [12+256] = "qt_prfxpath=$install
 // @@ TODO Generate these offsets based on the lengths of the variable values.
 //
 static const short qt_configure_str_offsets[] = {
-    0,
-    4,
-    12,
-    16,
-    24,
-    28,
-    36,
-    44,
-    48,
-    50,
-    52,
-    65,
-    74
+    $o_doc$,
+    $o_incl$,
+    $o_lib$,
+    $o_libexec$,
+    $o_bin$,
+    $o_plugins$,
+    $o_imports$,
+    $o_qml$,
+    $o_arch_data$,
+    $o_data$,
+    $o_translations$,
+    $o_examples$,
+    $o_tests$
 };
 static const char qt_configure_strs[] =
-    "$docdir$\0"
-    "$includedir$\0"
-    "$libdir$\0"
-    "$libexecdir$\0"
-    "$bindir$\0"
-    "plugins\0"
-    "imports\0"
-    "qml\0"
-    ".\0"
-    ".\0"
-    "translations\0"
-    "examples\0"
-    "tests\0"
+    "$doc$\0"
+    "$incl$\0"
+    "$lib$\0"
+    "$libexec$\0"
+    "$bin$\0"
+    "$plugins$\0"
+    "$imports$\0"
+    "$qml$\0"
+    "$arch_data$\0"
+    "$data$\0"
+    "$translations$\0"
+    "$examples$\0"
+    "$tests$\0"
 ;
 #define QT_CONFIGURE_SETTINGS_PATH "$settingspath$"
 #define QT_CONFIGURE_LIBLOCATION_TO_PREFIX_PATH "../"
