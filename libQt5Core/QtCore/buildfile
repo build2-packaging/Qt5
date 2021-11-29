@@ -120,7 +120,9 @@ gen_hdr = qconfig       private/qconfig_p       \
 
 # Generated headers and source files.
 #
-lib{Qt5Core}: hxx{$gen_hdr} global/cxx{qconfig}
+lib{Qt5Core}: hxx{$gen_hdr}
+lib{Qt5Core}: global/cxx{qconfig-install}: for_install = true
+lib{Qt5Core}: global/cxx{qconfig-develop}: for_install = false
 
 # Platform-specific source files.
 #
@@ -378,135 +380,82 @@ private/hxx{qtcore-config_p}: private/in{qtcore-config_p}
   QT_FEATURE_poll_pollts = ($netbsd ? 1 : -1)
 }
 
-# Provides information relating to installation paths. Included only by
-# corelib/global/qlibraryinfo.cpp which implements the QLibraryInfo class (see
-# https://doc.qt.io/qt-5/qlibraryinfo.html).
+# global/qconfig.cpp:
 #
-# See the .in file for more information.
+# This file provides information relating to installation paths. It is
+# included only (so don't compile it) by global/qlibraryinfo.cpp. Upstream it
+# is generated in the configure step (qtbase/configure.pri).
 #
-# @@ TMP
+# See qconfig.cpp.in for more information.
 #
-#    Inside qlibraryinfo.cpp:
+# In order to support different installation paths for the installed and
+# uninstalled cases in build2 we turn qconfig.cpp into a real file (that is,
+# not generated) and turn its static variable and macro definitions into
+# extern variable declarations. Then we generate two source files,
+# qconfig-install.cpp and qconfig-develop.cpp, that define the variables to
+# values appropriate for the installed and uninstalled cases, respectively,
+# and we use (above) the `for_install` prerequisite-specific variable to
+# control which of the two gets linked in each case.
 #
-#      lib/: user calls location(QLibraryInfo::PrefixPath) ("The default prefix
-#           for all paths.") on Windows (and Linux if libQtCore.so is installed
-#           below `lib`); Qt looks up
-#           qt_configure_str_offsets[QLibraryInfo::LibrariesPath - 1]; Starting
-#           point is directory containing libQtCore.so.
-#
-#             getRelocatablePrefix
-#             getPrefix
-#             location(QLibraryInfo::PrefixPath)
-#
-#      *: user calls location(QLibraryInfo::*)
-#
-#      lib/, plugins: to print QtCore info (copyright, Contact, etc.) when
-#      program starts.
-#
-#    Instances of location(QLibraryInfo::*) in upstream/:
-#
-#    gui/text/qplatformfontdatabase.cpp:408:
-#
-#      fontpath = QLibraryInfo::location(QLibraryInfo::LibrariesPath) +
-#        QLatin1String("/fonts");
-#
-#      In QtGui::QPlatformFontDatabase::fontDir(): "Returns the directory
-#      containing the fonts used by the database." Called to populate the font
-#      database.
-#
-#    plugins/platforms/windows/qwindowsopengltester.cpp:286:
-#
-#      const QString settingsPath =
-#        QLibraryInfo::location(QLibraryInfo::SettingsPath);
-#
-#      Looking for file specified by QT_OPENGL_BUGLIST envar ("specifying
-#      which OpenGL implementation to use depending on the graphics card and
-#      driver version") inside the QLibraryInfo::SettingsPath directory.
-#
-#    corelib/io/qsettings.cpp:1062:
-#
-#      QString systemPath = QLibraryInfo::location(QLibraryInfo::SettingsPath)
-#        + QLatin1Char('/');
-#
-#      QSettings building path at which to store Ini- and Native-formatted
-#      settings files on Mac or non-Windows.
-#
-#    corelib/kernel/qcoreapplication.cpp:2750:
-#
-#      QString installPathPlugins =
-#        QLibraryInfo::location(QLibraryInfo::PluginsPath);
-#
-#      Called from QCoreApplication::libraryPaths() "Returns a list of paths
-#      that the application will search when dynamically loading libraries."
-#
-#      libraryPaths() is called from the plugin loader in
-#      corelib/plugin/qpluginloader.cpp.
-#
-#    corelib/io/qloggingregistry.cpp:328:
-#
-#      QDir(QLibraryInfo::location(QLibraryInfo::DataPath)).absoluteFilePath(configFileName);
-#
-#      Loading logging rules from a file inside the QLibraryInfo::DataPath
-#      directory.
-#
-#    Same situation as above in Qt6.
-#
+lib{Qt5Core}: global/cxx{qconfig}: include = false
 
-global/cxx{qconfig-install}
+# Installed case: Here the installation prefix is an absolute path and the
+# other paths are all relative (to the prefix).
+#
+global/cxx{qconfig-install}:
 {
-  # @@ TODO Generate the offsets in qt_configure_str_offsets[] in
-  #    global/qconfig.cpp based on the lengths of the variable values.
-
-  prefix = ($config.install.root != [null]      \
-            ? $config.install.root              \
-            : $out_root)
-
-  # Values.
+  # Values of the installation paths. Make the $install.* paths relative to
+  # $install.root.
   #
-  doc          = [path] doc
-  incl         = [path] include
-  lib          = [path] lib
-  libexec      = [path] ($windows ? bin : libexec)
-  bin          = [path] bin
-  plugins      = [path] plugins
-  imports      = [path] imports
-  qml          = [path] qml
-  arch_data    = [path] .
-  data         = [path] .
+  prefix  = [path] $install.root
+  doc     = [path] $regex.replace($install.resolve($install.doc),$prefix,'')
+  incl    = [path] $regex.replace($install.resolve($install.include),$prefix,'')
+  lib     = [path] $regex.replace($install.resolve($install.lib),$prefix,'')
+  bin     = [path] $regex.replace($install.resolve($install.bin),$prefix,'')
+  libexec = [path] $regex.replace(\
+                     ($windows ? $bin : $install.resolve($install.libexec)),\
+                     $prefix,'')
+  plugins = [path] $lib
+  imports = [path] $lib
+  qml     = [path] $lib
+  data    = [path] $regex.replace($install.resolve($install.data),$prefix,'')
+  arch_data    = [path] $data
   translations = [path] translations
   examples     = [path] examples
   tests        = [path] tests
 }
 
-global/cxx{qconfig-develop}
+# Uninstalled case: Here the installation prefix is / and the other
+# directories are all absolute paths (because the source and output
+# directories may not have a longer common prefix).
+#
+global/cxx{qconfig-develop}:
 {
-  # @@ TODO Generate the offsets in qt_configure_str_offsets[] in
-  #    global/qconfig.cpp based on the lengths of the variable values.
-
-  prefix = ($config.install.root != [null]      \
-            ? $config.install.root              \
-            : $out_root)
-
-  # Values.
+  # Values of the installation paths.
   #
-  doc          = [path] doc
-  incl         = [path] include
-  lib          = [path] lib
-  libexec      = [path] ($windows ? bin : libexec)
-  bin          = [path] bin
-  plugins      = [path] plugins
-  imports      = [path] imports
-  qml          = [path] qml
-  arch_data    = [path] .
-  data         = [path] .
-  translations = [path] translations
-  examples     = [path] examples
-  tests        = [path] tests
+  prefix       = [path] /
+  doc          = [path] $out_root/doc
+  incl         = [path] $src_root
+  lib          = [path] $out_root
+  libexec      = [path] $out_root
+  bin          = [path] $out_root
+  plugins      = [path] $out_root/plugins
+  imports      = [path] $out_root
+  qml          = [path] $out_root
+  arch_data    = [path] $src_root
+  data         = [path] $src_root
+  translations = [path] $out_root/translations
+  examples     = [path] $src_root/examples
+  tests        = [path] $src_root/tests
 }
 
+# Installed and uninstalled cases.
+#
 global/cxx{qconfig-install qconfig-develop}: global/in{qconfig}
 {
-  # Offsets.
+  # The offsets of the beginning of each substring within the
+  # qt_configure_strs string which contains the installation path values
+  # defined above.
   #
   o_doc            = [uint64] 0
   o_incl           = $size($doc)
@@ -546,13 +495,48 @@ global/cxx{qconfig-install qconfig-develop}: global/in{qconfig}
   o_tests         += 1
   o_tests         += $o_examples
 
-  # docdir     = $(doc{foo}: install)
-  # includedir = $(h{foo}: install)
-  # libdir     = $(libs{foo}: install)
-  # bindir     = $(exe{foo}: install)
-  # libexecdir = ($windows ? bin : libexec)
+  # A path appended to the path of the directory containing the installed
+  # QtCore library to get to the prefix path.
+  #
+  # For example, if the prefix is /usr/local and the library is installed in
+  # /usr/local/lib, upstream would do "/usr/local/lib" + "/" + "../" to get
+  # "/usr/local". Replace every directory name in $lib with `..` to get the
+  # relative path.
+  #
+  # @@ TMP Looks like regex.replace() works as expected but the assignment
+  #        modifies the result (instead of upstream's single trailing slash we
+  #        end up with two or none).
+  #
+  #    $ sed -E 's%/?[^/]+%../%g' <<<"/foo/bar"
+  #    ../../
+  #    $regex.replace(/foo/bar,'/?[^/]+','../')
+  #    ../../
+  #
+  #    With path = /foo/bar:
+  #
+  #    lib_to_prefix = [string] $regex.replace(/foo/bar,'/?[^/]+','../')
+  #    ../../
+  #    lib_to_prefix = [path] $regex.replace(/foo/bar,'/?[^/]+','../')
+  #    ../..
+  #
+  #    With path = $lib (real value: /tmp/installed (no trailing slash))
+  #
+  #    lib_to_prefix = [string] $regex.replace($lib,'/?[^/]+','../')
+  #    ../..//
+  #    lib_to_prefix = [path] $regex.replace($lib,'/?[^/]+','../')
+  #    ../..
+  #
+  #    @@ TODO Currently working around this with "$lib_to_prefix$/" (trailing
+  #       slash) in qconfig.cpp.in. However I have since discovered that
+  #       upstream always appends a slash to this value so they end up with
+  #       double slashes, but then pass it through QtDir::cleanPath() which
+  #       would presumably remove the redundant slash. So it's likely that
+  #       none of this even matters.
+  #
+  lib_to_prefix = [path] $regex.replace($lib,'/?[^/]+','../')
 
-  # Ignored on Windows.
+  # The directory path containing user application settings. Ignored on
+  # Windows where the registry is used instead.
   #
   settingspath = ($macos ? /Library/Preferences/Qt : etc/xdg)
 }
