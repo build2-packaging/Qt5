@@ -408,6 +408,16 @@ global/cxx{qconfig-install}:
   # $install.root.
   #
   prefix  = [path] $install.root
+  # @@ TMP On Windows we get:
+  #
+  #    error: invalid argument: invalid regex 'C:\install\': the expression
+  #    contained an invalid escaped character, or a trailing escape
+  #
+  #    dist\libQt5Core-5.15.3-a.0.20211201141206.b22306bb6d59\QtCore\buildfile:411:21:
+  #    info: while calling regex.replace(dir_path, <untyped>, <untyped>)
+  #
+  #    Not sure what to do.
+  #
   doc     = [path] $regex.replace($install.resolve($install.doc),$prefix,'')
   incl    = [path] $regex.replace($install.resolve($install.include),$prefix,'')
   lib     = [path] $regex.replace($install.resolve($install.lib),$prefix,'')
