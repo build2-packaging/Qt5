@@ -154,7 +154,7 @@ obja{~'/(.*).a/'}: mm{~'/\1/'} libua{Qt5CoreMeta}
   dep_poptions = $cxx.lib_poptions(libua{Qt5CoreMeta}, obja)
   depdb hash $dep_poptions
   depdb dyndep "-I$out_root/QtCore" "-I$src_root/QtCore"                \
-               --what=header --default-prereq-type=h                    \
+               --what=header --default-type=h                           \
                -- $cxx.path $cc.poptions $cxx.poptions $dep_poptions    \
                   $cc.coptions $cxx.coptions $cxx.mode -M -MG $path($<[0])
   diag obj-c++ ($<[0])
@@ -168,7 +168,7 @@ objs{~'/(.*).so/'}: mm{~'/\1/'} libus{Qt5CoreMeta}
   dep_poptions = $cxx.lib_poptions(libus{Qt5CoreMeta}, objs)
   depdb hash $dep_poptions
   depdb dyndep "-I$out_root/QtCore" "-I$src_root/QtCore"                \
-               --what=header --default-prereq-type=h                    \
+               --what=header --default-type=h                           \
                -- $cxx.path $cc.poptions $cxx.poptions $dep_poptions    \
                   $cc.coptions $cxx.coptions $cxx.mode -M -MG $path($<[0])
   diag obj-c++ ($<[0])
