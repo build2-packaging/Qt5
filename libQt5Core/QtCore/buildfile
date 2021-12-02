@@ -261,13 +261,19 @@ for s: cxx{$moc_src} mm{$moc_mm}
 #
 # Note that hxx{moc_predefs} must always be in position 1.
 #
-# @@ TODO: use depdb-dyndep --byproduct once available.
-#
 <cxx{~'/moc_(.*)/'}>: hxx{~'/\1/'} hxx{moc_predefs $gen_hdr} $moc
 {{
+  o = $path($>[0])
+  t = $(t).t
+
+  depdb dyndep --byproduct --what=header --default-type=h --file $t
+
   diag moc ($<[0])
-  $moc --include $path($<[1]) -f $name($<[0]).$extension($<[0]) \
-       $cc.poptions $cxx.poptions $path($<[0]) -o $path($>[0])
+
+  s = $path($<[0])
+
+  $moc --include $path($<[1]) $cc.poptions $cxx.poptions -f $leaf($s) \
+    --output-dep-file --dep-file-path $t -o $o $s
 }}
 
 # Rule to run moc on a source file.
@@ -435,23 +441,23 @@ global/cxx{qconfig-install}:
   #
   # For example, if the prefix is /usr/local and the library is installed in
   # /usr/local/lib, upstream would do "/usr/local/lib" + "/" + "../" to get
-  # "/usr/local". Replace every directory name in $lib with `..` to get the
-  # relative path.
+  # "/usr/local".
   #
   lib_to_prefix = [dir_path] ($i ? $relative($prefix, $install.resolve($install.lib)) : .)
 }
 
-# Uninstalled case: Here the installation prefix is / and the other
-# directories are all absolute paths (because the source and output
+# Uninstalled case: Here the installation prefix is the filesystem root and
+# the other directories are all absolute paths (because the source and output
 # directories may not have a longer common prefix).
 #
+assert ($root_directory($out_root) == $root_directory($src_root)) \
+  "out_root and src_root must have common filesystem root"
+
 global/cxx{qconfig-develop}:
 {
   # Values of the installation paths.
   #
   prefix       = [dir_path] $root_directory($out_root)
-  # @@ TMP Won't the slash be a problem on Windows?
-  #
   doc          = [dir_path] $out_root/doc
   incl         = [dir_path] $src_root
   lib          = [dir_path] $out_root
