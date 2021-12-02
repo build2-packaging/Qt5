@@ -410,28 +410,35 @@ lib{Qt5Core}: global/cxx{qconfig}: include = adhoc
 #
 global/cxx{qconfig-install}:
 {
-  i = ($install.root != [null]
+  i = ($install.root != [null])
 
   # Values of the installation paths. Make the $install.* paths relative to
   # $install.root.
   #
-  prefix  = [path] ($i ? $install.root : .) # @@ TODO: other places
+  prefix       = [dir_path] ($i ? $install.root : .)
+  doc          = [dir_path] ($i ? $leaf($install.resolve($install.doc), $prefix) : .)
+  incl         = [dir_path] ($i ? $leaf($install.resolve($install.include), $prefix) : .)
+  lib          = [dir_path] ($i ? $leaf($install.resolve($install.lib), $prefix) : .)
+  bin          = [dir_path] ($i ? $leaf($install.resolve($install.bin), $prefix) : .)
+  libexec      = [dir_path] ($i ? $leaf($windows ? $bin : $install.resolve($install.libexec), $prefix) : .)
+  plugins      = [dir_path] $lib
+  imports      = [dir_path] $lib
+  qml          = [dir_path] $lib
+  data         = [dir_path] ($i ? $leaf($install.resolve($install.data), $prefix) : .)
+  arch_data    = [dir_path] $data
+  translations = [dir_path] translations
+  examples     = [dir_path] examples
+  tests        = [dir_path] tests
 
-  doc     = [path] $regex.replace($install.resolve($install.doc),$prefix,'')
-  incl    = [path] $regex.replace($install.resolve($install.include),$prefix,'')
-  lib     = [path] $regex.replace($install.resolve($install.lib),$prefix,'')
-  bin     = [path] $regex.replace($install.resolve($install.bin),$prefix,'')
-  libexec = [path] $regex.replace(\
-                     ($windows ? $bin : $install.resolve($install.libexec)),\
-                     $prefix,'')
-  plugins = [path] $lib
-  imports = [path] $lib
-  qml     = [path] $lib
-  data    = [path] $regex.replace($install.resolve($install.data),$prefix,'')
-  arch_data    = [path] $data
-  translations = [path] translations
-  examples     = [path] examples
-  tests        = [path] tests
+  # A path appended to the path of the directory containing the installed
+  # QtCore library to get to the prefix path.
+  #
+  # For example, if the prefix is /usr/local and the library is installed in
+  # /usr/local/lib, upstream would do "/usr/local/lib" + "/" + "../" to get
+  # "/usr/local". Replace every directory name in $lib with `..` to get the
+  # relative path.
+  #
+  lib_to_prefix = [dir_path] ($i ? $relative($prefix, $install.resolve($install.lib)) : .)
 }
 
 # Uninstalled case: Here the installation prefix is / and the other
@@ -442,68 +449,32 @@ global/cxx{qconfig-develop}:
 {
   # Values of the installation paths.
   #
-  # @@ TODO: make prefix $root().
+  prefix       = [dir_path] $root_directory($out_root)
+  # @@ TMP Won't the slash be a problem on Windows?
   #
-  prefix       = [path] /
-  doc          = [path] $out_root/doc
-  incl         = [path] $src_root
-  lib          = [path] $out_root
-  libexec      = [path] $out_root
-  bin          = [path] $out_root
-  plugins      = [path] $out_root/plugins
-  imports      = [path] $out_root
-  qml          = [path] $out_root
-  arch_data    = [path] $src_root
-  data         = [path] $src_root
-  translations = [path] $out_root/translations
-  examples     = [path] $src_root/examples
-  tests        = [path] $src_root/tests
+  doc          = [dir_path] $out_root/doc
+  incl         = [dir_path] $src_root
+  lib          = [dir_path] $out_root
+  libexec      = [dir_path] $out_root
+  bin          = [dir_path] $out_root
+  plugins      = [dir_path] $out_root/plugins
+  imports      = [dir_path] $out_root
+  qml          = [dir_path] $out_root
+  arch_data    = [dir_path] $src_root
+  data         = [dir_path] $src_root
+  translations = [dir_path] $out_root/translations
+  examples     = [dir_path] $src_root/examples
+  tests        = [dir_path] $src_root/tests
+
+  # See comment in the installed case above.
+  #
+  lib_to_prefix = [dir_path] $relative($prefix, $lib)
 }
 
 # Installed and uninstalled cases.
 #
 global/cxx{qconfig-install qconfig-develop}: global/in{qconfig}
 {
-  # A path appended to the path of the directory containing the installed
-  # QtCore library to get to the prefix path.
-  #
-  # For example, if the prefix is /usr/local and the library is installed in
-  # /usr/local/lib, upstream would do "/usr/local/lib" + "/" + "../" to get
-  # "/usr/local". Replace every directory name in $lib with `..` to get the
-  # relative path.
-  #
-  # @@ TMP Looks like regex.replace() works as expected but the assignment
-  #        modifies the result (instead of upstream's single trailing slash we
-  #        end up with two or none).
-  #
-  #    $ sed -E 's%/?[^/]+%../%g' <<<"/foo/bar"
-  #    ../../
-  #    $regex.replace(/foo/bar,'/?[^/]+','../')
-  #    ../../
-  #
-  #    With path = /foo/bar:
-  #
-  #    lib_to_prefix = [string] $regex.replace(/foo/bar,'/?[^/]+','../')
-  #    ../../
-  #    lib_to_prefix = [path] $regex.replace(/foo/bar,'/?[^/]+','../')
-  #    ../..
-  #
-  #    With path = $lib (real value: /tmp/installed (no trailing slash))
-  #
-  #    lib_to_prefix = [string] $regex.replace($lib,'/?[^/]+','../')
-  #    ../..//
-  #    lib_to_prefix = [path] $regex.replace($lib,'/?[^/]+','../')
-  #    ../..
-  #
-  #    @@ TODO Currently working around this with "$lib_to_prefix$/" (trailing
-  #       slash) in qconfig.cpp.in. However I have since discovered that
-  #       upstream always appends a slash to this value so they end up with
-  #       double slashes, but then pass it through QtDir::cleanPath() which
-  #       would presumably remove the redundant slash. So it's likely that
-  #       none of this even matters.
-  #
-  lib_to_prefix = [path] $regex.replace($lib,'/?[^/]+','../')
-
   # The directory path containing user application settings. Ignored on
   # Windows where the registry is used instead.
   #
@@ -554,7 +525,21 @@ global/cxx{qconfig-install qconfig-develop}: global/in{qconfig}
   # Escape backslashes on Windows. Note: must be done after offset
   # calculations.
   #
-  doc = $regex.replace($doc, '\', '\\')
+  doc          = [dir_path] $regex.replace($doc, '\\', '\\\\')
+  incl         = [dir_path] $regex.replace($incl, '\\', '\\\\')
+  lib          = [dir_path] $regex.replace($lib, '\\', '\\\\')
+  libexec      = [dir_path] $regex.replace($libexec, '\\', '\\\\')
+  bin          = [dir_path] $regex.replace($bin, '\\', '\\\\')
+  plugins      = [dir_path] $regex.replace($plugins, '\\', '\\\\')
+  imports      = [dir_path] $regex.replace($imports, '\\', '\\\\')
+  qml          = [dir_path] $regex.replace($qml, '\\', '\\\\')
+  arch_data    = [dir_path] $regex.replace($arch_data, '\\', '\\\\')
+  data         = [dir_path] $regex.replace($data, '\\', '\\\\')
+  translations = [dir_path] $regex.replace($translations, '\\', '\\\\')
+  examples     = [dir_path] $regex.replace($examples, '\\', '\\\\')
+  tests        = [dir_path] $regex.replace($tests, '\\', '\\\\')
+
+  lib_to_prefix = [dir_path] $regex.replace($lib_to_prefix, '\\', '\\\\')
 }
 
 # Build options.
