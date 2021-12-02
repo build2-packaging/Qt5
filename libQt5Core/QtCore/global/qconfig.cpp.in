@@ -55,9 +55,8 @@ const char* QT_CONFIGURE_SETTINGS_PATH = "$settingspath$";
 //
 const char* QT_CONFIGURE_LIBLOCATION_TO_PREFIX_PATH = "$lib_to_prefix$/";
 
-// @@ TMP Removed these two paths because their only uses are wrapped inside
-//    #if defined(QT_BUILD_QMAKE) in global/qlibraryinfo.cpp (but not in the
-//    qmake file, which is strange).
+// The use of these two paths is wrapped inside #if defined(QT_BUILD_QMAKE)
+// (i.e., building qmake itself) in global/qlibraryinfo.cpp.
 //
 // const char* QT_CONFIGURE_HOSTBINDIR_TO_EXTPREFIX_PATH = "../";
 // const char* QT_CONFIGURE_HOSTBINDIR_TO_HOSTPREFIX_PATH = "../";
