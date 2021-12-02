@@ -247,6 +247,11 @@ for s: cxx{$moc_src} mm{$moc_mm}
   moc{$n}: $s
 }
 
+# @@ TMP Not sure how to explain this.
+#
+moc{qtimer}: cxx{moc_qtimer}
+moc{qeventdispatcher_cf}: cxx{moc_qeventdispatcher_cf_p}
+
 # Rule to run moc on a header file.
 #
 # Use -f to override the path moc uses to #include the input file, which is
@@ -254,7 +259,7 @@ for s: cxx{$moc_src} mm{$moc_mm}
 #
 # Explicitly list the generated headers as dependencies in case the
 # moc-generated file includes any of them (if only indirectly). Note that,
-# because moc's `--output-make-dep` mode (which produces a list of header
+# because moc's `--output-dep-file` mode (which produces a list of header
 # dependencies for the input file) silently omits non-existent headers from
 # its output, it does not support generated headers and thus there is no
 # choice but to declare these dependencies manually.
@@ -264,9 +269,10 @@ for s: cxx{$moc_src} mm{$moc_mm}
 <cxx{~'/moc_(.*)/'}>: hxx{~'/\1/'} hxx{moc_predefs $gen_hdr} $moc
 {{
   o = $path($>[0])
-  t = $(t).t
+  t = $(o).t
 
-  depdb dyndep --byproduct --what=header --default-type=h --file $t
+  depdb dyndep \
+    --byproduct --drop-cycles --what=header --default-type=h --file $t
 
   diag moc ($<[0])
 
@@ -282,9 +288,18 @@ for s: cxx{$moc_src} mm{$moc_mm}
 #
 <moc{~'/(.*)/'}>: cxx{~'/\1/'} hxx{moc_predefs $gen_hdr} $moc
 {{
+  o = $path($>[0])
+  t = $(o).t
+
+  depdb dyndep \
+    --byproduct --drop-cycles --what=header --default-type=h --file $t
+
   diag moc ($<[0])
-  $moc --include $path($<[1]) \
-       $cc.poptions $cxx.poptions $path($<[0]) -o $path($>[0])
+
+  s = $path($<[0])
+
+  $moc --include $path($<[1]) $cc.poptions $cxx.poptions \
+    --output-dep-file --dep-file-path $t -o $o $s
 }}
 
 # Rule to run moc on an Objective-C++ source file.
@@ -293,9 +308,18 @@ for s: cxx{$moc_src} mm{$moc_mm}
 #
 <moc{~'/(.*)/'}>: mm{~'/\1/'} hxx{moc_predefs $gen_hdr} $moc
 {{
+  o = $path($>[0])
+  t = $(o).t
+
+  depdb dyndep \
+    --byproduct --drop-cycles --what=header --default-type=h --file $t
+
   diag moc ($<[0])
-  $moc --include $path($<[1]) \
-       $cc.poptions $cxx.poptions $path($<[0]) -o $path($>[0])
+
+  s = $path($<[0])
+
+  $moc --include $path($<[1]) $cc.poptions $cxx.poptions \
+    --output-dep-file --dep-file-path $t -o $o $s
 }}
 
 # Generated headers.
@@ -426,7 +450,7 @@ global/cxx{qconfig-install}:
   incl         = [dir_path] ($i ? $leaf($install.resolve($install.include), $prefix) : .)
   lib          = [dir_path] ($i ? $leaf($install.resolve($install.lib), $prefix) : .)
   bin          = [dir_path] ($i ? $leaf($install.resolve($install.bin), $prefix) : .)
-  libexec      = [dir_path] ($i ? $leaf($windows ? $bin : $install.resolve($install.libexec), $prefix) : .)
+  libexec      = [dir_path] ($i ? $leaf($install.resolve($windows ? $install.bin : $install.libexec), $prefix) : .)
   plugins      = [dir_path] $lib
   imports      = [dir_path] $lib
   qml          = [dir_path] $lib
