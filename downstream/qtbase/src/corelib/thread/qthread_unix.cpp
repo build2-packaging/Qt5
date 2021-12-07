@@ -49,7 +49,7 @@
 #  include <private/qeventdispatcher_cf_p.h>
 #else
 #  if !defined(QT_NO_GLIB)
-#    include "../kernel/qeventdispatcher_glib_p.h"
+#    include <private/qeventdispatcher_glib_p.h>
 #  endif
 #endif
 
