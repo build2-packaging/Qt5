@@ -39,7 +39,6 @@
 
 #include "qcborstreamreader.h"
 
-#define CBOR_NO_ENCODER_API
 #include <private/qcborcommon_p.h>
 
 #include <private/qbytearray_p.h>
@@ -47,6 +46,8 @@
 #include <private/qutfcodec_p.h>
 #include <qdebug.h>
 #include <qstack.h>
+
+#include <libtinycbor/cbor.h>
 
 QT_BEGIN_NAMESPACE
 
@@ -60,24 +61,6 @@ static CborError qt_cbor_decoder_transfer_string(void *token, const void **userp
 #define CBOR_PARSER_ADVANCE_BYTES_FUNCTION      qt_cbor_decoder_advance
 #define CBOR_PARSER_TRANSFER_STRING_FUNCTION    qt_cbor_decoder_transfer_string
 #define CBOR_PARSER_READ_BYTES_FUNCTION         qt_cbor_decoder_read
-
-QT_WARNING_PUSH
-QT_WARNING_DISABLE_MSVC(4334) // '<<': result of 32-bit shift implicitly converted to 64 bits (was 64-bit shift intended?)
-
-#include <cborparser.c>
-
-QT_WARNING_POP
-
-static CborError _cbor_value_dup_string(const CborValue *, void **, size_t *, CborValue *)
-{
-    Q_UNREACHABLE();
-    return CborErrorInternalError;
-}
-static CborError Q_DECL_UNUSED cbor_value_get_half_float_as_float(const CborValue *, float *)
-{
-    Q_UNREACHABLE();
-    return CborErrorInternalError;
-}
 
 // confirm our constants match TinyCBOR's
 Q_STATIC_ASSERT(int(QCborStreamReader::UnsignedInteger) == CborIntegerType);
