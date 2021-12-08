@@ -14,6 +14,10 @@
 //
 #define QT_NO_DBUS
 
+// @@ Remember QT_FEATURE_glib in qtcore-config_p.h.in.
+//
+#define QT_NO_GLIB
+
 // Note that this macro is not directly related to the _LARGEFILE_SOURCE or
 // _LARGEFILE64_SOURCE macros -- those are UNIX-only while this macro applies
 // to all platforms.
@@ -119,8 +123,7 @@
 // #define QT_FEATURE_c11 1
 
 #define QT_FEATURE_thread 1
-
-// #define QT_FEATURE_future 1
+#define QT_FEATURE_future 1
 // #define QT_FEATURE_concurrent 1
 
 // #define QT_COMPILER_SUPPORTS_RDRND 1

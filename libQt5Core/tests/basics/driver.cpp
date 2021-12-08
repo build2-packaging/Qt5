@@ -1,7 +1,9 @@
-#include <QtCore/QtCoreVersion>
+#include <QtCore/QString>
 
 int
 main ()
 {
-  return 0;
+  QString s ("aaa");
+  s.append ("bbb");
+  return s.size () == 6 ? 0 : 1;
 }

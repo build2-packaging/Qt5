@@ -36,10 +36,9 @@
 
 // "Provides support for the deprecated binary JSON format."
 //
-// @@ TMP Deprecated so we disable it despite the upstream build having
-//    enabled it for me.
+// Although it's deprecated it's still used unconditionally upstream.
 //
-#define QT_FEATURE_binaryjson -1
+#define QT_FEATURE_binaryjson 1
 
 // "CBOR stream reading and writing"
 //

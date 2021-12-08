@@ -23,6 +23,13 @@
 //
 // @@ TODO Package this?
 //
+//    It's possible to not use double-conversion, but then Qt includes
+//    xlocale.h which does not seem like a proper alternative (see
+//    https://sourceware.org/git/?p=glibc.git;a=commit;h=f0be25b6336db7492e47d2e8e72eb8af53b5506d)
+//    and double-conversion is supposed to be more efficient (than Qt's
+//    fallback implementation in test/qlocale_tools.cpp; search for
+//    QT_NO_DOUBLECONVERSION).
+//
 // #define QT_FEATURE_doubleconversion 1
 // #define QT_FEATURE_system_doubleconversion 1
 

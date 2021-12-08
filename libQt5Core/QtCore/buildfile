@@ -1,71 +1,342 @@
+# @@ TMP Version tagging? See
+#    upstream/qtbase/src/corelib/global/minimum-linux{.S,_p.h} and
+#    global/qversiontagging.cpp.
+#
+#    Precompiled headers?
+
 intf_libs = # Interface dependencies.
 import impl_libs  = libicuuc%lib{icuuc}
 import impl_libs += libicui18n%lib{icui18n}
+import impl_libs += libpcre2%lib{pcre2-16}
+import impl_libs += libtinycbor%lib{tinycbor}
+import impl_libs += libz%lib{z}
 
 import! [metadata] moc = Qt5Moc%exe{qt5moc}
 
-windows = ($cxx.target.class == 'windows')
-unix    = ($cxx.target.class != 'windows')
-linux   = ($cxx.target.class == 'linux')
+windows = ($cxx.target.class  == 'windows')
+unix    = ($cxx.target.class  != 'windows')
+linux   = ($cxx.target.class  == 'linux')
 freebsd = ($cxx.target.system == 'freebsd')
 openbsd = ($cxx.target.system == 'openbsd')
 netbsd  = ($cxx.target.system == 'netbsd')
-macos   = ($cxx.target.class == 'macos')
+bsd     = ($cxx.target.class  == 'bsd')
+macos   = ($cxx.target.class  == 'macos')
+
+x86 = ($cxx.target.cpu == 'x86_64' || $cxx.target.cpu == 'i686')
+
+# True if the CPU and compiler support the F16C instructions. F16C has been
+# supported since Intel's Ivy Bridge (2012) and AMD's Bulldozer (2011). Added
+# to GCC 4.6.4 (2013) at the latest, so assume it's supported on all i686 and
+# x86_64 compilers.
+#
+f16c = $x86
 
 # Source files.
 #
-src = kernel/qabstracteventdispatcher   \
-      kernel/qabstractnativeeventfilter \
-      kernel/qbasictimer                \
-      kernel/qcoreapplication           \
-      kernel/qcoreevent                 \
-      kernel/qcoreglobaldata            \
-      kernel/qdeadlinetimer             \
-      kernel/qelapsedtimer              \
-      kernel/qeventloop                 \
-      kernel/qmetaobject                \
-      kernel/qmetaobjectbuilder         \
-      kernel/qmetatype                  \
-      kernel/qmath                      \
-      kernel/qmimedata                  \
-      kernel/qobject                    \
-      kernel/qobjectcleanuphandler      \
-      kernel/qpointer                   \
-      kernel/qsharedmemory              \
-      kernel/qsignalmapper              \
-      kernel/qsocketnotifier            \
-      kernel/qsystemerror               \
-      kernel/qsystemsemaphore           \
-      kernel/qtestsupport_core          \
-      kernel/qtimer                     \
-      kernel/qtranslator                \
-      kernel/qvariant
+src = animation/qabstractanimation              \
+      animation/qvariantanimation               \
+      animation/qpropertyanimation              \
+      animation/qanimationgroup                 \
+      animation/qsequentialanimationgroup       \
+      animation/qparallelanimationgroup         \
+      animation/qpauseanimation                 \
+      codecs/qicucodec                          \
+      codecs/qisciicodec                        \
+      codecs/qlatincodec                        \
+      codecs/qsimplecodec                       \
+      codecs/qtextcodec                         \
+      codecs/qtsciicodec                        \
+      codecs/qutfcodec                          \
+      global/archdetect                         \
+      global/qendian                            \
+      global/qglobal                            \
+      global/qlibraryinfo                       \
+      global/qmalloc                            \
+      global/qnumeric                           \
+      global/qfloat16                           \
+      global/qoperatingsystemversion            \
+      global/qlogging                           \
+      global/qrandom                            \
+      global/qhooks                             \
+      io/qabstractfileengine                    \
+      io/qbuffer                                \
+      io/qdataurl                               \
+      io/qtldurl                                \
+      io/qdebug                                 \
+      io/qdir                                   \
+      io/qdiriterator                           \
+      io/qfile                                  \
+      io/qfiledevice                            \
+      io/qfileinfo                              \
+      io/qfilesystemwatcher                     \
+      io/qfilesystemwatcher_polling             \
+      io/qipaddress                             \
+      io/qiodevice                              \
+      io/qlockfile                              \
+      io/qnoncontiguousbytedevice               \
+      io/qprocess                               \
+      io/qsettings                              \
+      io/qstorageinfo                           \
+      io/qtemporarydir                          \
+      io/qtemporaryfile                         \
+      io/qresource                              \
+      io/qresource_iterator                     \
+      io/qsavefile                              \
+      io/qstandardpaths                         \
+      io/qurl                                   \
+      io/qurlidna                               \
+      io/qurlquery                              \
+      io/qurlrecode                             \
+      io/qfsfileengine                          \
+      io/qfsfileengine_iterator                 \
+      io/qfilesystementry                       \
+      io/qfilesystemengine                      \
+      io/qfileselector                          \
+      io/qloggingcategory                       \
+      io/qloggingregistry                       \
+      itemmodels/qabstractitemmodel             \
+      itemmodels/qabstractproxymodel            \
+      itemmodels/qconcatenatetablesproxymodel   \
+      itemmodels/qidentityproxymodel            \
+      itemmodels/qitemselectionmodel            \
+      itemmodels/qsortfilterproxymodel          \
+      itemmodels/qstringlistmodel               \
+      itemmodels/qtransposeproxymodel           \
+      kernel/qabstracteventdispatcher           \
+      kernel/qabstractnativeeventfilter         \
+      kernel/qbasictimer                        \
+      kernel/qcoreapplication                   \
+      kernel/qcoreevent                         \
+      kernel/qcoreglobaldata                    \
+      kernel/qdeadlinetimer                     \
+      kernel/qelapsedtimer                      \
+      kernel/qeventloop                         \
+      kernel/qmetaobject                        \
+      kernel/qmetaobjectbuilder                 \
+      kernel/qmetatype                          \
+      kernel/qmath                              \
+      kernel/qmimedata                          \
+      kernel/qobject                            \
+      kernel/qobjectcleanuphandler              \
+      kernel/qpointer                           \
+      kernel/qsharedmemory                      \
+      kernel/qsignalmapper                      \
+      kernel/qsocketnotifier                    \
+      kernel/qsystemerror                       \
+      kernel/qsystemsemaphore                   \
+      kernel/qtestsupport_core                  \
+      kernel/qtimer                             \
+      kernel/qtranslator                        \
+      kernel/qvariant                           \
+      mimetypes/qmimedatabase                   \
+      mimetypes/qmimetype                       \
+      mimetypes/qmimemagicrulematcher           \
+      mimetypes/qmimetypeparser                 \
+      mimetypes/qmimemagicrule                  \
+      mimetypes/qmimeglobpattern                \
+      mimetypes/qmimeprovider                   \
+      plugin/qelfparser_p                       \
+      plugin/qfactoryinterface                  \
+      plugin/qfactoryloader                     \
+      plugin/qlibrary                           \
+      plugin/qmachparser                        \
+      plugin/qpluginloader                      \
+      plugin/quuid                              \
+      serialization/qbinaryjson                 \
+      serialization/qbinaryjsonarray            \
+      serialization/qbinaryjsonobject           \
+      serialization/qbinaryjsonvalue            \
+      serialization/qcborcommon                 \
+      serialization/qcbordiagnostic             \
+      serialization/qcborstreamreader           \
+      serialization/qcborstreamwriter           \
+      serialization/qcborvalue                  \
+      serialization/qdatastream                 \
+      serialization/qjsoncbor                   \
+      serialization/qjsondocument               \
+      serialization/qjsonobject                 \
+      serialization/qjsonarray                  \
+      serialization/qjsonvalue                  \
+      serialization/qjsonwriter                 \
+      serialization/qjsonparser                 \
+      serialization/qtextstream                 \
+      serialization/qxmlstream                  \
+      serialization/qxmlutils                   \
+      statemachine/qstatemachine                \
+      statemachine/qabstractstate               \
+      statemachine/qeventtransition             \
+      statemachine/qstate                       \
+      statemachine/qfinalstate                  \
+      statemachine/qhistorystate                \
+      statemachine/qabstracttransition          \
+      statemachine/qsignaltransition            \
+      text/qbytearray                           \
+      text/qbytearraylist                       \
+      text/qbytearraymatcher                    \
+      text/qcollator                            \
+      text/qcollator_icu                        \
+      text/qharfbuzz                            \
+      text/qlocale                              \
+      text/qlocale_icu                          \
+      text/qlocale_tools                        \
+      text/qregexp                              \
+      text/qregularexpression                   \
+      text/qstring                              \
+      text/qstringbuilder                       \
+      text/qstringlist                          \
+      text/qstringview                          \
+      text/qtextboundaryfinder                  \
+      text/qunicodetools                        \
+      text/qvsnprintf                           \
+      thread/qatomic                            \
+      thread/qexception                         \
+      thread/qfutureinterface                   \
+      thread/qfuturewatcher                     \
+      thread/qmutex                             \
+      thread/qreadwritelock                     \
+      thread/qresultstore                       \
+      thread/qrunnable                          \
+      thread/qsemaphore                         \
+      thread/qthread                            \
+      thread/qthreadpool                        \
+      thread/qthreadstorage                     \
+      time/qdatetime                            \
+      time/qdatetimeparser                      \
+      time/qcalendar                            \
+      time/qgregoriancalendar                   \
+      time/qhijricalendar                       \
+      time/qislamiccivilcalendar                \
+      time/qjalalicalendar                      \
+      time/qjuliancalendar                      \
+      time/qmilankoviccalendar                  \
+      time/qromancalendar                       \
+      time/qtimezone                            \
+      time/qtimezoneprivate                     \
+      tools/qarraydata                          \
+      tools/qbitarray                           \
+      tools/qcommandlineoption                  \
+      tools/qcommandlineparser                  \
+      tools/qcryptographichash                  \
+      tools/qeasingcurve                        \
+      tools/qfreelist                           \
+      tools/qhash                               \
+      tools/qline                               \
+      tools/qlinkedlist                         \
+      tools/qlist                               \
+      tools/qpoint                              \
+      tools/qmap                                \
+      tools/qmargins                            \
+      tools/qmessageauthenticationcode          \
+      tools/qcontiguouscache                    \
+      tools/qrect                               \
+      tools/qrefcount                           \
+      tools/qringbuffer                         \
+      tools/qshareddata                         \
+      tools/qsharedpointer                      \
+      tools/qsimd                               \
+      tools/qsize                               \
+      tools/qtimeline                           \
+      tools/qversionnumber
 
 # Headers to be moc'ed.
 #
 moc_hdr = qabstracteventdispatcher              \
+          qabstractanimation                    \
+          qabstractitemmodel                    \
+          qabstractproxymodel                   \
+          qabstractstate                        \
+          qabstracttransition                   \
+          qanimationgroup                       \
+          qbuffer                               \
+          qcborcommon                           \
+          qcborstreamreader                     \
+          qcborvalue                            \
+          qconcatenatetablesproxymodel          \
           qcoreapplication                      \
           qcoreevent                            \
+          qcryptographichash                    \
+          qeasingcurve                          \
           qeventloop                            \
+          qeventtransition                      \
+          qfile                                 \
+          qfiledevice                           \
+          qfileselector                         \
+          qfilesystemwatcher                    \
+          qfinalstate                           \
+          qfuturewatcher                        \
+          qhistorystate                         \
+          qidentityproxymodel                   \
+          qiodevice                             \
+          qitemselectionmodel                   \
+          qlocale                               \
+          qlibrary                              \
           qmimedata                             \
           qnamespace                            \
           qobject                               \
           qobjectcleanuphandler                 \
+          qparallelanimationgroup               \
+          qpauseanimation                       \
+          qpluginloader                         \
+          qprocess                              \
+          qpropertyanimation                    \
+          qsavefile                             \
+          qsequentialanimationgroup             \
+          qsettings                             \
           qsignalmapper                         \
+          qsignaltransition                     \
           qsharedmemory                         \
           qsocketnotifier                       \
+          qsortfilterproxymodel                 \
+          qstandardpaths                        \
+          qstate                                \
+          qstatemachine                         \
+          qstringlistmodel                      \
+          qtemporaryfile                        \
+          qthread                               \
+          qthreadpool                           \
+          qtimeline                             \
           qtimer                                \
           qtranslator                           \
-          private/qeventdispatcher_unix_p       \
-          private/qeventdispatcher_cf_p
+          qtransposeproxymodel                  \
+          qvariantanimation                     \
+          private/qabstractanimation_p          \
+          private/qfactoryloader_p              \
+          private/qfilesystemwatcher_inotify_p  \
+          private/qfilesystemwatcher_p          \
+          private/qfilesystemwatcher_polling_p  \
+          private/qnoncontiguousbytedevice_p    \
+          private/qtextstream_p
 
 # Source files to be moc'ed.
 #
-moc_src = kernel/qtimer
+moc_src = kernel/qtimer                 \
+          statemachine/qhistorystate    \
+          statemachine/qstatemachine    \
+          thread/qthreadpool
+
+if $unix
+  moc_hdr += private/qeventdispatcher_unix_p
+
+if $macos
+{
+  moc_hdr += private/qeventdispatcher_cf_p
+  moc_mm   =  kernel/qeventdispatcher_cf
+}
+
+if $windows
+  moc_src += io/qfilesystemwatcher_win
 
 # UNIX source files.
 #
-unix_src = kernel/qcore_unix                    \
+unix_src = io/forkfd_qt                         \
+           io/qfsfileengine_unix                \
+           io/qfilesystemengine_unix            \
+           io/qlockfile_unix                    \
+           io/qfilesystemiterator_unix          \
+           io/qprocess_unix                     \
+           io/qstandardpaths_unix               \
+           io/qstorageinfo_unix                 \
+           kernel/qcore_unix                    \
            kernel/qeventdispatcher_unix         \
            kernel/qsharedmemory_posix           \
            kernel/qsharedmemory_systemv         \
@@ -73,21 +344,49 @@ unix_src = kernel/qcore_unix                    \
            kernel/qsystemsemaphore_posix        \
            kernel/qsystemsemaphore_systemv      \
            kernel/qsystemsemaphore_unix         \
-           kernel/qtimerinfo_unix
+           kernel/qtimerinfo_unix               \
+           plugin/qlibrary_unix                 \
+           text/qlocale_unix                    \
+           thread/qthread_unix                  \
+           thread/qwaitcondition_unix           \
+           time/qtimezoneprivate_tz
+
+# Linux source files.
+#
+linux_src = io/qfilesystemwatcher_inotify
 
 # Windows source files.
 #
-win_src = kernel/qcoreapplication_win   \
-          kernel/qelapsedtimer_win      \
-          kernel/qeventdispatcher_win   \
-          kernel/qsharedmemory_win      \
-          kernel/qsystemsemaphore_win   \
-          kernel/qwineventnotifier      \
-          kernel/qwinregistry
+win_src = global/qoperatingsystemversion_win    \
+          io/qfilesystemwatcher_win             \
+          io/qprocess_win                       \
+          io/qsettings_win                      \
+          io/qfsfileengine_win                  \
+          io/qlockfile_win                      \
+          io/qfilesystemengine_win              \
+          io/qfilesystemiterator_win            \
+          io/qstandardpaths_win                 \
+          io/qstorageinfo_win                   \
+          io/qwindowspipereader                 \
+          io/qwindowspipewriter                 \
+          kernel/qcoreapplication_win           \
+          kernel/qelapsedtimer_win              \
+          kernel/qeventdispatcher_win           \
+          kernel/qsharedmemory_win              \
+          kernel/qsystemsemaphore_win           \
+          kernel/qwineventnotifier              \
+          kernel/qwinregistry                   \
+          plugin/qsystemlibrary                 \
+          plugin/qlibrary_win                   \
+          text/qlocale_win                      \
+          thread/qthread_win                    \
+          thread/qwaitcondition_win
 
 # Mac OS source files.
 #
-macos_src = kernel/qcfsocketnotifier    \
+macos_src = io/qsettings_mac            \
+            io/qstorageinfo_mac         \
+            kernel/qcfsocketnotifier    \
             kernel/qcoreapplication_mac \
             kernel/qelapsedtimer_mac
 
@@ -96,22 +395,75 @@ macos_src = kernel/qcfsocketnotifier    \
 define mm: file
 mm{*}: extension = mm
 
-macos_mm = kernel/qcore_foundation  \
-           kernel/qcore_mac         \
-           kernel/qeventdispatcher_cf
+macos_mm = global/qoperatingsystemversion_darwin        \
+           io/qfilesystemengine_mac                     \
+           io/qfilesystemwatcher_fsevents               \
+           io/qprocess_darwin                           \
+           io/qstandardpaths_mac                        \
+           kernel/qcore_foundation                      \
+           kernel/qcore_mac                             \
+           kernel/qeventdispatcher_cf                   \
+           text/qlocale_mac                             \
+           time/qtimezoneprivate_mac
 
-# Mac OS Objective-C++ source files to be moc'ed.
+# C sources from the Harfbuzz library.
 #
-moc_mm = kernel/qeventdispatcher_cf
+# @@ TMP Package this? (And double-conversion?)
+#
+harfbuzz_src = harfbuzz-buffer  \
+               harfbuzz-gdef    \
+               harfbuzz-gsub    \
+               harfbuzz-gpos    \
+               harfbuzz-impl    \
+               harfbuzz-open    \
+               harfbuzz-stream
 
 # Headers, source files, and libraries.
 #
-lib{Qt5Core}: hxx{** Q*.} cxx{$src} libul{Qt5CoreMeta}
+lib{Qt5Core}: hxx{** Q*.} cxx{$src} libul{Qt5CoreMeta}          \
+              3rdparty/harfbuzz/src/h{harfbuzz}                 \
+              3rdparty/harfbuzz/src/c{$harfbuzz_src}            \
+              3rdparty/harfbuzz/src/cxx{harfbuzz-shaper-all}    \
+              3rdparty/double-conversion/cxx{*.cc}              \
+              3rdparty/double-conversion/hxx{**}
 
+# Ensure included source files are distributed.
+#
+# @@ TMP thread/qmutex_{linux,unix,mac,win}.cpp is included by
+#        thread/qmutex.cpp, but thread/thread.pri adds it to SOURCES, meaning
+#        the upstream build should compile it as well (which would lead to
+#        multiple definition errors). This is confirmed by the fact that the
+#        makefile generated by `qmake
+#        upstream/qtbase/src/corelib/thread/thread.pri` has qmutex_linux.cpp
+#        in SOURCES.
+#
+#        However, the upstream build, when run, doesn't actually compile it,
+#        and its makefile doesn't have qmutex_linux.cpp in SOURCES either.
+#
+#        No idea what's going on but what we have here looks right and works
+#        and matches what the upstream build actually ends up doing.
+#
+# @@ TMP mimetypes/qmimeprovider_database.cpp (note: ~2MB) is generated by
+#    mimetypes/mime/generate.{pl,bat} from
+#    mimetypes/mime/packages/freedesktop.org.xml which is from
+#    http://www.freedesktop.org/wiki/Software/shared-mime-info/. This doesn't
+#    seem like it should change often so perhaps it's not necessary for us to
+#    generate it?
+#
+lib{Qt5Core}: cxx{** -{$src}}                                                   \
+              3rdparty/{h hxx c cxx}{** -harfbuzz/**}                           \
+              3rdparty/harfbuzz/{cxx c}{**                                      \
+                                        -harfbuzz-shaper-all -{$harfbuzz_src}}  \
+              3rdparty/harfbuzz/h{** -harfbuzz}                                 \
+              3rdparty/sha3/file{**.macros}                                     \
+              testlib/3rdparty/h{valgrind_p}:                                   \
+  include = adhoc
 # The "metadata library": its purpose is to make sure all the imported
 # libraries are resolved for the ad hoc .mm compilation rules below.
 #
-libul{Qt5CoreMeta}: $impl_libs $intf_libs
+# @@ TMP Using cxx{dummy} as link rule hint (added `using c` recently).
+#
+libul{Qt5CoreMeta}: mkspecs/features/data/cxx{dummy} $impl_libs $intf_libs
 
 # Generated headers.
 #
@@ -126,10 +478,13 @@ lib{Qt5Core}: global/cxx{qconfig-develop}: for_install = false
 
 # Platform-specific source files.
 #
-lib{Qt5Core}: cxx{$unix_src}:                 include = $unix
+lib{Qt5Core}: cxx{$unix_src}:  include = $unix
+lib{Qt5Core}: cxx{$linux_src}: include = $linux
+lib{Qt5Core}: cxx{$win_src}:   include = $windows
+lib{Qt5Core}: cxx{$macos_src}: include = $macos
+lib{Qt5Core}: cxx{io/qfilesystemwatcher_kqueue}: include = ($macos || $bsd)
 lib{Qt5Core}: cxx{kernel/qelapsedtimer_unix}: include = ($unix && ! $macos)
-lib{Qt5Core}: cxx{$win_src}:                  include = $windows
-lib{Qt5Core}: cxx{$macos_src}:                include = $macos
+lib{Qt5Core}: cxx{time/qtimezoneprivate_icu}: include = (! $macos)
 
 # Declare the dependency of the library target on the Objective-C++ source
 # files via the corresponding object files.
@@ -247,11 +602,6 @@ for s: cxx{$moc_src} mm{$moc_mm}
   moc{$n}: $s
 }
 
-# @@ TMP Not sure how to explain this.
-#
-moc{qtimer}: cxx{moc_qtimer}
-moc{qeventdispatcher_cf}: cxx{moc_qeventdispatcher_cf_p}
-
 # Rule to run moc on a header file.
 #
 # Use -f to override the path moc uses to #include the input file, which is
@@ -322,6 +672,20 @@ moc{qeventdispatcher_cf}: cxx{moc_qeventdispatcher_cf_p}
     --output-dep-file --dep-file-path $t -o $o $s
 }}
 
+# Ensure that a moc-generated target's moc-generated dependencies are updated
+# before it itself is updated. This is necessary because a moc target's
+# dependencies are extracted at the same time as it is updated.
+#
+# moc{foo} depends on cxx{moc_foo} because moc{foo} is generated from cxx{foo}
+# which includes cxx{moc_foo}. (Note that other generated dependencies common
+# to all moc-generated targets are declared above.)
+#
+moc{qeventdispatcher_cf}: cxx{moc_qeventdispatcher_cf_p}
+moc{qhistorystate}:       cxx{moc_qhistorystate}
+moc{qstatemachine}:       cxx{moc_qstatemachine}
+moc{qthreadpool}:         cxx{moc_qthreadpool}
+moc{qtimer}:              cxx{moc_qtimer}
+
 # Generated headers.
 #
 # In the Qt source code the features (QT_FEATURE_foo macros) are checked using
@@ -360,16 +724,9 @@ hxx{qconfig}: in{qconfig}
   # versions of AVX are supported on all i686 and x86_64 compilers. Disable
   # SSE and AVX on all other targets.
   #
-  compiler_supports_sse_avx = ($cxx.target.cpu == 'x86_64' ||       \
-                               $cxx.target.cpu == 'i686'            \
-                               ? 1                                  \
-                               : -1)
+  compiler_supports_sse_avx = ($x86 ? 1 : -1)
 
-  # F16C has been supported since Intel's Ivy Bridge (2012) and AMD's
-  # Bulldozer (2011). Added to GCC 4.6.4 (2013) at the latest. So, like SSE
-  # and AVX, assume it's supported on all i686 and x86_64 compilers.
-  #
-  QT_COMPILER_SUPPORTS_F16C = $compiler_supports_sse_avx
+  QT_COMPILER_SUPPORTS_F16C = ($f16c ? 1 : -1)
 }
 
 # General private configuration header. Included by a few other Qt libraries
@@ -379,7 +736,7 @@ hxx{qconfig}: in{qconfig}
 #
 private/hxx{qconfig_p}: private/in{qconfig_p}
 {
-  QT_FEATURE_dlopen          = ($macos || $windows ? -1 : 1)
+  QT_FEATURE_dlopen          = ($unix ? 1 : -1)
   QT_FEATURE_posix_fallocate = ($linux || $freebsd || $openbsd ? 1 : -1)
 }
 
@@ -574,14 +931,20 @@ global/cxx{qconfig-install qconfig-develop}: global/in{qconfig}
 
 # Build options.
 #
-cxx.poptions =+ "-I$out_root" "-I$src_root"                     \
-                "-I$out_root/QtCore" "-I$src_root/QtCore"       \
-                "-I$out_root/QtCore/private" "-I$src_root/QtCore/private"
-
-# @@ TODO When we do corelib/global/: QFLOAT16_INCLUDE_FAST: affects
-#    global/qfloat16.cpp. May require inclusion of qfloat16_f16c.c. Also see:
-#    QT_COMPILER_SUPPORTS_F16C in qconfig.h.in; global/global.pri.
+# Add QtCore/3rdparty/ for include of <double-conversion/fixed-dtoa.h> (in
+# double-conversion/fixed-dtoa.cc); QtCore/3rdparty/double-conversion/include/
+# for includes of <double-conversion/*>; QtCore/3rdparty/harfbuzz/src/ for an
+# include of <harfbuzz-shaper.h>; and QtCore/3rdparty/forkfd/ for an include
+# of <forkfd.h>.
 #
+cxx.poptions =+ "-I$out_root" "-I$src_root"                                     \
+                "-I$out_root/QtCore" "-I$src_root/QtCore"                       \
+                "-I$out_root/QtCore/private" "-I$src_root/QtCore/private"       \
+                "-I$src_root/QtCore/3rdparty"                                   \
+                "-I$src_root/QtCore/3rdparty/double-conversion/include"         \
+                "-I$src_root/QtCore/3rdparty/harfbuzz/src"                      \
+                "-I$src_root/QtCore/3rdparty/forkfd"
+
 cxx.poptions += -DQT_BUILDING_QT -DQT_BUILD_CORE_LIB            \
                 -DQT_NO_LINKED_LIST                             \
                 -DQT_NO_JAVA_STYLE_ITERATORS                    \
@@ -593,12 +956,16 @@ cxx.poptions += -DQT_BUILDING_QT -DQT_BUILD_CORE_LIB            \
                 -DQT_USE_QSTRINGBUILDER                         \
                 -DQT_DEPRECATED_WARNINGS                        \
                 -D_REENTRANT                                    \
-                -DQT_DEPRECATED_WARNINGS_SINCE=0x060000
+                -DQT_DEPRECATED_WARNINGS_SINCE=0x060000         \
+                -DQT_NO_VERSION_TAGGING
 
 # @@ TODO -DQT_NO_DEBUG (as one would expect, upstream defines it for release
 #    builds).
 #
 
+# Add platform-specific header directories, libraries, compilation options,
+# and macro definitions.
+#
 if $windows
 {
   cxx.poptions += -DQT_DISABLE_DEPRECATED_BEFORE=0x040800       \
@@ -610,16 +977,49 @@ if $windows
 }
 else
 {
-  cxx.poptions += -DQT_DISABLE_DEPRECATED_BEFORE=0x050000 \
-                  -DQT_NO_CAST_TO_ASCII
-
-  if $unix
-    cxx.poptions += -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE
+  cxx.poptions += -DQT_DISABLE_DEPRECATED_BEFORE=0x050000       \
+                  -DQT_NO_CAST_TO_ASCII                         \
+                  -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE
+  # @@ TODO Boost only adds -ldl if on Linux.
+  #
+  cxx.libs += -ldl
 }
 
-# Add platform-specific header directories, libraries, compilation options,
-# and macro definitions.
+# @@ TMP Not sure if/when this is necessary.
 #
+# cxx.libs += -latomic
+
+# libexecinfo is required for backtrace(3) on BSD (see global/qlogging.cpp).
+#
+# @@ TMP When we did libboost-stacktrace we considered packaging libbacktrace:
+#    build2-packaging/boost/downstream/libs/stacktrace/src/buildfile.
+#
+if $bsd
+  cxx.libs += -lexecinfo
+
+# If the compiler is always generating F16C code (no special options
+# required), have global/qgloat16.cpp include global/qfloat16_f16c.c,
+# otherwise compile it separately. Details including the Clang exception are
+# explained in global/global.pri but see also the SSE/AVX comments in
+# qconfig.h.in.
+#
+# @@ TMP Assuming the comments regarding special compiler options for
+#    SSE/AVX/NEON in qconfig.h.in apply to F16C as well. global/global.pri
+#    seems to make this connection as well (if only for GCC; x86SimdAlways in
+#    global.pri corresponds to QT_COMPILER_SUPPORTS_SIMD_ALWAYS in
+#    qconfig.h.in).
+#
+if ($f16c && ! $regex.match($cxx.id, 'clang*'))
+{
+  lib{Qt5Core}: global/c{qfloat16_f16c}: include = false
+  cxx.poptions += -DQFLOAT16_INCLUDE_FAST
+}
+else
+{
+  lib{Qt5Core}: global/c{qfloat16_f16c}: include = true
+  c.poptions += $cxx.poptions
+}
+
 # Every directory under mkspecs/ contains a unique `qplatformdefs.h`.
 #
 # Note that Mac OS with GCC is not supported by upstream (see README-DEV for
@@ -636,6 +1036,7 @@ switch $cxx.target.class, $cxx.id, $cxx.target.system
     cxx.poptions += "-I$src_root/QtCore/mkspecs/macx-clang"
     cxx.libs     += -framework AppKit          \
                     -framework CoreServices    \
+                    -framework DiskArbitration \
                     -framework Foundation      \
                     -framework IOKit
   }
@@ -657,14 +1058,14 @@ switch $cxx.target.class, $cxx.id, $cxx.target.system
     cxx.poptions += "-I$src_root/QtCore/mkspecs/win32-clang-msvc" \
                     -D_ENABLE_EXTENDED_ALIGNED_STORAGE
 
-    cxx.libs += ole32.lib advapi32.lib shell32.lib netapi32.lib version.lib
+    cxx.libs += ole32.lib advapi32.lib shell32.lib mpr.lib netapi32.lib version.lib
   }
   case 'windows', 'gcc', 'mingw32'
   {
     cxx.poptions += "-I$src_root/QtCore/mkspecs/win32-g++" \
                     -DMINGW_HAS_SECURE_API=1
     cxx.coptions += -fno-keep-inline-dllexport
-    cxx.libs     += -lole32 -ladvapi32 -lshell32 -lnetapi32 -lversion \
+    cxx.libs     += -lole32 -ladvapi32 -lshell32 -lmpr -lnetapi32 -lversion \
                     -luuid
   }
 }
@@ -673,8 +1074,9 @@ switch $cxx.target.class, $cxx.id, $cxx.target.system
 #
 lib{Qt5Core}:
 {
-  cxx.export.poptions = "-I$out_root" "-I$src_root"     \
-                        "-I$out_root/QtCore" "-I$src_root/QtCore"
+  cxx.export.poptions = "-I$out_root" "-I$src_root"                     \
+                        "-I$out_root/QtCore" "-I$src_root/QtCore"       \
+                        -DQT_NO_VERSION_TAGGING
   cxx.export.libs = $intf_libs
 }
 

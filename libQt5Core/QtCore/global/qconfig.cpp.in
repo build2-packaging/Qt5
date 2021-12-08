@@ -6,25 +6,26 @@
 // dladdr(3) is available, so rarely; and 2) on Linux and GNU Hurd, printed as
 // part of the "version/copyright/contact" preamble at program startup.
 //
-const char qt_configure_prefix_path_str[12 + 256] = "qt_prfxpath=$prefix$";
+extern const char qt_configure_prefix_path_str[12 + 256] =
+    "qt_prfxpath=$prefix$";
 
 // The offsets of the beginning of each substring in qt_configure_strs. This
 // array is indexed by the enumerators in the QLibraryInfo::LibraryLocation
 // enum (see https://doc.qt.io/qt-5/qlibraryinfo.html).
 //
-const short qt_configure_str_offsets[13] = {$o_doc$,
-                                            $o_incl$,
-                                            $o_lib$,
-                                            $o_libexec$,
-                                            $o_bin$,
-                                            $o_plugins$,
-                                            $o_imports$,
-                                            $o_qml$,
-                                            $o_arch_data$,
-                                            $o_data$,
-                                            $o_translations$,
-                                            $o_examples$,
-                                            $o_tests$};
+extern const short qt_configure_str_offsets[13] = {$o_doc$,
+                                                   $o_incl$,
+                                                   $o_lib$,
+                                                   $o_libexec$,
+                                                   $o_bin$,
+                                                   $o_plugins$,
+                                                   $o_imports$,
+                                                   $o_qml$,
+                                                   $o_arch_data$,
+                                                   $o_data$,
+                                                   $o_translations$,
+                                                   $o_examples$,
+                                                   $o_tests$};
 
 // Installation paths corresponding to the enumerators in enum
 // QLibraryInfo::LibraryLocation.

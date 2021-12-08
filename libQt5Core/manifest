@@ -20,3 +20,6 @@ depends: * bpkg >= 0.14.0
 depends: * Qt5Moc == $
 depends: libicuuc >= 65.1.0
 depends: libicui18n >= 65.1.0
+depends: libpcre2 ^10.38.0
+depends: libtinycbor ^0.6.0
+depends: libz ^1.2.1100
