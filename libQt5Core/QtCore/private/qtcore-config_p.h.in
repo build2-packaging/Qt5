@@ -48,6 +48,10 @@
 // @@ TMP Linux, FreeBSD, OpenBSD, MacOS. NetBSD is looking at it:
 // https://mail-index.netbsd.org/tech-userlevel/2020/05/02/msg012333.html
 //
+//    Update: although Mac OS has getentropy() it does not seem to work with
+//    Qt. It's in sys/random.h on Mac OS but the Qt test in
+//    qtcore/configure.json includes unistd.h.
+//
 #define QT_FEATURE_getentropy $QT_FEATURE_getentropy$
 
 #define QT_FEATURE_glibc $QT_FEATURE_glibc$

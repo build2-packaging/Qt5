@@ -248,6 +248,7 @@ moc_hdr = qabstracteventdispatcher              \
           qabstracttransition                   \
           qanimationgroup                       \
           qbuffer                               \
+          qcalendar                             \
           qcborcommon                           \
           qcborstreamreader                     \
           qcborvalue                            \
@@ -271,6 +272,7 @@ moc_hdr = qabstracteventdispatcher              \
           qlocale                               \
           qlibrary                              \
           qmimedata                             \
+          qmimetype                             \
           qnamespace                            \
           qobject                               \
           qobjectcleanuphandler                 \
@@ -299,32 +301,32 @@ moc_hdr = qabstracteventdispatcher              \
           qtranslator                           \
           qtransposeproxymodel                  \
           qvariantanimation                     \
+          qwineventnotifier                     \
           private/qabstractanimation_p          \
+          private/qeventdispatcher_cf_p         \
+          private/qeventdispatcher_unix_p       \
+          private/qeventdispatcher_win_p        \
           private/qfactoryloader_p              \
+          private/qfilesystemwatcher_fsevents_p \
           private/qfilesystemwatcher_inotify_p  \
+          private/qfilesystemwatcher_kqueue_p   \
           private/qfilesystemwatcher_p          \
           private/qfilesystemwatcher_polling_p  \
+          private/qfilesystemwatcher_win_p      \
           private/qnoncontiguousbytedevice_p    \
+          private/qwindowspipereader_p          \
+          private/qwindowspipewriter_p          \
           private/qtextstream_p
 
 # Source files to be moc'ed.
 #
-moc_src = kernel/qtimer                 \
+moc_src = io/qfilesystemwatcher_win     \
+          kernel/qtimer                 \
           statemachine/qhistorystate    \
           statemachine/qstatemachine    \
           thread/qthreadpool
 
-if $unix
-  moc_hdr += private/qeventdispatcher_unix_p
-
-if $macos
-{
-  moc_hdr += private/qeventdispatcher_cf_p
-  moc_mm   =  kernel/qeventdispatcher_cf
-}
-
-if $windows
-  moc_src += io/qfilesystemwatcher_win
+moc_mm  = kernel/qeventdispatcher_cf
 
 # UNIX source files.
 #
@@ -334,8 +336,6 @@ unix_src = io/forkfd_qt                         \
            io/qlockfile_unix                    \
            io/qfilesystemiterator_unix          \
            io/qprocess_unix                     \
-           io/qstandardpaths_unix               \
-           io/qstorageinfo_unix                 \
            kernel/qcore_unix                    \
            kernel/qeventdispatcher_unix         \
            kernel/qsharedmemory_posix           \
@@ -346,10 +346,8 @@ unix_src = io/forkfd_qt                         \
            kernel/qsystemsemaphore_unix         \
            kernel/qtimerinfo_unix               \
            plugin/qlibrary_unix                 \
-           text/qlocale_unix                    \
            thread/qthread_unix                  \
-           thread/qwaitcondition_unix           \
-           time/qtimezoneprivate_tz
+           thread/qwaitcondition_unix
 
 # Linux source files.
 #
@@ -458,6 +456,7 @@ lib{Qt5Core}: cxx{** -{$src}}                                                   
               3rdparty/sha3/file{**.macros}                                     \
               testlib/3rdparty/h{valgrind_p}:                                   \
   include = adhoc
+
 # The "metadata library": its purpose is to make sure all the imported
 # libraries are resolved for the ad hoc .mm compilation rules below.
 #
@@ -482,8 +481,12 @@ lib{Qt5Core}: cxx{$unix_src}:  include = $unix
 lib{Qt5Core}: cxx{$linux_src}: include = $linux
 lib{Qt5Core}: cxx{$win_src}:   include = $windows
 lib{Qt5Core}: cxx{$macos_src}: include = $macos
-lib{Qt5Core}: cxx{io/qfilesystemwatcher_kqueue}: include = ($macos || $bsd)
-lib{Qt5Core}: cxx{kernel/qelapsedtimer_unix}: include = ($unix && ! $macos)
+lib{Qt5Core}: cxx{io/qfilesystemwatcher_kqueue}: include = $bsd
+lib{Qt5Core}: cxx{io/qstandardpaths_unix        \
+                  io/qstorageinfo_unix          \
+                  kernel/qelapsedtimer_unix     \
+                  text/qlocale_unix             \
+                  time/qtimezoneprivate_tz}:  include = ($unix && ! $macos)
 lib{Qt5Core}: cxx{time/qtimezoneprivate_icu}: include = (! $macos)
 
 # Declare the dependency of the library target on the Objective-C++ source
@@ -686,6 +689,22 @@ moc{qstatemachine}:       cxx{moc_qstatemachine}
 moc{qthreadpool}:         cxx{moc_qthreadpool}
 moc{qtimer}:              cxx{moc_qtimer}
 
+# A small minority of moc-generated files need to be compiled (most are
+# included). And that's not where the inconsistency ends:
+# qfilesystemwatcher_win.cpp includes qfilesystemwatcher_win.moc but not
+# moc_qfilesystemwatcher_win.cpp, so the latter has to be compiled.
+#
+lib{Qt5Core}: cxx{moc_qcalendar moc_qmimetype}
+
+lib{Qt5Core}: cxx{moc_qeventdispatcher_win_p    \
+                  moc_qfilesystemwatcher_win_p  \
+                  moc_qwindowspipereader_p      \
+                  moc_qwindowspipewriter_p      \
+                  moc_qwineventnotifier}: include = $windows
+
+lib{Qt5Core}: cxx{moc_qfilesystemwatcher_kqueue_p}:   include = $bsd
+lib{Qt5Core}: cxx{moc_qfilesystemwatcher_fsevents_p}: include = $macos
+
 # Generated headers.
 #
 # In the Qt source code the features (QT_FEATURE_foo macros) are checked using
@@ -756,7 +775,7 @@ private/hxx{qtcore-config_p}: private/in{qtcore-config_p}
 {
   QT_FEATURE_futimens   = ($windows ? -1 : 1)
   QT_FEATURE_getauxval  = ($linux ? 1 : -1)
-  QT_FEATURE_getentropy = ($windows || $netbsd ? -1 : 1)
+  QT_FEATURE_getentropy = ($windows || $macos || $netbsd ? -1 : 1)
   QT_FEATURE_glibc      = ($linux ? 1 : -1)
   QT_FEATURE_inotify    = ($linux ? 1 : -1)
   QT_FEATURE_linkat     = ($linux ? 1 : -1)
@@ -912,6 +931,7 @@ global/cxx{qconfig-install qconfig-develop}: global/in{qconfig}
   # Escape backslashes on Windows. Note: must be done after offset
   # calculations.
   #
+  prefix       = [dir_path] $regex.replace($prefix, '\\', '\\\\')
   doc          = [dir_path] $regex.replace($doc, '\\', '\\\\')
   incl         = [dir_path] $regex.replace($incl, '\\', '\\\\')
   lib          = [dir_path] $regex.replace($lib, '\\', '\\\\')
@@ -1009,7 +1029,7 @@ if $bsd
 #    global.pri corresponds to QT_COMPILER_SUPPORTS_SIMD_ALWAYS in
 #    qconfig.h.in).
 #
-if ($f16c && ! $regex.match($cxx.id, 'clang*'))
+if ($f16c && ! $regex.match($cxx.id, 'clang.*'))
 {
   lib{Qt5Core}: global/c{qfloat16_f16c}: include = false
   cxx.poptions += -DQFLOAT16_INCLUDE_FAST
@@ -1034,11 +1054,12 @@ switch $cxx.target.class, $cxx.id, $cxx.target.system
   case 'macos', 'clang-apple'
   {
     cxx.poptions += "-I$src_root/QtCore/mkspecs/macx-clang"
-    cxx.libs     += -framework AppKit          \
-                    -framework CoreServices    \
-                    -framework DiskArbitration \
-                    -framework Foundation      \
-                    -framework IOKit
+    cxx.libs     += -framework AppKit           \
+                    -framework CoreServices     \
+                    -framework DiskArbitration  \
+                    -framework Foundation       \
+                    -framework IOKit            \
+                    -framework Security
   }
   case 'bsd', 'clang', 'freebsd'
     cxx.poptions += "-I$src_root/QtCore/mkspecs/freebsd-clang"
@@ -1051,22 +1072,24 @@ switch $cxx.target.class, $cxx.id, $cxx.target.system
     cxx.poptions += "-I$src_root/QtCore/mkspecs/win32-msvc" \
                     -D_ENABLE_EXTENDED_ALIGNED_STORAGE
 
-    cxx.libs += ole32.lib advapi32.lib shell32.lib netapi32.lib
+    cxx.libs += ole32.lib advapi32.lib shell32.lib mpr.lib netapi32.lib \
+                userenv.lib version.lib winmm.lib ws2_32.lib
   }
   case 'windows', 'msvc-clang' | 'clang'
   {
     cxx.poptions += "-I$src_root/QtCore/mkspecs/win32-clang-msvc" \
                     -D_ENABLE_EXTENDED_ALIGNED_STORAGE
 
-    cxx.libs += ole32.lib advapi32.lib shell32.lib mpr.lib netapi32.lib version.lib
+    cxx.libs += ole32.lib advapi32.lib shell32.lib mpr.lib netapi32.lib \
+                userenv.lib version.lib winmm.lib ws2_32.lib
   }
   case 'windows', 'gcc', 'mingw32'
   {
     cxx.poptions += "-I$src_root/QtCore/mkspecs/win32-g++" \
                     -DMINGW_HAS_SECURE_API=1
-    cxx.coptions += -fno-keep-inline-dllexport
-    cxx.libs     += -lole32 -ladvapi32 -lshell32 -lmpr -lnetapi32 -lversion \
-                    -luuid
+    cxx.coptions += -fno-keep-inline-dllexport # @@ TODO Check this is necessary.
+    cxx.libs     += -lole32 -ladvapi32 -lshell32 -lmpr -lnetapi32 -luuid \
+                    -luserenv -lversion -lwinmm -lws2_32
   }
 }
 
