@@ -489,6 +489,8 @@ lib{Qt5Core}: cxx{io/qstandardpaths_unix        \
                   time/qtimezoneprivate_tz}:  include = ($unix && ! $macos)
 lib{Qt5Core}: cxx{time/qtimezoneprivate_icu}: include = (! $macos)
 
+macos_mm = dummy
+
 # Declare the dependency of the library target on the Objective-C++ source
 # files via the corresponding object files.
 #
@@ -499,9 +501,9 @@ for n: $macos_mm
 }
 
 liba{Qt5Core}: obja{$regex.apply($macos_mm,'(.+)','\1.a.o')}: \
-  include = $macos
+  include = $linux
 libs{Qt5Core}: objs{$regex.apply($macos_mm,'(.+)','\1.so.o')}: \
-  include = $macos
+  include = $linux
 
 # Rules for compiling Objective-C++ source files into object files.
 #
