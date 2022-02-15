@@ -1,0 +1,7 @@
+project = libQt5Core
+
+using version
+using config
+using test
+using install
+using dist
