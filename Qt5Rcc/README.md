@@ -1,3 +1,3 @@
 # Qt5Rcc
 
-C++ executable
+This package contains the Qt5 resource compiler (`rcc`).

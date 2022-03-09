@@ -1,1 +1,5 @@
-Qt5Rcc
+qt5rcc
+
+# Testscript output directory (can be symlink).
+#
+test-qt5rcc
