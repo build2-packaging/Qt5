@@ -2,3 +2,5 @@
 location: Qt5Moc/
 :
 location: libQt5Core/
+:
+location: Qt5Rcc/

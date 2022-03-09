@@ -1,0 +1,6 @@
+project = Qt5Rcc
+
+using version
+using config
+using install
+using dist
