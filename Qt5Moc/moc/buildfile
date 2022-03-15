@@ -2,9 +2,6 @@ import libs = libtinycbor%lib{tinycbor}
 
 # Target metadata, see also --build2-metadata in main.cpp.
 #
-# Note that qt5moc does not query any environment variables that can affect
-# its output.
-#
 exe{qt5moc}:
 {
   export.metadata = 1 qt5moc
@@ -20,7 +17,7 @@ macos   = ($cxx.target.class == 'macos')
 
 # The upstream build creates a static bootstrap library consisting of a
 # selection of the QtCore sources which is then used to build moc, rcc, and
-# tracegen. Only moc is required to build QtCore proper.
+# tracegen.
 #
 
 # The moc executable source files.
@@ -181,13 +178,17 @@ exe{qt5moc}: obje{$macos_core_src_mm}: include = $macos
 
 # Rule for compiling Objective-C++ source files into object files.
 #
-# @@ TODO: no header dependency extraction/change tracking.
+# Note: these rules are only used on Mac OS (so no -fPIC, etc).
 #
 obje{~'/(.*)/'}: mm{~'/\1/'}
 {{
-  diag objcxx ($<)
-  $cxx.path $cc.poptions $cxx.poptions $cc.coptions $cxx.coptions $cxx.mode \
-            -o $path($>) -c -x objective-c++ $path($<)
+  depdb dyndep --what=header --default-type=h           \
+               -- $cxx.path $cc.poptions $cxx.poptions  \
+                  $cc.coptions $cxx.coptions $cxx.mode -M -MG $path($<[0])
+  diag objcxx ($<[0])
+  $cxx.path $cc.poptions $cxx.poptions                  \
+            $cc.coptions $cxx.coptions $cxx.mode        \
+            -o $path($>) -c -x objective-c++ $path($<[0])
 }}
 
 # Header search directories.
@@ -205,8 +206,6 @@ cxx.poptions =+ "-I$src_root/moc"                \
 # Define macros from the upstream build.
 #
 cxx.poptions +=                                                         \
-  -D_LARGEFILE64_SOURCE                                                 \
-  -D_LARGEFILE_SOURCE                                                   \
   -DQT_BOOTSTRAPPED                                                     \
   -DQT_NO_CAST_TO_ASCII                                                 \
   -DQT_NO_CAST_FROM_ASCII                                               \
@@ -216,7 +215,6 @@ cxx.poptions +=                                                         \
   -DQT_NO_LINKED_LIST                                                   \
   -DQT_USE_QSTRINGBUILDER                                               \
   -DQT_NO_DEBUG                                                         \
-  -DQT_DEPRECATED_WARNINGS_SINCE=0x060000                               \
   -DQT_VERSION_STR="\"$version.major.$version.minor.$version.patch\""   \
   -DQT_VERSION_MAJOR="$version.major"                                   \
   -DQT_VERSION_MINOR="$version.minor"                                   \
@@ -228,11 +226,11 @@ if $windows
                   -D_USE_MATH_DEFINES       \
                   -DUNICODE                 \
                   -D_UNICODE                \
-                  -DWIN32                   \
-                  -DQT_DISABLE_DEPRECATED_BEFORE=0x040800
+                  -DWIN32
 }
 else
-  cxx.poptions += -DQT_DISABLE_DEPRECATED_BEFORE=0x050000
+  cxx.poptions += -D_LARGEFILE64_SOURCE \
+                  -D_LARGEFILE_SOURCE
 
 # Add platform-specific header directories, libraries, compilation options,
 # and macro definitions.
