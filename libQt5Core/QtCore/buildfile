@@ -425,20 +425,20 @@ c_hdr = qglobal qsystemdetection qprocessordetection qcompilerdetection \
 # Header and source files.
 #
 lib{Qt5Core}: hxx{** -{$c_hdr} +Q*.} h{$c_hdr} cxx{$src}        \
-              3rdparty/harfbuzz/src/h{harfbuzz}                 \
-              3rdparty/harfbuzz/src/c{$harfbuzz_src}            \
-              3rdparty/harfbuzz/src/cxx{harfbuzz-shaper-all}
+              ../3rdparty/harfbuzz/src/h{harfbuzz}              \
+              ../3rdparty/harfbuzz/src/c{$harfbuzz_src}         \
+              ../3rdparty/harfbuzz/src/cxx{harfbuzz-shaper-all}
 
 # Included source files.
 #
-lib{Qt5Core}: cxx{** -{$src} -qmimeprovider_database}                          \
-              global/c{qfloat16_f16c}                                          \
-              3rdparty/{h hxx c cxx}{** -harfbuzz/**}                          \
-              3rdparty/harfbuzz/{cxx c}{**                                     \
-                                        -harfbuzz-shaper-all -{$harfbuzz_src}} \
-              3rdparty/harfbuzz/h{** -harfbuzz}                                \
-              3rdparty/sha3/file{**.macros}                                    \
-              testlib/3rdparty/h{valgrind_p}:                                  \
+lib{Qt5Core}: cxx{** -{$src} -qmimeprovider_database}                   \
+              global/c{qfloat16_f16c}                                   \
+              ../3rdparty/{h hxx c cxx}{** -harfbuzz/**}                \
+              ../3rdparty/harfbuzz/{cxx c}{** -harfbuzz-shaper-all      \
+                                              -{$harfbuzz_src}}         \
+              ../3rdparty/harfbuzz/h{** -harfbuzz}                      \
+              ../3rdparty/sha3/file{**.macros}                          \
+              testlib/3rdparty/h{valgrind_p}:                           \
   include = adhoc
 
 # Note: this generated file is safe to update during execute: not a macro
@@ -1013,8 +1013,8 @@ cxx{qmimeprovider_database}: mimetypes/mime/packages/freedesktop.org.xml $xxd
 
 # Build options.
 #
-# Add QtCore/3rdparty/harfbuzz/src/ for an include of <harfbuzz-shaper.h>; and
-# QtCore/3rdparty/forkfd/ for an include of <forkfd.h>.
+# Add 3rdparty/harfbuzz/src/ for an include of <harfbuzz-shaper.h>; and
+# 3rdparty/forkfd/ for an include of <forkfd.h>.
 #
 # Note: the few C source files that we compile (in harfbuzz/src/) don't
 #       need any of these.
@@ -1022,8 +1022,8 @@ cxx{qmimeprovider_database}: mimetypes/mime/packages/freedesktop.org.xml $xxd
 cxx.poptions =+ "-I$out_root" "-I$src_root"                                     \
                 "-I$out_root/QtCore" "-I$src_root/QtCore"                       \
                 "-I$out_root/QtCore/private" "-I$src_root/QtCore/private"       \
-                "-I$src_root/QtCore/3rdparty/harfbuzz/src"                      \
-                "-I$src_root/QtCore/3rdparty/forkfd"
+                "-I$src_root/3rdparty/harfbuzz/src"                             \
+                "-I$src_root/3rdparty/forkfd"
 
 cxx.poptions += -DQT_BUILDING_QT -DQT_BUILD_CORE_LIB            \
                 -DQT_NO_LINKED_LIST                             \
