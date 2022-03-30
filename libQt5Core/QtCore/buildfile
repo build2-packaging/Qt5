@@ -1141,7 +1141,7 @@ switch $cxx.target.class, $cxx.id, $cxx.target.system
   }
 }
 
-# Export and pkg-config options.
+# Export options.
 #
 lib{Qt5Core}:
 {
@@ -1149,7 +1149,6 @@ lib{Qt5Core}:
                         "-I$out_root/QtCore" "-I$src_root/QtCore"       \
                         -DQT_NO_VERSION_TAGGING
   cxx.export.libs = $intf_libs
-  cxx.pkgconfig.include = include/qt5/
 }
 
 liba{Qt5Core}: cxx.export.poptions += -DQT_STATIC
@@ -1164,8 +1163,10 @@ if $version.pre_release
 else
   lib{Qt5Core}: bin.lib.version = "-$version.major.$version.minor"
 
-# Install public headers into the QtCore/ subdirectory of, say,
-# /usr/include/qt5/.
+# Install public headers into the qt5/QtCore/ subdirectory of, say,
+# /usr/include/. Note that headers are included as <QtCore/*>.
 #
+lib{Qt5Core}: cxx.pkgconfig.include = include/qt5/
+
 {h hxx}{../3rdparty/* private/* testlib/*}: install = false
 {h hxx}{*}: install = include/qt5/QtCore/
