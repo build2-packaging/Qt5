@@ -453,9 +453,9 @@ lib{Qt5Core}: cxx{qmimeprovider_database}:
 # The "metadata library": its purpose is to make sure all the imported
 # libraries are resolved for the ad hoc .mm compilation rules below.
 #
-# Note: use qobject.h as a rule "hint" to make sure it's a C++ library.
+# Note: use a rule hint to resolve ambiguity between C and C++ library.
 #
-libul{Qt5CoreMeta}: hxx{qobject} $impl_libs $intf_libs
+[rule_hint=cxx] libul{Qt5CoreMeta}: $impl_libs $intf_libs
 
 # Generated headers and source files.
 #
