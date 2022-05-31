@@ -1,0 +1,6 @@
+$out_root/
+{
+  include QtGui/
+}
+
+export $out_root/QtGui/$import.target
