@@ -1,100 +1,334 @@
-intf_libs = # Interface dependencies.
-import impl_libs  = libdouble-conversion%lib{double-conversion}
-# import impl_libs += libicui18n%lib{icui18n}
-# import impl_libs += libicuuc%lib{icuuc}
-# import impl_libs += libpcre2%lib{pcre2-16}
-# import impl_libs += libtinycbor%lib{tinycbor}
-# import impl_libs += libz%lib{z}
+# Note: If anything in this file seems underdocumented it is probably covered
+#       in libQt5Core/QtCore/buildfile.
+#
+
+import intf_libs  = libQt5Core%lib{Qt5Core}
+import impl_libs  = libpng%lib{png}
+import impl_libs += libharfbuzz%lib{harfbuzz}
+import impl_libs += libmd4c%lib{md4c}
 
 import! [metadata] moc = Qt5Moc%exe{qt5moc}
+import! [metadata] rcc = Qt5Rcc%exe{qt5rcc}
 
 windows = ($cxx.target.class  == 'windows')
-unix    = ($cxx.target.class  != 'windows')
 linux   = ($cxx.target.class  == 'linux')
 bsd     = ($cxx.target.class  == 'bsd')
 macos   = ($cxx.target.class  == 'macos')
 
-# Source files.
+# C++ source files.
 #
-src = animation/qabstractanimation              \
+src = accessible/qaccessible                    \
+      accessible/qaccessiblebridge              \
+      accessible/qaccessiblecache               \
+      accessible/qaccessibleobject              \
+      accessible/qaccessibleplugin              \
+      accessible/qplatformaccessibility         \
+      animation/qguivariantanimation            \
+      image/qbitmap                             \
+      image/qbmphandler                         \
+      image/qicon                               \
+      image/qiconengine                         \
+      image/qiconengineplugin                   \
+      image/qiconloader                         \
+      image/qimage                              \
+      image/qimage_compat                       \
+      image/qimage_conversions                  \
+      image/qimage_ssse3                        \
+      image/qimageiohandler                     \
+      image/qimagepixmapcleanuphooks            \
+      image/qimagereader                        \
+      image/qimagereaderwriterhelpers           \
+      image/qimagewriter                        \
+      image/qmovie                              \
+      image/qpaintengine_pic                    \
+      image/qpicture                            \
+      image/qpictureformatplugin                \
+      image/qpixmap                             \
+      image/qpixmap_blitter                     \
+      image/qpixmap_raster                      \
+      image/qpixmapcache                        \
+      image/qplatformpixmap                     \
+      image/qpnghandler                         \
+      image/qppmhandler                         \
+      image/qxbmhandler                         \
+      image/qxpmhandler                         \
+      itemmodels/qstandarditemmodel             \
+      kernel/qclipboard                         \
+      kernel/qcursor                            \
+      kernel/qdnd                               \
+      kernel/qdrag                              \
+      kernel/qevent                             \
+      kernel/qgenericplugin                     \
+      kernel/qgenericpluginfactory              \
+      kernel/qguiapplication                    \
+      kernel/qguivariant                        \
+      kernel/qhighdpiscaling                    \
+      kernel/qinputdevicemanager                \
+      kernel/qinputmethod                       \
+      kernel/qinternalmimedata                  \
+      kernel/qkeymapper                         \
+      kernel/qkeysequence                       \
+      kernel/qoffscreensurface                  \
+      kernel/qpaintdevicewindow                 \
+      kernel/qpalette                           \
+      kernel/qpixelformat                       \
+      kernel/qplatformclipboard                 \
+      kernel/qplatformcursor                    \
+      kernel/qplatformdialoghelper              \
+      kernel/qplatformdrag                      \
+      kernel/qplatformgraphicsbuffer            \
+      kernel/qplatformgraphicsbufferhelper      \
+      kernel/qplatforminputcontext              \
+      kernel/qplatforminputcontextfactory       \
+      kernel/qplatforminputcontextplugin        \
+      kernel/qplatformintegration               \
+      kernel/qplatformintegrationfactory        \
+      kernel/qplatformintegrationplugin         \
+      kernel/qplatformmenu                      \
+      kernel/qplatformnativeinterface           \
+      kernel/qplatformoffscreensurface          \
+      kernel/qplatformscreen                    \
+      kernel/qplatformservices                  \
+      kernel/qplatformsessionmanager            \
+      kernel/qplatformsharedgraphicscache       \
+      kernel/qplatformsurface                   \
+      kernel/qplatformsystemtrayicon            \
+      kernel/qplatformtheme                     \
+      kernel/qplatformthemefactory              \
+      kernel/qplatformthemeplugin               \
+      kernel/qplatformwindow                    \
+      kernel/qrasterwindow                      \
+      kernel/qscreen                            \
+      kernel/qsessionmanager                    \
+      kernel/qshapedpixmapdndwindow             \
+      kernel/qshortcutmap                       \
+      kernel/qsimpledrag                        \
+      kernel/qstylehints                        \
+      kernel/qsurface                           \
+      kernel/qsurfaceformat                     \
+      kernel/qtestsupport_gui                   \
+      kernel/qtouchdevice                       \
+      kernel/qwindow                            \
+      kernel/qwindowsysteminterface             \
+      math3d/qgenericmatrix                     \
+      math3d/qmatrix4x4                         \
+      math3d/qquaternion                        \
+      math3d/qvector2d                          \
+      math3d/qvector3d                          \
+      math3d/qvector4d                          \
+      painting/qbackingstore                    \
+      painting/qbezier                          \
+      painting/qblendfunctions                  \
+      painting/qblittable                       \
+      painting/qbrush                           \
+      painting/qcolor                           \
+      painting/qcolorspace                      \
+      painting/qcolortransform                  \
+      painting/qcolortrclut                     \
+      painting/qcompositionfunctions            \
+      painting/qcosmeticstroker                 \
+      painting/qcssutil                         \
+      painting/qdrawhelper                      \
+      painting/qdrawhelper_avx2                 \
+      painting/qdrawhelper_sse2                 \
+      painting/qdrawhelper_sse4                 \
+      painting/qdrawhelper_ssse3                \
+      painting/qemulationpaintengine            \
+      painting/qicc                             \
+      painting/qimagescale                      \
+      painting/qimagescale_sse4                 \
+      painting/qmatrix                          \
+      painting/qmemrotate                       \
+      painting/qoutlinemapper                   \
+      painting/qpagedpaintdevice                \
+      painting/qpagelayout                      \
+      painting/qpagesize                        \
+      painting/qpaintdevice                     \
+      painting/qpaintengine                     \
+      painting/qpaintengine_blitter             \
+      painting/qpaintengine_raster              \
+      painting/qpaintengineex                   \
+      painting/qpainter                         \
+      painting/qpainterpath                     \
+      painting/qpathclipper                     \
+      painting/qpathsimplifier                  \
+      painting/qpdf                             \
+      painting/qpdfwriter                       \
+      painting/qpen                             \
+      painting/qplatformbackingstore            \
+      painting/qpolygon                         \
+      painting/qrasterizer                      \
+      painting/qregion                          \
+      painting/qstroker                         \
+      painting/qtextureglyphcache               \
+      painting/qtransform                       \
+      painting/qtriangulatingstroker            \
+      painting/qtriangulator                    \
+      text/qabstracttextdocumentlayout          \
+      text/qcssparser                           \
+      text/qdistancefield                       \
+      text/qfont                                \
+      text/qfontdatabase                        \
+      text/qfontengine                          \
+      text/qfontengine_qpf2                     \
+      text/qfontengineglyphcache                \
+      text/qfontmetrics                         \
+      text/qfontsubset                          \
+      text/qfragmentmap                         \
+      text/qglyphrun                            \
+      text/qharfbuzzng                          \
+      text/qinputcontrol                        \
+      text/qplatformfontdatabase                \
+      text/qrawfont                             \
+      text/qstatictext                          \
+      text/qsyntaxhighlighter                   \
+      text/qtextcursor                          \
+      text/qtextdocument                        \
+      text/qtextdocument_p                      \
+      text/qtextdocumentfragment                \
+      text/qtextdocumentlayout                  \
+      text/qtextdocumentwriter                  \
+      text/qtextengine                          \
+      text/qtextformat                          \
+      text/qtexthtmlparser                      \
+      text/qtextimagehandler                    \
+      text/qtextlayout                          \
+      text/qtextlist                            \
+      text/qtextmarkdownimporter                \
+      text/qtextmarkdownwriter                  \
+      text/qtextobject                          \
+      text/qtextodfwriter                       \
+      text/qtextoption                          \
+      text/qtexttable                           \
+      text/qzip                                 \
+      util/qabstractlayoutstyleinfo             \
+      util/qastchandler                         \
+      util/qdesktopservices                     \
+      util/qgridlayoutengine                    \
+      util/qktxhandler				\
+      util/qlayoutpolicy			\
+      util/qpkmhandler				\
+      util/qshaderformat			\
+      util/qshadergenerator			\
+      util/qshadergraph				\
+      util/qshadergraphloader			\
+      util/qshaderlanguage			\
+      util/qshadernode				\
+      util/qshadernodeport			\
+      util/qshadernodesloader			\
+      util/qtexturefiledata			\
+      util/qtexturefilereader			\
+      util/qvalidator
 
-
-# Headers to be moc'ed.
+# C source files.
 #
-moc_hdr = private/qabstractanimation_p          \
+src_c = painting/qgrayraster
 
-unix_moc_hdr = private/qeventdispatcher_unix_p
-
-linux_moc_hdr = private/qfilesystemwatcher_inotify_p
-
-win_moc_hdr = private/qeventdispatcher_win_p    \
-
-macos_moc_hdr = private/qeventdispatcher_cf_p   \
-
-bsd_moc_hdr = private/qfilesystemwatcher_kqueue_p
-
-# Source files to be moc'ed.
+# Windows C++ source files.
 #
-moc_src = kernel/qtimer                 \
-
-win_moc_src = io/qfilesystemwatcher_win
-
-moc_mm  = kernel/qeventdispatcher_cf
-
-# UNIX source files.
-#
-unix_src = io/forkfd_qt                         \
-
-# Linux source files.
-#
-linux_src = io/qfilesystemwatcher_inotify
-
-# Windows source files.
-#
-win_src = global/qoperatingsystemversion_win    \
-
-# Mac OS source files.
-#
-macos_src = io/qsettings_mac            \
+win_src = image/qpixmap_win
 
 # Define the Objective-C++ source file type.
 #
 define mm: file
 mm{*}: extension = mm
 
-macos_mm = global/qoperatingsystemversion_darwin        \
+macos_mm = accessible/qaccessiblecache_mac      \
+           image/qimage_darwin                  \
+           painting/qcoregraphics
+
+# Headers to be moc'ed.
+#
+moc_hdr = qaccessible                           \
+          private/qaccessiblecache_p            \
+          private/qdnd_p                        \
+          private/qhighdpiscaling_p             \
+          private/qinputcontrol_p               \
+          private/qinputdevicemanager_p         \
+          private/qinternalmimedata_p           \
+          private/qkeymapper_p                  \
+          private/qlayoutpolicy_p               \
+          private/qplatforminputcontextplugin_p \
+          private/qshaderlanguage_p             \
+          private/qshapedpixmapdndwindow_p      \
+          private/qtextdocumentlayout_p         \
+          private/qtextimagehandler_p           \
+          qabstracttextdocumentlayout           \
+          qaccessiblebridge                     \
+          qaccessibleplugin                     \
+          qbrush                                \
+          qclipboard                            \
+          qcolorspace                           \
+          qdrag                                 \
+          qevent                                \
+          qfont                                 \
+          qfontdatabase                         \
+          qgenericplugin                        \
+          qguiapplication                       \
+          qiconengineplugin                     \
+          qimage                                \
+          qimageiohandler                       \
+          qinputmethod                          \
+          qkeysequence                          \
+          qmovie                                \
+          qoffscreensurface                     \
+          qpaintdevicewindow                    \
+          qpainter                              \
+          qpalette                              \
+          qpdfwriter                            \
+          qpictureformatplugin                  \
+          qplatformbackingstore                 \
+          qplatformdialoghelper                 \
+          qplatformgraphicsbuffer               \
+          qplatforminputcontext                 \
+          qplatformintegrationplugin            \
+          qplatformmenu                         \
+          qplatformnativeinterface              \
+          qplatformsharedgraphicscache          \
+          qplatformsystemtrayicon               \
+          qplatformthemeplugin                  \
+          qrasterwindow                         \
+          qscreen                               \
+          qsessionmanager                       \
+          qstandarditemmodel                    \
+          qstylehints                           \
+          qsurface                              \
+          qsurfaceformat                        \
+          qsyntaxhighlighter                    \
+          qtextdocument                         \
+          qtextformat                           \
+          qtextlist                             \
+          qtextobject                           \
+          qtexttable                            \
+          qtouchdevice                          \
+          qvalidator                            \
+          qwindow
+
+# C++ source files to be moc'ed.
+#
+moc_src = image/qpixmapcache \
+          util/qdesktopservices
+
+# QMake resource files (.qrc) to be rcc'd.
+#
+# Note that our qmake_webgradients.qrc is a copy of the one generated by the
+# upstream build (not sure why they generate it as it's very similar to
+# qpdf.qrc, which is not generated).
+#
+qrc = painting/qmake_webgradients \
+      painting/qpdf
 
 # Generated headers.
 #
-gen_hdr = qconfig       private/qconfig_p       \
-          qtcore-config private/qtcore-config_p
-
-# Force headers that are included by C source files to be C headers otherwise
-# they are most likely to be detected as C++ headers due to being included
-# most often from C++ source files, which could break build2's header
-# dependency extraction.
-#
-c_hdr = qglobal qsystemdetection qprocessordetection qcompilerdetection \
-        $gen_hdr
+gen_hdr = qtgui-config private/qtgui-config_p
 
 # Header and source files.
 #
-lib{Qt5Gui}: hxx{** -{$c_hdr} +Q*.} h{$c_hdr} cxx{$src}        \
-              ../3rdparty/harfbuzz/src/h{harfbuzz}              \
-              ../3rdparty/harfbuzz/src/c{$harfbuzz_src}         \
-              ../3rdparty/harfbuzz/src/cxx{harfbuzz-shaper-all}
+lib{Qt5Gui}: hxx{** Q*.} cxx{$src} c{$src_c} $intf_libs $impl_libs
 
 # Included source files.
 #
-lib{Qt5Gui}: cxx{** -{$src} -qmimeprovider_database}                   \
-              global/c{qfloat16_f16c}                                   \
-              ../3rdparty/{h hxx c cxx}{** -harfbuzz/**}                \
-              ../3rdparty/harfbuzz/{cxx c}{** -harfbuzz-shaper-all      \
-                                              -{$harfbuzz_src}}         \
-              ../3rdparty/harfbuzz/h{** -harfbuzz}                      \
-              ../3rdparty/sha3/file{**.macros}                          \
-              testlib/3rdparty/h{valgrind_p}:                           \
-  include = adhoc
+lib{Qt5Gui}: cxx{** -{$src}}: include = adhoc
 
 # The "metadata library": its purpose is to make sure all the imported
 # libraries are resolved for the ad hoc .mm compilation rules below.
@@ -103,17 +337,9 @@ lib{Qt5Gui}: cxx{** -{$src} -qmimeprovider_database}                   \
 #
 [rule_hint=cxx] libul{Qt5GuiMeta}: $impl_libs $intf_libs
 
-# Generated headers and source files.
-#
-lib{Qt5Gui}: global/cxx{qconfig-install}: for_install = true
-lib{Qt5Gui}: global/cxx{qconfig-develop}: for_install = false
-
 # Platform-specific source files.
 #
-lib{Qt5Gui}: cxx{$unix_src}:  include = $unix
-lib{Qt5Gui}: cxx{$linux_src}: include = $linux
-lib{Qt5Gui}: cxx{$win_src}:   include = $windows
-lib{Qt5Gui}: cxx{$macos_src}: include = $macos
+lib{Qt5Gui}: cxx{$win_src}: include = $windows
 
 # Declare the dependency of the library target on the Objective-C++ source
 # files via the corresponding object files.
@@ -141,9 +367,9 @@ obja{~'/(.*).a/'}: mm{~'/\1/'} libua{Qt5GuiMeta}
 {{
   dep_poptions = $cxx.lib_poptions(libua{Qt5GuiMeta}, obja)
   depdb hash $dep_poptions
-  depdb dyndep "-I$out_root/QtCore" "-I$src_root/QtCore"                \
+  depdb dyndep "-I$out_root/QtGui" "-I$src_root/QtGui"                  \
                --what=header --default-type=h                           \
-               --update-exclude libua{Qt5GuiMeta}                      \
+               --update-exclude libua{Qt5GuiMeta}                       \
                -- $cxx.path $cc.poptions $cxx.poptions $dep_poptions    \
                   $cc.coptions $cxx.coptions $cxx.mode -M -MG $path($<[0])
   diag obj-c++ ($<[0])
@@ -156,9 +382,9 @@ objs{~'/(.*).so/'}: mm{~'/\1/'} libus{Qt5GuiMeta}
 {{
   dep_poptions = $cxx.lib_poptions(libus{Qt5GuiMeta}, objs)
   depdb hash $dep_poptions
-  depdb dyndep "-I$out_root/QtCore" "-I$src_root/QtCore"                \
+  depdb dyndep "-I$out_root/QtGui" "-I$src_root/QtGui"                  \
                --what=header --default-type=h                           \
-               --update-exclude libus{Qt5GuiMeta}                      \
+               --update-exclude libus{Qt5GuiMeta}                       \
                -- $cxx.path $cc.poptions $cxx.poptions $dep_poptions    \
                   $cc.coptions $cxx.coptions $cxx.mode -M -MG $path($<[0])
   diag obj-c++ ($<[0])
@@ -169,31 +395,6 @@ objs{~'/(.*).so/'}: mm{~'/\1/'} libus{Qt5GuiMeta}
 
 # Rule to generate a header with C++ compiler's predefined macros. It is used
 # to make them available to moc.
-#
-# This is necessary because moc's (built-in) preprocessor evaluates conditions
-# and expands macros and thus the set of defined macros can affect its
-# output. For example, signals and/or slots can be defined conditionally.
-#
-# Not all compilers have a mode that produces such a macro list. GCC, Clang,
-# and the Intel compiler do, but MSVC (for one) does not.
-#
-# The upstream build does not generate this header unless the compiler
-# supports such a mode (that is, moc gets no macro definitions at all). The
-# only exception is MSVC in which case Qt5 uses qmake to produce the required
-# output (by passing /Bx<path-to-qmake> to cl.exe, specifying an alternative
-# preprocessor executable), and Qt6 (via CMake) does nothing except for adding
-# the WIN32 macro to moc's definitions. We emulate the Qt6 behavior here for
-# now.
-#
-# Note also that this approach is not limited to the Qt libraries themselves:
-# applications may have preprocessor directives that affect the moc output and
-# thus will either need to do something similar or supply the necessary macro
-# definitions manually. As a result, it may make sense to provide a utility
-# (probably as part of the moc package, maybe call it moc-predefs) that knows
-# how to extract this list for various compilers (we could just pass to it the
-# compiler id and maybe the target followed by the compiler command line and
-# it can decide on the best method, potentially invoking the compiler,
-# including for MSVC).
 #
 hxx{moc_predefs}: mkspecs/features/data/cxx{dummy}
 %
@@ -214,50 +415,10 @@ else
 
 # Dependencies involving source files generated by moc from headers.
 #
-# Note: these would be safe to update during execute: not macro headers, not
-#       installed, and we can assume moc_q*.cpp is unique enough. But testing
-#       showed that that would result in worse performance. So we leave the
-#       pre-generation enabled.
-#
 for s: hxx{$moc_hdr}
 {
   n = $name($s)
   lib{Qt5Gui}: cxx{moc_$n}: include = adhoc
-  cxx{moc_$n}: $s
-}
-
-for s: hxx{$unix_moc_hdr}
-{
-  n = $name($s)
-  lib{Qt5Gui}: cxx{moc_$n}: include = ($unix ? adhoc : false)
-  cxx{moc_$n}: $s
-}
-
-for s: hxx{$linux_moc_hdr}
-{
-  n = $name($s)
-  lib{Qt5Gui}: cxx{moc_$n}: include = ($linux ? adhoc : false)
-  cxx{moc_$n}: $s
-}
-
-for s: hxx{$win_moc_hdr}
-{
-  n = $name($s)
-  lib{Qt5Gui}: cxx{moc_$n}: include = ($windows ? adhoc : false)
-  cxx{moc_$n}: $s
-}
-
-for s: hxx{$macos_moc_hdr}
-{
-  n = $name($s)
-  lib{Qt5Gui}: cxx{moc_$n}: include = ($macos ? adhoc : false)
-  cxx{moc_$n}: $s
-}
-
-for s: hxx{$bsd_moc_hdr}
-{
-  n = $name($s)
-  lib{Qt5Gui}: cxx{moc_$n}: include = ($bsd ? adhoc : false)
   cxx{moc_$n}: $s
 }
 
@@ -275,54 +436,57 @@ for s: cxx{$moc_src}
   moc{$n}: $s
 }
 
-for s: cxx{$win_moc_src}
-{
-  n = $name($s)
-  lib{Qt5Gui}: moc{$n}: include = ($windows ? adhoc : false)
-  moc{$n}: $s
-}
-
-for s: mm{$moc_mm}
-{
-  n = $name($s)
-  lib{Qt5Gui}: moc{$n}: include = ($macos ? adhoc : false)
-  moc{$n}: $s
-}
-
 # -I options for the system header directories.
 #
 sys_incl = $regex.apply($cxx.sys_hdr_dirs, '(.+)', '-I\1')
+
+# Import the QtCore generated configuration headers.
+#
+# @@ TMP build2 says these generated headers need to be static dependencies of
+#    the {foo.h -> moc_foo.cpp} adhoc rules.
+#
+import core_hdr  = libQt5Core%h{qconfig}
+import core_hdr += libQt5Core%private/h{qconfig_p}
+import core_hdr += libQt5Core%h{qtcore-config}
+import core_hdr += libQt5Core%private/h{qtcore-config_p}
 
 # Rule to run moc on a header file.
 #
 # Use -f to override the path moc uses to #include the input file, which is
 # relative to the output directory, with just the name of the input file.
 #
-# Explicitly list the generated headers as dependencies in case the
-# moc-generated file includes any of them (if only indirectly). Note that,
-# because moc's `--output-dep-file` mode (which produces a list of header
-# dependencies for the input file) silently omits non-existent headers from
-# its output, it does not support generated headers and thus there is no
-# choice but to declare these dependencies manually (we could aggregate
-# them in libul{Qt5GuiMeta}, though, with the added benefit of them not
-# automatically rendering us out of date if we added update=unmatch; but
-# probably not worth the complexity).
+# Also add QtCore's exported header search directories (via libus{Qt5GuiMeta})
+# because some code will be skipped by MOC unless certain QtCore features are
+# enabled.
 #
 # Note that hxx{moc_predefs} must always be in position 1.
 #
-cxx{~'/moc_(.*)/'}: hxx{~'/\1/'} hxx{moc_predefs} h{$gen_hdr} $moc
+cxx{~'/moc_(.*)/'}: hxx{~'/\1/'} hxx{moc_predefs} \
+                    hxx{$gen_hdr} $core_hdr libus{Qt5GuiMeta} $moc
 {{
   o = $path($>[0])
   t = $(o).t
 
-  depdb dyndep \
-    --byproduct --drop-cycles --what=header --default-type=h --file $t
+  # Remove all but the libQt5Core -I options from libus{Qt5GuiMeta}'s
+  # poptions.
+  #
+  core_incl = $regex.apply($cxx.lib_poptions(libus{Qt5GuiMeta}, objs), \
+                           '(-I.+/libQt5Core.*)', '\1', format_no_copy)
+  depdb hash $core_incl
+
+  # Note: exclude libus{Qt5GuiMeta} from update during match not to mess up its
+  #       for-install'ness.
+  #
+  depdb dyndep                                                  \
+    --byproduct --drop-cycles --what=header --default-type=h    \
+    --update-exclude libus{Qt5GuiMeta}                          \
+    --file $t
 
   diag moc ($<[0])
 
   s = $path($<[0])
 
-  $moc --include $path($<[1]) $cc.poptions $cxx.poptions $sys_incl \
+  $moc --include $path($<[1]) $cc.poptions $cxx.poptions $core_incl $sys_incl \
     -f $leaf($s) --output-dep-file --dep-file-path $t -o $o $s
 }}
 
@@ -330,19 +494,29 @@ cxx{~'/moc_(.*)/'}: hxx{~'/\1/'} hxx{moc_predefs} h{$gen_hdr} $moc
 #
 # See the header-input moc rule regarding the header prerequisites.
 #
-moc{~'/(.*)/'}: cxx{~'/\1/'} hxx{moc_predefs} h{$gen_hdr} $moc
+moc{~'/(.*)/'}: cxx{~'/\1/'} hxx{moc_predefs} \
+                hxx{$gen_hdr} $core_hdr libus{Qt5GuiMeta} $moc
 {{
   o = $path($>[0])
   t = $(o).t
 
-  depdb dyndep \
-    --byproduct --drop-cycles --what=header --default-type=h --file $t
+  # Remove all but the libQt5Core -I options from libus{Qt5GuiMeta}'s
+  # poptions.
+  #
+  core_incl = $regex.apply($cxx.lib_poptions(libus{Qt5GuiMeta}, objs), \
+                           '(-I.+/libQt5Core.*)', '\1', format_no_copy)
+  depdb hash $core_incl
+
+  depdb dyndep                                                  \
+    --byproduct --drop-cycles --what=header --default-type=h    \
+    --update-exclude libus{Qt5GuiMeta}                          \
+    --file $t
 
   diag moc ($<[0])
 
   s = $path($<[0])
 
-  $moc --include $path($<[1]) $cc.poptions $cxx.poptions $sys_incl \
+  $moc --include $path($<[1]) $cc.poptions $cxx.poptions $core_incl $sys_incl \
     --output-dep-file --dep-file-path $t -o $o $s
 }}
 
@@ -350,378 +524,192 @@ moc{~'/(.*)/'}: cxx{~'/\1/'} hxx{moc_predefs} h{$gen_hdr} $moc
 #
 # See the header-input moc rule regarding the header prerequisites.
 #
-moc{~'/(.*)/'}: mm{~'/\1/'} hxx{moc_predefs} h{$gen_hdr} $moc
+# @@ TODO Remove if it turns out no .mm are moc'd on Mac.
+#
+moc{~'/(.*)/'}: mm{~'/\1/'} hxx{moc_predefs} \
+                hxx{$gen_hdr} $core_hdr libus{Qt5GuiMeta} $moc
 {{
   o = $path($>[0])
   t = $(o).t
 
-  depdb dyndep \
-    --byproduct --drop-cycles --what=header --default-type=h --file $t
+  # Remove all but the libQt5Core -I options from libus{Qt5GuiMeta}'s
+  # poptions.
+  #
+  core_incl = $regex.apply($cxx.lib_poptions(libus{Qt5GuiMeta}, objs), \
+                           '(-I.+/libQt5Core.*)', '\1', format_no_copy)
+  depdb hash $core_incl
+
+  depdb dyndep                                                  \
+    --byproduct --drop-cycles --what=header --default-type=h    \
+    --update-exclude libus{Qt5GuiMeta}                          \
+    --file $t
 
   diag moc ($<[0])
 
   s = $path($<[0])
 
-  $moc --include $path($<[1]) $cc.poptions $cxx.poptions $sys_incl \
+  $moc --include $path($<[1]) $cc.poptions $cxx.poptions $core_incl $sys_incl \
     --output-dep-file --dep-file-path $t -o $o $s
 }}
 
-# Ensure that a moc-generated target's moc-generated dependencies are updated
-# before it itself is updated. This is necessary because a moc target's
-# dependencies are extracted at the same time as it is updated.
+# moc-generated files that need to be compiled (others are included).
 #
-# moc{foo} depends on cxx{moc_foo} because moc{foo} is generated from cxx{foo}
-# which includes cxx{moc_foo}. (Note that other generated dependencies common
-# to all moc-generated targets are declared above.)
+lib{Qt5Gui}: cxx{moc_qaccessible                        \
+                 moc_qaccessiblebridge                  \
+                 moc_qaccessiblecache_p                 \
+                 moc_qaccessibleplugin                  \
+                 moc_qbrush                             \
+                 moc_qclipboard                         \
+                 moc_qcolorspace                        \
+                 moc_qdnd_p                             \
+                 moc_qdrag                              \
+                 moc_qevent                             \
+                 moc_qfont                              \
+                 moc_qfontdatabase                      \
+                 moc_qgenericplugin                     \
+                 moc_qhighdpiscaling_p                  \
+                 moc_qiconengineplugin                  \
+                 moc_qimage                             \
+                 moc_qimageiohandler                    \
+                 moc_qinputcontrol_p                    \
+                 moc_qinputdevicemanager_p              \
+                 moc_qinternalmimedata_p                \
+                 moc_qkeymapper_p                       \
+                 moc_qkeysequence                       \
+                 moc_qlayoutpolicy_p                    \
+                 moc_qoffscreensurface                  \
+                 moc_qpaintdevicewindow                 \
+                 moc_qpainter                           \
+                 moc_qpalette                           \
+                 moc_qpdfwriter                         \
+                 moc_qpictureformatplugin               \
+                 moc_qplatformbackingstore              \
+                 moc_qplatformdialoghelper              \
+                 moc_qplatformgraphicsbuffer            \
+                 moc_qplatforminputcontext              \
+                 moc_qplatforminputcontextplugin_p      \
+                 moc_qplatformintegrationplugin         \
+                 moc_qplatformmenu                      \
+                 moc_qplatformnativeinterface           \
+                 moc_qplatformsharedgraphicscache       \
+                 moc_qplatformthemeplugin               \
+                 moc_qrasterwindow                      \
+                 moc_qscreen                            \
+                 moc_qsessionmanager                    \
+                 moc_qshaderlanguage_p                  \
+                 moc_qshapedpixmapdndwindow_p           \
+                 moc_qstylehints                        \
+                 moc_qsurface                           \
+                 moc_qsurfaceformat                     \
+                 moc_qtextdocument                      \
+                 moc_qtextformat                        \
+                 moc_qtextimagehandler_p                \
+                 moc_qtextlist				\
+		 moc_qtextobject			\
+		 moc_qtexttable				\
+		 moc_qtouchdevice			\
+		 moc_qvalidator}
+
+# Define the Qt resource file type.
 #
-moc{qeventdispatcher_cf}: cxx{moc_qeventdispatcher_cf_p}
-moc{qhistorystate}:       cxx{moc_qhistorystate}
-moc{qstatemachine}:       cxx{moc_qstatemachine}
-moc{qthreadpool}:         cxx{moc_qthreadpool}
-moc{qtimer}:              cxx{moc_qtimer}
+define qrc: file
+qrc{*}: extension = qrc
 
-# A small minority of moc-generated files need to be compiled (most are
-# included). And that's not where the inconsistency ends:
-# qfilesystemwatcher_win.cpp includes qfilesystemwatcher_win.moc but not
-# moc_qfilesystemwatcher_win.cpp, so the latter has to be compiled.
+# Dependencies involving source files generated by rcc from Qt resource files.
 #
-lib{Qt5Gui}: cxx{moc_qcalendar moc_qmimetype}
+for s: qrc{$qrc}
+{
+  n = $name($s)
+  lib{Qt5Gui}: cxx{qrc_$(n)}
+  cxx{qrc_$(n)}: $s
+}
 
-lib{Qt5Gui}: cxx{moc_qeventdispatcher_win_p    \
-                  moc_qfilesystemwatcher_win_p  \
-                  moc_qwindowspipereader_p      \
-                  moc_qwindowspipewriter_p      \
-                  moc_qwineventnotifier}: include = $windows
-
-lib{Qt5Gui}: cxx{moc_qfilesystemwatcher_kqueue_p}:   include = $bsd
-lib{Qt5Gui}: cxx{moc_qfilesystemwatcher_fsevents_p}: include = $macos
-
-lib{Qt5Gui}: libul{Qt5GuiMeta}
+# Rule to run rcc on a Qt resource file.
+#
+cxx{~'/qrc_(.*)/'}: qrc{~'/.*\1/'} $rcc
+{{
+  diag rcc ($<[0])
+  $rcc -name $name($<[0]) -o $path($>[0]) $path($<[0])
+}}
 
 # Generated headers and source files.
 #
-# In the Qt source code the features (QT_FEATURE_foo macros) are checked using
-# the QT_CONFIG(foo) macro (defined in qglobal.h) which will not compile
-# unless the macro is defined and has a value of 1 or -1.
-#
-# NOTE: to find usage instances, grep under ../upstream/qtbase/ for
-#       '(qtConfig|QT_CONFIG)\(<feature-name>\)'
-#
-# The files qtbase/configure.json and qtbase/src/corelib/configure.json are
-# the sources used by qtbase/mkspecs/features/qt_configure.prf to generate
-# qtconfig{,_p}.h and qtcore-config{,_p}.h, respectively. Entries in the
-# `features` array in configure.json files correspond to .prf files under
-# upstream/qtbase/mkspecs/features/. See https://wiki.qt.io/Qt5_Build_System.
-#
-# The configure.json files declare dependencies between features so be sure to
-# consult them before disabling or enabling any features.
-#
-using autoconf
 
-h{qconfig} global/cxx{qconfig-install qconfig-develop}: in.symbol = '$'
-
-# All-Qt public configuration header. Included by other Qt libraries via
-# QtCore/qglobal.h.
-#
-# See the .in files for more information.
-#
-h{qconfig}: in{qconfig}
-{
-  autoconf.prefix = qconfig_
-
-  QT_VERSION_STR="$version.major.$version.minor.$version.patch"
-  QT_VERSION_MAJOR="$version.major"
-  QT_VERSION_MINOR="$version.minor"
-  QT_VERSION_PATCH="$version.patch"
-}
-
-# All-Qt private configuration header. Included by a few other Qt libraries
-# via QtCore/qglobal_p.h.
+# Public QtGui library configuration (mostly high-level features).
 #
 # See the .in file for more information.
 #
-private/h{qconfig_p}: private/in{qconfig_p}
+hxx{qtgui-config}: in{qtgui-config}
 {
-  autoconf.prefix = qconfig_p_
+  # Defined in upstream/qtbase/src/gui/configure.pri.
+  #
+  QT_QPA_DEFAULT_PLATFORM_NAME = ($windows ? "windows" \
+                                           : $QT_QPA_DEFAULT_PLATFORM_NAME)
+  QT_QPA_DEFAULT_PLATFORM_NAME = ($macos   ? "cocoa" \
+                                           : $QT_QPA_DEFAULT_PLATFORM_NAME)
+  QT_QPA_DEFAULT_PLATFORM_NAME = ($linux   ? "xcb" \
+                                           : $QT_QPA_DEFAULT_PLATFORM_NAME)
+  QT_QPA_DEFAULT_PLATFORM_NAME = ($bsd     ? "xcb" \
+                                           : $QT_QPA_DEFAULT_PLATFORM_NAME)
 }
 
-# Public QtCore library configuration (mostly high-level features). Included
-# by other Qt libraries via QtCore/qglobal.h.
+# Private QtGui library configuration (lower-level features and settings).
 #
 # See the .in file for more information.
 #
-h{qtcore-config}: in{qtcore-config}
-{
-  autoconf.prefix = qtcore_config_
-}
-
-# Private QtCore library configuration (lower-level features and
-# settings). Included by a few other Qt libraries via QtCore/qglobal_p.h.
-#
-# See the .in file for more information.
-#
-private/h{qtcore-config_p}: private/in{qtcore-config_p}
-{
-  autoconf.prefix = qtcore_config_p_
-}
-
-# global/qconfig.cpp:
-#
-# This file provides information relating to installation paths. It is
-# included by global/qlibraryinfo.cpp (so we don't compile it). In upstream it
-# is generated during the configure step (qtbase/configure.pri).
-#
-# In order to support different installation paths for the installed and
-# uninstalled cases in build2 we turn qconfig.cpp into a real file (that is,
-# not generated) and turn its static variable and macro definitions into
-# extern variable declarations. Then we generate two source files,
-# qconfig-install.cpp and qconfig-develop.cpp, that define the variables to
-# values appropriate for the installed and uninstalled cases, respectively,
-# and we use (above) the `for_install` prerequisite-specific variable to
-# control which of the two gets linked in each case.
-#
-# See also comments in qconfig.cpp.in.
-#
-lib{Qt5Gui}: global/cxx{qconfig}: include = adhoc
-
-# Installed case: Here the installation prefix is an absolute path and the
-# other paths are all relative (to the prefix).
-#
-# Note that while this object file should only be linked when we are
-# installing, it will be compiled even in the uninstalled case where we may
-# have no install.root.
-#
-global/cxx{qconfig-install}:
-{
-  i = ($install.root != [null])
-
-  # Values of the installation paths. Make the $install.* paths relative to
-  # $install.root.
-  #
-  prefix       = [dir_path] ($i ? $install.root : .)
-  doc          = [dir_path] ($i ? $leaf($install.resolve($install.doc), $prefix) : .)
-  incl         = [dir_path] ($i ? $leaf($install.resolve($install.include), $prefix) : .)
-  lib          = [dir_path] ($i ? $leaf($install.resolve($install.lib), $prefix) : .)
-  bin          = [dir_path] ($i ? $leaf($install.resolve($install.bin), $prefix) : .)
-  libexec      = [dir_path] ($i ? $leaf($install.resolve($windows ? $install.bin : $install.libexec), $prefix) : .)
-  plugins      = [dir_path] $lib
-  imports      = [dir_path] $lib
-  qml          = [dir_path] $lib
-  data         = [dir_path] ($i ? $leaf($install.resolve($install.data), $prefix) : .)
-  arch_data    = [dir_path] $data
-  translations = [dir_path] translations
-  examples     = [dir_path] examples
-  tests        = [dir_path] tests
-
-  # A path appended to the path of the directory containing the installed
-  # QtCore library to get to the prefix path.
-  #
-  # For example, if the prefix is /usr/local and the library is installed in
-  # /usr/local/lib, upstream would do "/usr/local/lib" + "/" + "../" to get
-  # "/usr/local".
-  #
-  lib_to_prefix = [dir_path] ($i ? $relative($prefix, $install.resolve($install.lib)) : .)
-}
-
-# Uninstalled case: Here the installation prefix is the filesystem root and
-# the other directories are all absolute paths (because the source and output
-# directories may not have a longer common prefix).
-#
-assert ($root_directory($out_root) == $root_directory($src_root)) \
-  "out_root and src_root must have common filesystem root"
-
-global/cxx{qconfig-develop}:
-{
-  # Values of the installation paths.
-  #
-  prefix       = [dir_path] $root_directory($out_root)
-  doc          = [dir_path] $out_root/doc
-  incl         = [dir_path] $src_root
-  lib          = [dir_path] $out_root
-  libexec      = [dir_path] $out_root
-  bin          = [dir_path] $out_root
-  plugins      = [dir_path] $out_root/plugins
-  imports      = [dir_path] $out_root
-  qml          = [dir_path] $out_root
-  arch_data    = [dir_path] $src_root
-  data         = [dir_path] $src_root
-  translations = [dir_path] $out_root/translations
-  examples     = [dir_path] $src_root/examples
-  tests        = [dir_path] $src_root/tests
-
-  # See comment in the installed case above.
-  #
-  lib_to_prefix = [dir_path] $relative($prefix, $lib)
-}
-
-# Installed and uninstalled cases.
-#
-global/cxx{qconfig-install qconfig-develop}: global/in{qconfig}
-{
-  # The directory path containing user application settings. Ignored on
-  # Windows where the registry is used instead.
-  #
-  settingspath = ($macos ? /Library/Preferences/Qt : etc/xdg)
-
-  # The offsets of the beginning of each substring within the
-  # qt_configure_strs string which contains the installation path values
-  # defined above.
-  #
-  o_doc            = [uint64] 0
-  o_incl           = $size($doc)
-  o_incl          += 1
-  o_incl          += $o_doc
-  o_lib            = $size($incl)
-  o_lib           += 1
-  o_lib           += $o_incl
-  o_libexec        = $size($lib)
-  o_libexec       += 1
-  o_libexec       += $o_lib
-  o_bin            = $size($libexec)
-  o_bin           += 1
-  o_bin           += $o_libexec
-  o_plugins        = $size($bin)
-  o_plugins       += 1
-  o_plugins       += $o_bin
-  o_imports        = $size($plugins)
-  o_imports       += 1
-  o_imports       += $o_plugins
-  o_qml            = $size($imports)
-  o_qml           += 1
-  o_qml           += $o_imports
-  o_arch_data      = $size($qml)
-  o_arch_data     += 1
-  o_arch_data     += $o_qml
-  o_data           = $size($arch_data)
-  o_data          += 1
-  o_data          += $o_arch_data
-  o_translations   = $size($data)
-  o_translations  += 1
-  o_translations  += $o_data
-  o_examples       = $size($translations)
-  o_examples      += 1
-  o_examples      += $o_translations
-  o_tests          = $size($examples)
-  o_tests         += 1
-  o_tests         += $o_examples
-
-  # Escape backslashes on Windows. Note: must be done after offset
-  # calculations.
-  #
-  prefix       = [dir_path] $regex.replace($prefix, '\\', '\\\\')
-  doc          = [dir_path] $regex.replace($doc, '\\', '\\\\')
-  incl         = [dir_path] $regex.replace($incl, '\\', '\\\\')
-  lib          = [dir_path] $regex.replace($lib, '\\', '\\\\')
-  libexec      = [dir_path] $regex.replace($libexec, '\\', '\\\\')
-  bin          = [dir_path] $regex.replace($bin, '\\', '\\\\')
-  plugins      = [dir_path] $regex.replace($plugins, '\\', '\\\\')
-  imports      = [dir_path] $regex.replace($imports, '\\', '\\\\')
-  qml          = [dir_path] $regex.replace($qml, '\\', '\\\\')
-  arch_data    = [dir_path] $regex.replace($arch_data, '\\', '\\\\')
-  data         = [dir_path] $regex.replace($data, '\\', '\\\\')
-  translations = [dir_path] $regex.replace($translations, '\\', '\\\\')
-  examples     = [dir_path] $regex.replace($examples, '\\', '\\\\')
-  tests        = [dir_path] $regex.replace($tests, '\\', '\\\\')
-
-  lib_to_prefix = [dir_path] $regex.replace($lib_to_prefix, '\\', '\\\\')
-}
-
-# qmimeprovider_database.cpp:
-#
-# Convert mimetypes/mime/packages/freedesktop.org.xml into an array definition
-# which is included by mimetypes/qmimeprovider.cpp. Note that the
-# MimeTypeDatabaseOriginalSize variable is the size of the uncompressed data.
-#
-# @@ TODO Consider using compression. The uncompressed array is ~2MB but can
-#    be reduced to ~300KB. Would need to package gzip or zstd to use as a
-#    build-time dependency.
-#
-cxx{qmimeprovider_database}: mimetypes/mime/packages/freedesktop.org.xml $xxd
-{{
-    diag xxd ($<[0])
-
-    i = $path($<[0]) # Input.
-    o = $path($>)    # Output.
-
-    echo '#define MIME_DATABASE_IS_UNCOMPRESSED'               >$o
-    echo 'static const unsigned char mimetype_database[] = {' >>$o
-    $xxd -i <$i                                               >>$o
-    echo '};'                                                 >>$o
-    echo 'static constexpr size_t MimeTypeDatabaseOriginalSize = sizeof(mimetype_database);' >> $o
-}}
+private/hxx{qtgui-config_p}: private/in{qtgui-config_p}
 
 # Build options.
 #
-# Add 3rdparty/harfbuzz/src/ for an include of <harfbuzz-shaper.h>; and
-# 3rdparty/forkfd/ for an include of <forkfd.h>.
-#
-# Note: the few C source files that we compile (in harfbuzz/src/) don't
-#       need any of these.
-#
-cxx.poptions =+ "-I$out_root" "-I$src_root"                                     \
-                "-I$out_root/QtCore" "-I$src_root/QtCore"                       \
-                "-I$out_root/QtCore/private" "-I$src_root/QtCore/private"       \
-                "-I$src_root/3rdparty/harfbuzz/src"                             \
-                "-I$src_root/3rdparty/forkfd"
+cc.poptions =+ "-I$out_root" "-I$src_root"              \
+               "-I$out_root/QtGui" "-I$src_root/QtGui"  \
+               "-I$out_root/QtGui/private" "-I$src_root/QtGui/private"
 
-cxx.poptions += -DQT_BUILDING_QT -DQT_BUILD_CORE_LIB            \
-                -DQT_NO_LINKED_LIST                             \
-                -DQT_NO_JAVA_STYLE_ITERATORS                    \
-                -DQT_NO_USING_NAMESPACE                         \
-                -DQT_NO_FOREACH                                 \
-                -DQT_NO_NARROWING_CONVERSIONS_IN_CONNECT        \
-                -DQT_ASCII_CAST_WARNINGS                        \
-                -DQT_MOC_COMPAT                                 \
-                -DQT_USE_QSTRINGBUILDER                         \
-                -DQT_DEPRECATED_WARNINGS                        \
-                -D_REENTRANT                                    \
-                -DQT_DEPRECATED_WARNINGS_SINCE=0x060000         \
-                -DQT_NO_VERSION_TAGGING
+# Note that we omit QT_CORE_LIB because it is not referenced anywhere in the
+# upstream source.
+#
+cc.poptions += -DQT_BUILDING_QT -DQT_BUILD_GUI_LIB      \
+               -DQT_NO_LINKED_LIST                      \
+               -DQT_NO_JAVA_STYLE_ITERATORS             \
+               -DQT_NO_USING_NAMESPACE                  \
+               -DQT_NO_FOREACH                          \
+               -DQT_NO_NARROWING_CONVERSIONS_IN_CONNECT \
+               -DQT_ASCII_CAST_WARNINGS                 \
+               -DQT_MOC_COMPAT                          \
+               -DQT_USE_QSTRINGBUILDER                  \
+               -DQT_DEPRECATED_WARNINGS                 \
+               -D_REENTRANT                             \
+               -DQT_DEPRECATED_WARNINGS_SINCE=0x060000  \
+               -DENABLE_PIXMAN_DRAWHELPERS              \
+               -DQT_NO_CAST_TO_ASCII                    \
+               -DQT_NO_EXCEPTIONS
 
 if! $config.libQt5Gui.debug
-  cxx.poptions += -DQT_NO_DEBUG
+  cc.poptions += -DQT_NO_DEBUG
 
-# Note: the same macro from export/import (see also -DQT_BUILD_CORE_LIB).
-#
-{hbmia obja}{*}: cxx.poptions += -DQT_STATIC
-{hbmis objs}{*}: cxx.poptions += -DQT_SHARED
+# Note: QT_NO_VERSION_TAGGING and QT_SHARED/QT_STATIC are exported by QtCore
+#       so need not be defined again or exported.
 
 # Add platform-specific header directories, libraries, compilation options,
 # and macro definitions.
 #
 if $windows
 {
-  cxx.poptions += -DQT_DISABLE_DEPRECATED_BEFORE=0x040800       \
-                  -D_CRT_SECURE_NO_WARNINGS                     \
-                  -D_USE_MATH_DEFINES                           \
-                  -DUNICODE                                     \
-                  -D_UNICODE                                    \
-                  -DWIN32
+  cc.poptions += -DQT_DISABLE_DEPRECATED_BEFORE=0x040800        \
+                 -D_CRT_SECURE_NO_WARNINGS                      \
+                 -D_USE_MATH_DEFINES                            \
+                 -DUNICODE                                      \
+                 -D_UNICODE                                     \
+                 -DWIN32
 }
 else
 {
-  cxx.poptions += -DQT_DISABLE_DEPRECATED_BEFORE=0x050000       \
-                  -DQT_NO_CAST_TO_ASCII                         \
-                  -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE
+  cc.poptions += -DQT_DISABLE_DEPRECATED_BEFORE=0x050000        \
+                 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE
 
   if $linux
     lib{Qt5Gui}: cxx.libs += -ldl
 }
-
-# Not sure if/when this is necessary (see `libatomic` in
-# corelib/configure.json).
-#
-# I believe this library is only necessary if std::automic<T> operations
-# cannot be implemented as instructions (usually with T=int64_t) and as a
-# result must be emulated. In this case this emulation is provided by this
-# library.
-#
-# cxx.libs += -latomic
-
-# libexecinfo is required for backtrace(3) on BSD (see global/qlogging.cpp).
-#
-if $bsd
-  lib{Qt5Gui}: cxx.libs += -lexecinfo
 
 # Every directory under mkspecs/ contains a unique `qplatformdefs.h`.
 #
@@ -731,52 +719,43 @@ if $bsd
 switch $cxx.target.class, $cxx.id, $cxx.target.system
 {
   case 'linux', 'gcc'
-    cxx.poptions += "-I$src_root/QtCore/mkspecs/linux-g++"
+    cc.poptions += "-I$src_root/QtGui/mkspecs/linux-g++"
   case 'linux', 'clang'
-    cxx.poptions += "-I$src_root/QtCore/mkspecs/linux-clang"
+    cc.poptions += "-I$src_root/QtGui/mkspecs/linux-clang"
   case 'macos', 'clang-apple'
   {
-    cxx.poptions += "-I$src_root/QtCore/mkspecs/macx-clang"
-    lib{Qt5Gui}: cxx.libs += -framework AppKit                 \
-                              -framework CoreServices           \
-                              -framework DiskArbitration        \
-                              -framework Foundation             \
-                              -framework IOKit                  \
-                              -framework Security
+    cc.poptions += "-I$src_root/QtGui/mkspecs/macx-clang"
+    lib{Qt5Gui}: cxx.libs += -framework AppKit  \
+                             -framework Foundation
+                             # -framework CoreGraphics
   }
   case 'bsd', 'clang', 'freebsd'
-    cxx.poptions += "-I$src_root/QtCore/mkspecs/freebsd-clang"
+    cc.poptions += "-I$src_root/QtGui/mkspecs/freebsd-clang"
   case 'bsd', 'gcc', 'openbsd'
-    cxx.poptions += "-I$src_root/QtCore/mkspecs/openbsd-g++"
+    cc.poptions += "-I$src_root/QtGui/mkspecs/openbsd-g++"
   case 'bsd', 'gcc', 'netbsd'
-    cxx.poptions += "-I$src_root/QtCore/mkspecs/netbsd-g++"
+    cc.poptions += "-I$src_root/QtGui/mkspecs/netbsd-g++"
   case 'windows', 'msvc'
   {
-    cxx.poptions += "-I$src_root/QtCore/mkspecs/win32-msvc" \
+    cc.poptions += "-I$src_root/QtGui/mkspecs/win32-msvc" \
                     -D_ENABLE_EXTENDED_ALIGNED_STORAGE
 
-    lib{Qt5Gui}: cxx.libs += ole32.lib advapi32.lib shell32.lib        \
-                              mpr.lib netapi32.lib userenv.lib          \
-                              version.lib winmm.lib ws2_32.lib
+    lib{Qt5Gui}: cxx.libs += ole32.lib advapi32.lib shell32.lib
   }
   case 'windows', 'msvc-clang' | 'clang'
   {
-    cxx.poptions += "-I$src_root/QtCore/mkspecs/win32-clang-msvc" \
+    cc.poptions += "-I$src_root/QtGui/mkspecs/win32-clang-msvc" \
                     -D_ENABLE_EXTENDED_ALIGNED_STORAGE
 
-    lib{Qt5Gui}: cxx.libs += ole32.lib advapi32.lib shell32.lib        \
-                              mpr.lib netapi32.lib userenv.lib          \
-                              version.lib winmm.lib ws2_32.lib
+    lib{Qt5Gui}: cxx.libs += ole32.lib advapi32.lib shell32.lib
   }
   case 'windows', 'gcc', 'mingw32'
   {
-    cxx.poptions += "-I$src_root/QtCore/mkspecs/win32-g++" \
+    cc.poptions += "-I$src_root/QtGui/mkspecs/win32-g++" \
                     -DMINGW_HAS_SECURE_API=1
     cxx.coptions += -fno-keep-inline-dllexport
 
-    lib{Qt5Gui}: cxx.libs += -lole32 -ladvapi32 -lshell32 -lmpr        \
-                              -lnetapi32 -luuid -luserenv -lversion     \
-                              -lwinmm -lws2_32
+    lib{Qt5Gui}: cxx.libs += -lole32 -ladvapi32 -lshell32
   }
 }
 
@@ -784,14 +763,10 @@ switch $cxx.target.class, $cxx.id, $cxx.target.system
 #
 lib{Qt5Gui}:
 {
-  cxx.export.poptions = "-I$out_root" "-I$src_root"                     \
-                        "-I$out_root/QtCore" "-I$src_root/QtCore"       \
-                        -DQT_NO_VERSION_TAGGING
+  cxx.export.poptions = "-I$out_root" "-I$src_root" \
+                        "-I$out_root/QtGui" "-I$src_root/QtGui"
   cxx.export.libs = $intf_libs
 }
-
-liba{Qt5Gui}: cxx.export.poptions += -DQT_STATIC
-libs{Qt5Gui}: cxx.export.poptions += -DQT_SHARED
 
 # For pre-releases use the complete version to make sure they cannot be used
 # in place of another pre-release or the final version. See the version module
@@ -802,10 +777,10 @@ if $version.pre_release
 else
   lib{Qt5Gui}: bin.lib.version = "-$version.major.$version.minor"
 
-# Install public headers into the qt5/QtCore/ subdirectory of, say,
-# /usr/include/. Note that headers are included as <QtCore/*>.
+# Install public headers into the qt5/QtGui/ subdirectory of, say,
+# /usr/include/. Note that headers are included as <QtGui/*>.
 #
 lib{Qt5Gui}: cxx.pkgconfig.include = include/qt5/
 
-{h hxx}{../3rdparty/* private/* testlib/*}: install = false
-{h hxx}{*}: install = include/qt5/QtCore/
+{hxx}{../3rdparty/* private/*}: install = false
+{hxx}{*}: install = include/qt5/QtGui/

@@ -761,9 +761,17 @@ lib{Qt5Core}: libul{Qt5CoreMeta}
 
 # Generated headers and source files.
 #
+# In general, the qt<module>-config.h header defines the macros for
+# public/user features, while the qt<module>-config_p.h header defines macros
+# for private/internal features. Users can only enable or disable public
+# features, not the private ones.
+#
 # In the Qt source code the features (QT_FEATURE_foo macros) are checked using
 # the QT_CONFIG(foo) macro (defined in qglobal.h) which will not compile
 # unless the macro is defined and has a value of 1 or -1.
+#
+# If QT_FEATURE_foo is defined to -1 then it may also be necessary to define
+# QT_NO_FOO (always in the public header).
 #
 # NOTE: to find usage instances, grep under ../upstream/qtbase/ for
 #       '(qtConfig|QT_CONFIG)\(<feature-name>\)'
@@ -996,6 +1004,10 @@ global/cxx{qconfig-install qconfig-develop}: global/in{qconfig}
 # @@ TODO Consider using compression. The uncompressed array is ~2MB but can
 #    be reduced to ~300KB. Would need to package gzip or zstd to use as a
 #    build-time dependency.
+#
+# @@ TODO Use RCC instead of the Perl script. Not sure why upstream (even Qt6)
+#    doesn't use RCC given that even Qt5 has a mimetypes.qrc. (Then the
+#    compression TODO above would also be moot.)
 #
 cxx{qmimeprovider_database}: mimetypes/mime/packages/freedesktop.org.xml $xxd
 {{

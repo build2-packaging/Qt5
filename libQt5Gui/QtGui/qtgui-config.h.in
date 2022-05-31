@@ -1,0 +1,168 @@
+#define QT_QPA_DEFAULT_PLATFORM_NAME "@QT_QPA_DEFAULT_PLATFORM_NAME@"
+
+// Define macros for features disabled in qtgui-config_p.h.
+//
+// ATSPI is disabled for the time being. See
+// QT_FEATURE_accessibility_atspi_bridge in qtgui-config_p.h.
+//
+#define QT_NO_ACCESSIBILITY_ATSPI_BRIDGE 1
+#define QT_NO_DIRECTWRITE                1
+
+// Disable OpenGL, Angle, and Vulkan.
+//
+#define QT_FEATURE_opengl -1
+#define QT_NO_OPENGL       1
+#define QT_FEATURE_openvg -1
+
+#define QT_FEATURE_opengles3          -1
+#define QT_FEATURE_opengles31         -1
+#define QT_FEATURE_opengles32         -1
+#define QT_FEATURE_opengles2          -1
+#define QT_FEATURE_dynamicgl          -1
+#define QT_FEATURE_vulkan             -1
+#define QT_FEATURE_angle              -1
+#define QT_FEATURE_combined_angle_lib -1
+
+// Accessibility.
+//
+#define QT_FEATURE_accessibility 1
+
+// "Provides automatic scaling of DPI-unaware applications on high-DPI
+// displays."
+//
+#define QT_FEATURE_highdpiscaling 1
+
+// "Provides a base for writing a image format plugins."
+//
+#define QT_FEATURE_imageformatplugin 1
+
+// Note: QT_FEATURE_imageformat_foo does not affect the private
+//       QT_FEATURE_foo. The former is a user-level option while the latter is
+//       used internally in qmake build files.
+
+// Image formats with built-in support (so always enable).
+//
+#define QT_FEATURE_imageformat_bmp 1
+#define QT_FEATURE_imageformat_ppm 1
+#define QT_FEATURE_imageformat_xbm 1
+#define QT_FEATURE_imageformat_xpm 1
+
+// Image formats supported by build2-packaged libraries.
+//
+#define QT_FEATURE_imageformat_jpeg 1
+#define QT_FEATURE_imageformat_png  1
+
+// "Supports creating a 1-bpp heuristic mask for images."
+//
+#define QT_FEATURE_image_heuristic_mask 1
+
+// "Supports image file text strings."
+//
+#define QT_FEATURE_image_text 1
+
+// "Supports animated images."
+//
+#define QT_FEATURE_movie 1
+
+// "Provides an interface to the windowing system's session management."
+// Enabled unconditionally upstream.
+//
+#define QT_FEATURE_sessionmanager 1
+
+// "Provides a generic model for storing custom data."
+//
+#define QT_FEATURE_standarditemmodel 1
+
+// "Provides an icon for an application in the system tray."
+//
+#define QT_FEATURE_systemtrayicon 1
+
+#define QT_FEATURE_pdf 1
+
+// "Provides a parser for HTML."
+//
+#define QT_FEATURE_texthtmlparser 1
+
+// Markdown parser (libmd4c; build2-packaged).
+//
+#define QT_FEATURE_textmarkdownreader 1
+
+// Use the system libmd4c (that is, the build2 package).
+//
+#define QT_FEATURE_system_textmarkdownreader 1
+
+// "Provides a Markdown (CommonMark) writer".
+//
+// Note: does not use libmd4c (Qt has its own writer implementation).
+//
+#define QT_FEATURE_textmarkdownwriter 1
+
+// "Provides an ODF writer."
+//
+#define QT_FEATURE_textodfwriter 1
+
+// "Supports recording and replaying QPainter commands."
+//
+#define QT_FEATURE_picture 1
+
+// "Supports validation of input text."
+//
+#define QT_FEATURE_validator 1
+
+// "Supports displaying \"What's this\" help."
+//
+#define QT_FEATURE_whatsthis 1
+
+// "Provides complex input methods."
+//
+#if QT_CONFIG(library)
+#  define QT_FEATURE_im 1
+#else
+#  define QT_FEATURE_im -1
+#  define QT_NO_IM       1
+#endif
+
+// "Supports wheel events."
+//
+#define QT_FEATURE_wheelevent 1
+
+// "Supports tablet events."
+//
+#if QT_CONFIG(library)
+#  define QT_FEATURE_tabletevent  1
+#else
+#  define QT_FEATURE_tabletevent -1
+#endif
+
+// "Supports the drag and drop mechansim."
+//
+#define QT_FEATURE_draganddrop 1
+
+// "QAction/Provides widget actions."
+//
+#define QT_FEATURE_action 1
+
+// "Provides keyboard accelerators and shortcuts."
+//
+#define QT_FEATURE_shortcut 1
+
+// "Provides cut and paste operations."
+//
+#define QT_FEATURE_clipboard 1
+
+// "Provides mouse cursors."
+//
+#define QT_FEATURE_cursor 1
+
+// "Supports color names such as \"red\", used by QColor and by some HTML
+// documents."
+//
+#define QT_FEATURE_colornames 1
+
+// "Provides a parser for Cascading Style Sheets."
+//
+#define QT_FEATURE_cssparser 1
+
+// "Provides methods for accessing common desktop services."
+//
+#define QT_FEATURE_desktopservices 1
