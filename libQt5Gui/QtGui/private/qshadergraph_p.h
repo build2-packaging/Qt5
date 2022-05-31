@@ -1,0 +1,1 @@
+../../../upstream/qtbase/src/gui/util/qshadergraph_p.h
