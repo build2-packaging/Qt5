@@ -6,7 +6,29 @@
 # Create the infrastructure required by our Qt packages:
 #
 # - Create a source layout more suitable to our purposes which is still
-#   compatible the Qt upstream (the way they include stuff, etc).
+#   compatible with the Qt upstream (the way they include stuff, etc).
+#
+# - Separate private headers to a deeper directory subtree to prevent them
+#   from being found without the addition of the header search directories
+#   exported by the lib{Qt5CorePrivate} and similar targets.
+#
+#   For QtGui, for example, the public headers are under libQt5Gui/QtGui/
+#   while the private headers are under
+#   libQt5Gui/QtGui/private/QtGui/{private,qpa}/. Thus include paths such as
+#   <QtGui/private/foo_p.h> or <private/foo_p.h> will not work without
+#   lib{Qt5GuiPrivate}'s exported poptions of "-IlibQt5Gui/QtGui/private
+#   -IlibQt5Gui/QtGui/private/QtGui".
+#
+# - Most upstream files are symlinked into our source layout but in some cases
+#   this is not possible. The upstream build runs a script, syncqt.pl, for
+#   each module which rearranges its public headers to be fit for consumption
+#   by their clients (other Qt modules and Qt users). For example, it
+#   generates camelcase-named versions of the public headers and groups
+#   headers from different source subdirectories into the same directory, the
+#   name of which clients then use in their include paths. Because these
+#   conversions are not trivial enough to reproduce here we cannot symlink to
+#   the original sources so we copy them from the script's output directories
+#   instead.
 #
 
 owd="$(pwd)"
@@ -19,46 +41,109 @@ shopt -s nullglob   # Expand no-match globs to nothing rather than themselves.
 function info () { echo "$*" 1>&2; }
 function error () { info "$*"; exit 1; }
 
+# Recursively remove all files in <dir> that are symlinks.
+#
+function rm_symlinks () # <dir>
+{
+  find "$1" -type l -exec rm {} \;
+}
+
+# Recursively remove all empty directories in <dir>.
+#
+function rm_empty_dirs () # <dir>
+{
+  local d="${1%/}"
+
+  local sd # Subdirectory.
+  for sd in "$d"/*/; do
+    # Remove subdirectory contents, then remove subdirectory itself if empty.
+    #
+    rm_empty_dirs "$sd"
+
+    if [[ -z "$(ls "$sd")" ]]; then
+      rmdir "$sd"
+    fi
+  done
+}
+
 # Remove previously-generated files and directories.
 #
-rm -f Qt5Moc/moc/*.{h,cpp,orig}
-rm -rf Qt5Moc/moc/QtCore/
-rm -f Qt5Moc/moc/mkspecs
-rm -rf Qt5Moc/moc/3rdparty
+rm_symlinks Qt5Moc/moc/
+rm_empty_dirs Qt5Moc/moc/
 
-rm -f Qt5Rcc/rcc/*.{h,cpp,orig}
-rm -rf Qt5Rcc/rcc/QtCore/
-rm -f Qt5Rcc/rcc/mkspecs
-rm -rf Qt5Rcc/rcc/3rdparty
+rm_symlinks Qt5Rcc/rcc/
+rm_empty_dirs Qt5Rcc/rcc/
 
-rm -rf libQt5Core/QtCore/{*.h,Q*,*.orig}
-rm -f libQt5Core/QtCore/mkspecs
+rm_symlinks Qt5Uic/uic/
+rm_empty_dirs Qt5Uic/uic/
+
+rm_symlinks libQt5Core/QtCore/
+rm_empty_dirs libQt5Core/QtCore/
+rm -f  libQt5Core/QtCore/Q*
 rm -rf libQt5Core/3rdparty
-rm -f libQt5Core/QtCore/testlib
+
+rm_symlinks libQt5Gui/QtGui/
+rm_empty_dirs libQt5Gui/QtGui/
+rm -rf libQt5Gui/3rdparty
+rm -f  libQt5Gui/mkspecs
+rm -rf libQt5Gui/QtGui/qpa/
+rm -rf libQt5Gui/QtGui/private/QtGui/qpa/
+rm -f  libQt5Gui/QtGui/Q*
+
+rm_symlinks libQt5Gui/QtGuiPlugins/
+rm_empty_dirs libQt5Gui/QtGuiPlugins/
+rm -rf libQt5Gui/QtGuiPlugins/{Qt*Support,QtPlatformHeaders}
+
+rm -f libQt5GuiTests/mkspecs
+
+rm -f libQt5Widgets/mkspecs
+rm -rf libQt5Widgets/QtWidgets/QtPlatformHeaders
+rm_symlinks libQt5Widgets/QtWidgets/
+rm_empty_dirs libQt5Widgets/QtWidgets/
+rm -f  libQt5Widgets/QtWidgets/Q*
+
+rm_symlinks libQt5Widgets/QtWidgetsPlugins/
+rm_empty_dirs libQt5Widgets/QtWidgetsPlugins/
+
+rm_symlinks libQt5WidgetsTests/widgets-app
+rm -f libQt5WidgetsTests/mkspecs
 
 # Create output directories.
 #
 # 3rdparty/ has to be a sibling to QtCore/ because the QtCore source files use
 # include paths such as "../../3rdparty/freebsd/strtoll.c".
 #
-mkdir -p Qt5Moc/moc/QtCore/private
-mkdir Qt5Moc/moc/3rdparty
+mkdir    Qt5Moc/moc/3rdparty
+mkdir    Qt5Moc/moc/QtCore
+mkdir -p Qt5Moc/moc/QtCore/private/QtCore/private
 
-mkdir -p Qt5Rcc/rcc/QtCore/private
-mkdir Qt5Rcc/rcc/3rdparty
+mkdir    Qt5Rcc/rcc/3rdparty
+mkdir    Qt5Rcc/rcc/QtCore
+mkdir -p Qt5Rcc/rcc/QtCore/private/QtCore/private
 
-mkdir -p libQt5Core/QtCore/private
+mkdir    Qt5Uic/uic/3rdparty
+mkdir    Qt5Uic/uic/QtCore
+mkdir -p Qt5Uic/uic/QtCore/private/QtCore/private
+
 mkdir libQt5Core/3rdparty
-
 # Directory for the MIME type database source XML file.
 #
 mkdir -p libQt5Core/QtCore/mimetypes/mime/packages
+
+mkdir libQt5Gui/3rdparty
+mkdir libQt5Gui/QtGui/qpa
+mkdir libQt5Gui/QtGui/private/QtGui/qpa
 
 # Symlink the upstream platform-specific include directories.
 #
 ln -s ../../upstream/qtbase/mkspecs Qt5Moc/moc/
 ln -s ../../upstream/qtbase/mkspecs Qt5Rcc/rcc/
+ln -s ../../upstream/qtbase/mkspecs Qt5Uic/uic/
 ln -s ../../upstream/qtbase/mkspecs libQt5Core/QtCore/
+ln -s    ../upstream/qtbase/mkspecs libQt5Gui/
+ln -s    ../upstream/qtbase/mkspecs libQt5GuiTests/
+ln -s    ../upstream/qtbase/mkspecs libQt5Widgets/
+ln -s    ../upstream/qtbase/mkspecs libQt5WidgetsTests/
 
 # Symlink the upstream third-party directories.
 #
@@ -66,26 +151,113 @@ ln -s ../../../upstream/qtbase/src/3rdparty/{freebsd,sha1} \
    Qt5Moc/moc/3rdparty/
 ln -s ../../../upstream/qtbase/src/3rdparty/{freebsd,sha1} \
    Qt5Rcc/rcc/3rdparty/
+ln -s ../../../upstream/qtbase/src/3rdparty/{freebsd,sha1} \
+   Qt5Uic/uic/3rdparty/
 ln -s ../../upstream/qtbase/src/3rdparty/{easing,freebsd,forkfd,md4,md5,rfc6234,sha1,sha3,harfbuzz} \
    libQt5Core/3rdparty/
+ln -s ../../upstream/qtbase/src/3rdparty/{icc,wintab} \
+   libQt5Gui/3rdparty/
 
-# This is made necessary by the inclusion of
-# "../testlib/3rdparty/valgrind_p.h" by corelib/tools/qsimd.cpp. (That is,
-# QtCore includes a private header from QTestLib, an entirely different
-# library...)
+# Symlink an upstream source file into our project directory structure.
 #
-ln -sf ../../upstream/qtbase/src/testlib libQt5Core/QtCore/
+# If there is a downstream version of the source file, its symlink gets the
+# upstream filename while the upstream original's symlink gets the upstream
+# filename with a ".orig" extension.
+#
+# <symlink-target-path>: path to the symlink's upstream target, relative to
+#                        the destination directory (so will contain some
+#                        `../`s).
+#
+# <destination-dir-path>: path to the directory that will contain the symlink,
+#                         relative to the project root.
+#
+# For example, assuming downstream/foo/bar/baz.cpp exists:
+#
+#   call:   symlink_source_file ../../upstream/foo/bar/baz.cpp foo/bar/
+#   result: foo/bar/baz.cpp      -> downstream/foo/bar/baz.cpp
+#           foo/bar/baz.cpp.orig ->   upstream/foo/bar/baz.cpp
+#
+function symlink_source_file () # <symlink-target-path> <destination-dir-path>
+{
+  local ut="${1%/}" # Upstream symlink target path.
+  local d="${2%/}"  # Destination directory path.
 
-# Symlink all of a Qt module's sources into
-# <output-path-prefix>/<module-name>/.
+  local fn="$(basename "$ut")" # Upstream target file name.
+
+  # Path to the downstream version of the symlink target, relative to the
+  # destination directory. (Don't use sed because doing so for every file is
+  # too slow).
+  #
+  local dt="${ut/upstream/downstream}" # Downstream symlink target path.
+
+  if [[ -f "$d/$dt" ]]; then
+    ln -sf "$ut" "$d/$fn.orig"
+    ln -sf "$dt" "$d/$fn"
+  else
+    ln -sf "$ut" "$d/$fn"
+  fi
+}
+
+# Symlink the sources of an upstream non-module.
+#
+# Non-modules include tools, plugins, and internal modules such as those in
+# upstream/qtbase/src/platformsupport/.
+#
+# Note that we don't rearrange non-modules' sources as we do those of "proper"
+# Qt modules such as QtCore and QtGui because it does not seem worth the
+# trouble for the following reasons: 1) These subprojects have a different
+# layout in that there are source files in the root directory (for example, in
+# upstream/qtbase/src/plugins/platforms/xcb/) which is where subdirectory
+# headers would be copied to, and 2) in some instances source files are more
+# than one directory level down from the root (for example, in
+# upstream/qtbase/src/plugins/platforms/xcb/gl_integrations/xcb_egl/). And 3)
+# tools are not libraries while the plugin libraries are loaded at runtime by
+# one of the "proper" Qt modules (for example, libQt5Gui loads libqxcb) and
+# are thus not user-facing to the same degree.
+#
+function symlink_non_module () # <source-directory> <destination-directory>
+{
+  local s="${1%/}"                  # Source directory.
+  local d="${2%/}/$(basename "$s")" # Destination directory.
+
+  # Prefix to make target path relative to the destination directory (one
+  # `../` for each directory component in the destination path).
+  #
+  local tp="$(sed -Ee 's%[^/]+%..%g' <<<"$d")" # Target prefix.
+
+  local t # Target file.
+  for t in "$s"/*; do
+    case "$t" in
+      *.h|*.cpp|*.mm|*.json)
+        symlink_source_file "$tp/$t" "$d"
+        ;;
+      *)
+        if [[ -d "$t" ]]; then
+          local sp="$d/$(basename "$t")" # Directory symlink path.
+          mkdir -p "$sp"
+          symlink_non_module "$t" "$d"
+          # Remove the directory if it's empty (contained no interesting
+          # files).
+          #
+          if [[ -z "$(ls "$sp")" ]]; then
+            rmdir "$sp"
+          fi
+        fi
+    esac
+  done
+}
+
+# Symlink all of the sources in a Qt module subdirectory into
+# <output-path-prefix>/<module-name>/<subdir>.
 #
 # Note that we have to rearrange the upstream sources because they cannot be
 # built the way they're laid out in upstream/qtbase/src/<module> (the upstream
 # build also rearranges them).
 #
-# From the upstream directory layout (using QtCore as an example):
+# From the upstream directory layout (after the repeated application of this
+# function to all of a module's subdirectories):
 #
-#   upstream/qtbase/src/corelib
+#   upstream/qtbase/src/modulename
 #   ├── foo
 #   │   ├── foo.cpp
 #   │   ├── foo.h
@@ -101,7 +273,7 @@ ln -sf ../../upstream/qtbase/src/testlib libQt5Core/QtCore/
 # create the following layout:
 #
 #   <output-path-prefix>
-#    └── QtCore
+#    └── QtModuleName
 #        ├── foo
 #        │   ├── foo.cpp
 #        │   ...
@@ -116,7 +288,8 @@ ln -sf ../../upstream/qtbase/src/testlib libQt5Core/QtCore/
 #        ├── bar.h
 #        ...
 #
-function symlink_module_subdir () # <output-path-prefix> <module-name> <subdir>
+function symlink_module_subdir ()
+# <output-path-prefix> <module-name> <subdir>
 {
   local opp="$1"   # Output path prefix.
   local mod="$2"   # Qt module name.
@@ -135,16 +308,15 @@ function symlink_module_subdir () # <output-path-prefix> <module-name> <subdir>
   #
   local f
   for f in "$d"/*; do
-    f="${f#upstream/}" # Strip "upstream/" prefix.
-
     tpp= # Symlink target path prefix.
     spp= # Symlink path prefix.
+
     case "$f" in
       # Private header.
       #
       *_p.h)
-        tpp="$pdp/../.."
-        spp="$opp/$mod/private"
+        tpp="$pdp/../../../.."
+        spp="$opp/$mod/private/$mod/private"
         ;;
       # Public header.
       #
@@ -163,17 +335,7 @@ function symlink_module_subdir () # <output-path-prefix> <module-name> <subdir>
       *) continue ;;
     esac
 
-    # If there is a downstream version of this file, its symlink gets the
-    # upstream filename while the upstream original's symlink gets the
-    # upstream filename with a ".orig" extension.
-    #
-    local fn="$(basename "$f")" # File name.
-    if [[ -f "downstream/$f" ]]; then
-      ln -sf "$tpp/upstream/$f"   "$spp/$fn.orig"
-      ln -sf "$tpp/downstream/$f" "$spp/$fn"
-    else
-      ln -sf "$tpp/upstream/$f"   "$spp/$fn"
-    fi
+    symlink_source_file "$tpp/$f" "$spp"
   done
 
   # Remove the source file destination directory if it is empty (which would
@@ -184,92 +346,323 @@ function symlink_module_subdir () # <output-path-prefix> <module-name> <subdir>
   fi
 }
 
+# Symlink the moc, rcc, and uic applications' headers and source files into
+# Qt5Moc/moc/, Qt5Rcc/rcc/, and Qt5Uic/uic/.
+#
+symlink_non_module upstream/qtbase/src/tools/moc \
+                   Qt5Moc/
+symlink_non_module upstream/qtbase/src/tools/rcc \
+                   Qt5Rcc/
+symlink_non_module upstream/qtbase/src/tools/uic \
+                   Qt5Uic/
+
 # Symlink the upstream QtCore sources into Qt5Moc/, Qt5Rcc/, and
 # libQt5Core/. Although the Qt5Moc and Qt5Rcc builds include only a subset of
 # the QtCore sources we symlink all of them for the sake of simplicity (their
 # buildfiles do not use wildcards).
 #
 for d in upstream/qtbase/src/corelib/*/; do
-  symlink_module_subdir "Qt5Moc/moc" QtCore "$d"
-  symlink_module_subdir "Qt5Rcc/rcc" QtCore "$d"
-  symlink_module_subdir "libQt5Core" QtCore "$d"
+  symlink_module_subdir Qt5Moc/moc QtCore "$d"
+  symlink_module_subdir Qt5Rcc/rcc QtCore "$d"
+  symlink_module_subdir Qt5Uic/uic QtCore "$d"
+  symlink_module_subdir libQt5Core QtCore "$d"
 done
 
-# Symlink the upstream MIME type database source XML file.
+# Symlink the upstream MIME type database source XML file into libQt5Core/.
 #
-ln -sf "../../../../../\
-upstream/qtbase/src/corelib/mimetypes/mime/packages/freedesktop.org.xml" \
-"libQt5Core/QtCore/mimetypes/mime/packages/"
+ln -s ../../../../../\
+upstream/qtbase/src/corelib/mimetypes/mime/packages/freedesktop.org.xml \
+      libQt5Core/QtCore/mimetypes/mime/packages/
 
-# Symlink all of the moc application's headers and source files into
-# Qt5Moc/moc/.
+# This is made necessary by the inclusion of
+# "../testlib/3rdparty/valgrind_p.h" by corelib/tools/qsimd.cpp.
 #
-for f in upstream/qtbase/src/tools/moc/*.{h,cpp}; do
-  f="${f#upstream/}"    # Strip "upstream/" prefix.
-  fn="$(basename "$f")" # File name.
+ln -sf ../../upstream/qtbase/src/testlib libQt5Core/QtCore/
 
-  # See the symlinking of the QtCore sources above.
-  #
-  if [[ -f "downstream/$f" ]]; then
-    ln -s "../../upstream/$f"   "Qt5Moc/moc/$fn.orig"
-    ln -s "../../downstream/$f" "Qt5Moc/moc/$fn"
-  else
-    ln -s "../../upstream/$f"   "Qt5Moc/moc/$fn"
-  fi
+# Symlink the upstream QtGui sources into libQt5Gui/.
+#
+for d in upstream/qtbase/src/gui/*/; do
+  symlink_module_subdir libQt5Gui QtGui "$d"
 done
 
-# Symlink all of the rcc application's headers and source files into
-# Qt5Rcc/rcc/.
+# Remove the QPA headers because they belong under qpa/ (and will be moved
+# there below, as per the upstream build).
 #
-for f in upstream/qtbase/src/tools/rcc/*.{h,cpp}; do
-  f="${f#upstream/}"    # Strip "upstream/" prefix.
-  fn="$(basename "$f")" # File name.
+rm libQt5Gui/QtGui/qplatform*.h
+rm libQt5Gui/QtGui/private/QtGui/private/qplatform*_p.h
 
-  # See the symlinking of the QtCore sources above.
-  #
-  if [[ -f "downstream/$f" ]]; then
-    ln -s "../../upstream/$f"   "Qt5Rcc/rcc/$fn.orig"
-    ln -s "../../downstream/$f" "Qt5Rcc/rcc/$fn"
-  else
-    ln -s "../../upstream/$f"   "Qt5Rcc/rcc/$fn"
-  fi
+mv libQt5Gui/QtGui/kernel/qguiapplication.cpp \
+   libQt5Gui/QtGui/kernel/qguiapplication-install.cpp
+
+# Symlink upstream Qt resource collection files and their associated resources
+# into libQt5Gui/.
+#
+ln -s ../../../upstream/qtbase/src/gui/painting/qpdf.qrc \
+      libQt5Gui/QtGui/painting/
+ln -s ../../../upstream/qtbase/src/gui/painting/qpdfa_metadata.xml \
+      libQt5Gui/QtGui/painting/
+ln -s ../../../upstream/qtbase/src/gui/painting/webgradients.binaryjson \
+      libQt5Gui/QtGui/painting/
+
+symlink_non_module upstream/qtbase/src/platformsupport \
+                   libQt5Gui/QtGuiPlugins/platforms/
+
+symlink_non_module upstream/qtbase/src/plugins/platforms/xcb/ \
+                   libQt5Gui/QtGuiPlugins/platforms/
+
+symlink_non_module upstream/qtbase/src/plugins/platforms/cocoa/ \
+                   libQt5Gui/QtGuiPlugins/platforms/
+
+symlink_non_module upstream/qtbase/src/plugins/platforms/windows/ \
+                   libQt5Gui/QtGuiPlugins/platforms/
+
+# Symlink the Cocoa plugin's resource collection file and its associated
+# resources.
+#
+ln -s ../../../../upstream/qtbase/src/plugins/platforms/cocoa/qcocoaresources.qrc \
+      libQt5Gui/QtGuiPlugins/platforms/cocoa/
+ln -s ../../../../upstream/qtbase/src/plugins/platforms/cocoa/images/ \
+      libQt5Gui/QtGuiPlugins/platforms/cocoa/
+
+# Symlink the Windows plugin's resource collection files and their associated
+# resources.
+#
+ln -s ../../../../upstream/qtbase/src/plugins/platforms/windows/cursors.qrc \
+      libQt5Gui/QtGuiPlugins/platforms/windows/
+ln -s ../../../../upstream/qtbase/src/plugins/platforms/windows/images/ \
+      libQt5Gui/QtGuiPlugins/platforms/windows/
+ln -s ../../../../upstream/qtbase/src/plugins/platforms/windows/openglblacklists.qrc \
+      libQt5Gui/QtGuiPlugins/platforms/windows/
+
+symlink_non_module \
+  upstream/qtbase/src/plugins/platforminputcontexts/compose/ \
+  libQt5Gui/QtGuiPlugins/platforminputcontexts/
+
+# Symlink directly to the imageformats plugins' directories (not their
+# contents).
+#
+ln -s ../../../upstream/qtbase/src/plugins/imageformats/gif \
+      libQt5Gui/QtGuiPlugins/imageformats/
+ln -s ../../../upstream/qtbase/src/plugins/imageformats/ico \
+      libQt5Gui/QtGuiPlugins/imageformats/
+ln -s ../../../upstream/qtbase/src/plugins/imageformats/jpeg \
+      libQt5Gui/QtGuiPlugins/imageformats/
+
+# Symlink the upstream QtWidgets sources into libQt5Widgets/.
+#
+for d in upstream/qtbase/src/widgets/*/; do
+  symlink_module_subdir libQt5Widgets QtWidgets "$d"
 done
 
-# Copy headers generated by the upstream build into libQt5Core/QtCore/. (None
-# of these are required for the Qt5Moc build.)
+mv libQt5Widgets/QtWidgets/kernel/qapplication.cpp \
+   libQt5Widgets/QtWidgets/kernel/qapplication-install.cpp
+
+# Symlink upstream Qt resources collection files and their associated
+# resources into libQt5Widgets/.
 #
-# The majority of the generated headers are camelcase versions of the public
-# headers (foobar.h -> QFooBar) but a few additional headers (public only) are
-# also generated.
-#
-# Run the upstream syncqt.pl script to produce the include tree and copy only
-# those headers that don't also exist in the upstream directory (in which case
-# they are not generated and will already have been symlinked above).
-#
+ln -s ../../../upstream/qtbase/src/widgets/dialogs/qmessagebox.qrc \
+      libQt5Widgets/QtWidgets/dialogs/
+ln -s ../../../upstream/qtbase/src/widgets/styles/qstyle.qrc \
+      libQt5Widgets/QtWidgets/styles/
+ln -s ../../../upstream/qtbase/src/widgets/styles/images \
+      libQt5Widgets/QtWidgets/styles/
+ln -s ../../../upstream/qtbase/src/widgets/dialogs/qfiledialog.ui \
+      libQt5Widgets/QtWidgets/dialogs/
+ln -s ../../../upstream/qtbase/src/widgets/dialogs/images \
+      libQt5Widgets/QtWidgets/dialogs/
+
+ln -s ../../upstream/qtbase/examples/widgets/widgets/spinboxes/window.h \
+      libQt5WidgetsTests/widgets-app/
+ln -s ../../upstream/qtbase/examples/widgets/widgets/spinboxes/window.cpp \
+      libQt5WidgetsTests/widgets-app/
+
+symlink_non_module upstream/qtbase/src/plugins/styles/mac/ \
+                   libQt5Widgets/QtWidgetsPlugins/styles/
+symlink_non_module upstream/qtbase/src/plugins/styles/windowsvista/ \
+                   libQt5Widgets/QtWidgetsPlugins/styles/
 
 # Extract the Qt version from upstream/qtbase/.qmake.conf.
 #
 qt_version="$(sed -nE 's%MODULE_VERSION = (.+)%\1%p' \
                   upstream/qtbase/.qmake.conf)"
 
-tmpdir="$(mktemp -d)"
-
-if ! upstream/qtbase/bin/syncqt.pl \
-     -copy -module QtCore -version "$qt_version" \
-     -outdir "$tmpdir" upstream/qtbase \
-     > /dev/null; then
-  rm -r "$tmpdir"
-  error "syncqt.pl failed"
-fi
-
-# Copy those public *.h headers that have not already been symlinked and all
-# camelcase headers (of which all are generated and thus none symlinked).
+# Copy headers generated by the upstream build.
 #
+# The majority of the generated headers are camelcase versions of the public
+# headers (foobar.h -> QFooBar) but in some cases headers from different
+# subdirectories are copied to a single directory to allow their inclusion
+# using a common path prefix.
+#
+# Run the upstream syncqt.pl script to produce the include tree and copy only
+# those headers that don't already exist in the upstream directory (in which
+# case they are not generated and will already have been symlinked above).
+#
+
+# Run the upstream syncqt.pl script to generate headers for the given Qt
+# module in a temporary directory.
+#
+# Return the path to the temporary directory.
+#
+function gen_hdrs () # <module-name>
+{
+  local mod="$1" # Module name.
+  local tmpdir
+  if ! tmpdir="$(mktemp -d)"; then
+    error "mktemp failed"
+  fi
+
+  if ! upstream/qtbase/bin/syncqt.pl               \
+       -copy -module "$mod" -version "$qt_version" \
+       -outdir "$tmpdir" upstream/qtbase           \
+       > /dev/null; then
+    rm -r "$tmpdir"
+    error "syncqt.pl failed"
+  fi
+
+  echo "$tmpdir"
+}
+
+# Copy headers generated for QtCore into libQt5Core/QtCore/.
+#
+tmpdir="$(gen_hdrs QtCore)"
+
 for p in "$tmpdir/include/QtCore/"*; do
   f="$(basename "$p")"
+
   if [[ ("$f" == *.h && ! -e "libQt5Core/QtCore/$f") || "$f" == Q* ]]; then
     cp "$p" libQt5Core/QtCore/
   fi
 done
 
 rm -r "$tmpdir"
+
+# This (empty) header is generated by qmake in the upstream build.
+#
+touch libQt5Core/QtCore/QtCoreDepends
+
+# Copy headers generated for QtGui into libQt5Gui/QtGui/.
+#
+tmpdir="$(gen_hdrs QtGui)"
+
+# In addition to the generated public *.h and Q* headers as for QtCore, also
+# copy the generated QPA (Qt Platform Abstraction) headers.
+#
+# Note that they are usually included with a `qpa/` prefix so must go into
+# their own subdirectory (unlike normal headers).
+#
+for p in "$tmpdir/include/QtGui/"*; do
+  f="$(basename "$p")"
+
+  if [[ ("$f" == *.h && ! -e "libQt5Gui/QtGui/$f") || "$f" == Q* ]]; then
+    cp "$p" libQt5Gui/QtGui/
+  elif [[ "$f" == "$qt_version" ]]; then
+    for p2 in "$p/QtGui/qpa/"*; do
+      case "$p2" in
+        *_p.h)
+          cp "$p2" libQt5Gui/QtGui/private/QtGui/qpa/
+          ;;
+        *.h)
+          cp "$p2" libQt5Gui/QtGui/qpa/
+          ;;
+      esac
+    done
+  fi
+done
+
+rm -r "$tmpdir"
+
+# This header is generated by qmake in the upstream build.
+#
+cat > libQt5Gui/QtGui/QtGuiDepends << EOF
+#ifdef __cplusplus /* create empty PCH in C mode */
+#include <QtCore/QtCore>
+#endif
+EOF
+
+# Copy headers generated for the platform support modules (required by the
+# code in platformsupport/ and the platform plugins via includes such as
+# <QtServiceSupport/foo_p.h>) into libQt5Gui/QtGuiPlugins/.
+#
+# Note: A few of these platform support modules are referenced from outside of
+#       libQt5Plugins/platforms/ so they have to reside at a higher level.
+#
+#       Currently only one out of many camelcase platform support headers
+#       (QPlatformHeaderHelper) is actually referenced by the code.
+#
+for mod in QtAccessibilitySupport       \
+           QtClipboardSupport           \
+           QtEdidSupport                \
+           QtEventDispatcherSupport     \
+           QtFontDatabaseSupport        \
+           QtGraphicsSupport            \
+           QtPlatformHeaders            \
+           QtPrintSupport               \
+           QtServiceSupport             \
+           QtThemeSupport               \
+           QtWindowsUIAutomationSupport \
+           QtXkbCommonSupport; do
+  tmpdir="$(gen_hdrs "$mod")"
+
+  mkdir "libQt5Gui/QtGuiPlugins/$mod/"
+
+  for p in "$tmpdir/include/$mod/"*; do
+    f="$(basename "$p")"
+
+    case "$f" in
+      *.h|QPlatformHeaderHelper) # Public header.
+        cp "$p" "libQt5Gui/QtGuiPlugins/$mod/"
+        ;;
+      "$qt_version") # Private header directory.
+        cp -r "$p/$mod/private/" "libQt5Gui/QtGuiPlugins/$mod/"
+        ;;
+    esac
+  done
+
+  rm -r "$tmpdir"
+done
+
+# Copy headers generated for QtWidgets into libQt5Widgets/QtWidgets/.
+#
+tmpdir="$(gen_hdrs QtWidgets)"
+
+for p in "$tmpdir/include/QtWidgets/"*; do
+  f="$(basename "$p")"
+
+  if [[ ("$f" == *.h && ! -e "libQt5Widgets/QtWidgets/$f") || "$f" == Q* ]]; then
+    cp "$p" libQt5Widgets/QtWidgets/
+  fi
+done
+
+rm -r "$tmpdir"
+
+# This header is generated by qmake in the upstream build.
+#
+cat > libQt5Widgets/QtWidgets/QtWidgetsDepends << EOF
+#ifdef __cplusplus /* create empty PCH in C mode */
+#include <QtCore/QtCore>
+#include <QtGui/QtGui>
+#endif
+EOF
+
+# Copy generated platform headers to libQt5Widgets/QtWidgets.
+#
+for mod in QtPlatformHeaders; do
+  tmpdir="$(gen_hdrs "$mod")"
+
+  mkdir "libQt5Widgets/QtWidgets/$mod/"
+
+  for p in "$tmpdir/include/$mod/"*; do
+    f="$(basename "$p")"
+
+    case "$f" in
+      *.h|QPlatformHeaderHelper) # Public header.
+        cp "$p" "libQt5Widgets/QtWidgets/$mod/"
+        ;;
+      "$qt_version") # Private header directory.
+        cp -r "$p/$mod/private/" "libQt5Widgets/QtWidgets/$mod/"
+        ;;
+    esac
+  done
+
+  rm -r "$tmpdir"
+done
