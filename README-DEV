@@ -27,11 +27,24 @@ License choices:
 They're listed on qt-project.org which is a fact not easy to discover starting
 from https://qt.io/ but see https://wiki.qt.io/Online_Communities.
 
-3. qmake notes
+3. Build system notes
 
-Manual: https://doc.qt.io/qt-5/qmake-manual.html
+Configure/build system: https://wiki.qt.io/Qt5_Build_System
 
-3.1 Platform-specific code
+QMake manual: https://doc.qt.io/qt-5.5/qmake-manual.html
+
+3.1 Running the upstream build
+
+- Configure
+
+  $ Qt5/upstream/qtbase/configure -v \
+    -opensource -nomake examples -nomake tests -no-widgets -no-dbus
+
+- Build
+
+  $ make
+
+3.2 Platform-specific code
 
 In qmake, platform-specific code is wrapped in a "platform scope" which looks
 like this:
