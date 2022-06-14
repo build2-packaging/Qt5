@@ -335,7 +335,8 @@ lib{Qt5Gui}: cxx{** -{$src}}: include = adhoc
 #
 # Note: use a rule hint to resolve ambiguity between C and C++ library.
 #
-[rule_hint=cxx] libul{Qt5GuiMeta}: $impl_libs $intf_libs
+[rule_hint=cxx] libul{Qt5GuiIntfMeta}: $intf_libs
+[rule_hint=cxx] libul{Qt5GuiImplMeta}: $impl_libs
 
 # Platform-specific source files.
 #
@@ -363,13 +364,13 @@ libs{Qt5Gui}: objs{$regex.apply($macos_mm,'(.+)','\1.so.o')}: include = $macos
 #          once we have the ability to specify prerequisite-specific variables
 #          for pattern prerequisites.
 #
-obja{~'/(.*).a/'}: mm{~'/\1/'} libua{Qt5GuiMeta}
+obja{~'/(.*).a/'}: mm{~'/\1/'} libua{Qt5GuiIntfMeta Qt5GuiImplMeta}
 {{
-  dep_poptions = $cxx.lib_poptions(libua{Qt5GuiMeta}, obja)
+  dep_poptions = $cxx.lib_poptions(libua{Qt5GuiIntfMeta Qt5GuiImplMeta}, obja)
   depdb hash $dep_poptions
   depdb dyndep "-I$out_root/QtGui" "-I$src_root/QtGui"                  \
                --what=header --default-type=h                           \
-               --update-exclude libua{Qt5GuiMeta}                       \
+               --update-exclude libua{Qt5GuiIntfMeta Qt5GuiImplMeta}    \
                -- $cxx.path $cc.poptions $cxx.poptions $dep_poptions    \
                   $cc.coptions $cxx.coptions $cxx.mode -M -MG $path($<[0])
   diag obj-c++ ($<[0])
@@ -378,13 +379,13 @@ obja{~'/(.*).a/'}: mm{~'/\1/'} libua{Qt5GuiMeta}
             -o $path($>) -c -x objective-c++ $path($<[0])
 }}
 
-objs{~'/(.*).so/'}: mm{~'/\1/'} libus{Qt5GuiMeta}
+objs{~'/(.*).so/'}: mm{~'/\1/'} libus{Qt5GuiIntfMeta Qt5GuiImplMeta}
 {{
-  dep_poptions = $cxx.lib_poptions(libus{Qt5GuiMeta}, objs)
+  dep_poptions = $cxx.lib_poptions(libus{Qt5GuiIntfMeta Qt5GuiImplMeta}, objs)
   depdb hash $dep_poptions
   depdb dyndep "-I$out_root/QtGui" "-I$src_root/QtGui"                  \
                --what=header --default-type=h                           \
-               --update-exclude libus{Qt5GuiMeta}                       \
+               --update-exclude libus{Qt5GuiIntfMeta Qt5GuiImplMeta}    \
                -- $cxx.path $cc.poptions $cxx.poptions $dep_poptions    \
                   $cc.coptions $cxx.coptions $cxx.mode -M -MG $path($<[0])
   diag obj-c++ ($<[0])
@@ -462,24 +463,23 @@ import core_hdr += libQt5Core%private/h{qtcore-config_p}
 # Note that hxx{moc_predefs} must always be in position 1.
 #
 cxx{~'/moc_(.*)/'}: hxx{~'/\1/'} hxx{moc_predefs} \
-                    hxx{$gen_hdr} $core_hdr libus{Qt5GuiMeta} $moc
+                    hxx{$gen_hdr} $core_hdr libus{Qt5GuiIntfMeta} $moc
 {{
   o = $path($>[0])
   t = $(o).t
 
-  # Remove all but the libQt5Core -I options from libus{Qt5GuiMeta}'s
-  # poptions.
+  # Remove all but the -I options from libus{Qt5GuiIntfMeta}'s poptions.
   #
-  core_incl = $regex.apply($cxx.lib_poptions(libus{Qt5GuiMeta}, objs), \
-                           '(-I.+/libQt5Core.*)', '\1', format_no_copy)
+  core_incl = $regex.apply($cxx.lib_poptions(libus{Qt5GuiIntfMeta}, objs), \
+                           '(-I.+)', '\1', format_no_copy)
   depdb hash $core_incl
 
-  # Note: exclude libus{Qt5GuiMeta} from update during match not to mess up its
-  #       for-install'ness.
+  # Note: exclude libus{Qt5GuiIntfMeta} from update during match not to mess
+  #       up its for-install'ness.
   #
   depdb dyndep                                                  \
     --byproduct --drop-cycles --what=header --default-type=h    \
-    --update-exclude libus{Qt5GuiMeta}                          \
+    --update-exclude libus{Qt5GuiIntfMeta}                      \
     --file $t
 
   diag moc ($<[0])
@@ -495,21 +495,20 @@ cxx{~'/moc_(.*)/'}: hxx{~'/\1/'} hxx{moc_predefs} \
 # See the header-input moc rule regarding the header prerequisites.
 #
 moc{~'/(.*)/'}: cxx{~'/\1/'} hxx{moc_predefs} \
-                hxx{$gen_hdr} $core_hdr libus{Qt5GuiMeta} $moc
+                hxx{$gen_hdr} $core_hdr libus{Qt5GuiIntfMeta} $moc
 {{
   o = $path($>[0])
   t = $(o).t
 
-  # Remove all but the libQt5Core -I options from libus{Qt5GuiMeta}'s
-  # poptions.
+  # Remove all but the -I options from libus{Qt5GuiIntfMeta}'s poptions.
   #
-  core_incl = $regex.apply($cxx.lib_poptions(libus{Qt5GuiMeta}, objs), \
-                           '(-I.+/libQt5Core.*)', '\1', format_no_copy)
+  core_incl = $regex.apply($cxx.lib_poptions(libus{Qt5GuiIntfMeta}, objs), \
+                           '(-I.+)', '\1', format_no_copy)
   depdb hash $core_incl
 
   depdb dyndep                                                  \
     --byproduct --drop-cycles --what=header --default-type=h    \
-    --update-exclude libus{Qt5GuiMeta}                          \
+    --update-exclude libus{Qt5GuiIntfMeta}                      \
     --file $t
 
   diag moc ($<[0])
@@ -527,21 +526,20 @@ moc{~'/(.*)/'}: cxx{~'/\1/'} hxx{moc_predefs} \
 # @@ TODO Remove if it turns out no .mm are moc'd on Mac.
 #
 moc{~'/(.*)/'}: mm{~'/\1/'} hxx{moc_predefs} \
-                hxx{$gen_hdr} $core_hdr libus{Qt5GuiMeta} $moc
+                hxx{$gen_hdr} $core_hdr libus{Qt5GuiIntfMeta} $moc
 {{
   o = $path($>[0])
   t = $(o).t
 
-  # Remove all but the libQt5Core -I options from libus{Qt5GuiMeta}'s
-  # poptions.
+  # Remove all but the -I options from libus{Qt5GuiIntfMeta}'s poptions.
   #
-  core_incl = $regex.apply($cxx.lib_poptions(libus{Qt5GuiMeta}, objs), \
-                           '(-I.+/libQt5Core.*)', '\1', format_no_copy)
+  core_incl = $regex.apply($cxx.lib_poptions(libus{Qt5GuiIntfMeta}, objs), \
+                           '(-I.+)', '\1', format_no_copy)
   depdb hash $core_incl
 
   depdb dyndep                                                  \
     --byproduct --drop-cycles --what=header --default-type=h    \
-    --update-exclude libus{Qt5GuiMeta}                          \
+    --update-exclude libus{Qt5GuiIntfMeta}                      \
     --file $t
 
   diag moc ($<[0])
@@ -609,6 +607,8 @@ lib{Qt5Gui}: cxx{moc_qaccessible                        \
 		 moc_qtexttable				\
 		 moc_qtouchdevice			\
 		 moc_qvalidator}
+
+lib{Qt5Gui}: libul{Qt5GuiIntfMeta Qt5GuiImplMeta}
 
 # Define the Qt resource file type.
 #
