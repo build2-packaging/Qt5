@@ -205,19 +205,19 @@ src = accessible/qaccessible                    \
       util/qastchandler                         \
       util/qdesktopservices                     \
       util/qgridlayoutengine                    \
-      util/qktxhandler				\
-      util/qlayoutpolicy			\
-      util/qpkmhandler				\
-      util/qshaderformat			\
-      util/qshadergenerator			\
-      util/qshadergraph				\
-      util/qshadergraphloader			\
-      util/qshaderlanguage			\
-      util/qshadernode				\
-      util/qshadernodeport			\
-      util/qshadernodesloader			\
-      util/qtexturefiledata			\
-      util/qtexturefilereader			\
+      util/qktxhandler                          \
+      util/qlayoutpolicy                        \
+      util/qpkmhandler                          \
+      util/qshaderformat                        \
+      util/qshadergenerator                     \
+      util/qshadergraph                         \
+      util/qshadergraphloader                   \
+      util/qshaderlanguage                      \
+      util/qshadernode                          \
+      util/qshadernodeport                      \
+      util/qshadernodesloader                   \
+      util/qtexturefiledata                     \
+      util/qtexturefilereader                   \
       util/qvalidator
 
 # C source files.
@@ -602,11 +602,11 @@ lib{Qt5Gui}: cxx{moc_qaccessible                        \
                  moc_qtextdocument                      \
                  moc_qtextformat                        \
                  moc_qtextimagehandler_p                \
-                 moc_qtextlist				\
-		 moc_qtextobject			\
-		 moc_qtexttable				\
-		 moc_qtouchdevice			\
-		 moc_qvalidator}
+                 moc_qtextlist                          \
+                 moc_qtextobject                        \
+                 moc_qtexttable                         \
+                 moc_qtouchdevice                       \
+                 moc_qvalidator}
 
 lib{Qt5Gui}: libul{Qt5GuiIntfMeta Qt5GuiImplMeta}
 
