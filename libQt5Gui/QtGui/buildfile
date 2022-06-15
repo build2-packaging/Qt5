@@ -324,14 +324,14 @@ gen_hdr = qtgui-config private/qtgui-config_p
 
 # Header and source files.
 #
-lib{Qt5Gui}: hxx{** Q*.} cxx{$src} c{$src_c} $intf_libs $impl_libs
+lib{Qt5Gui}: hxx{** Q*.} cxx{$src} c{$src_c}
 
 # Included source files.
 #
 lib{Qt5Gui}: cxx{** -{$src}}: include = adhoc
 
 # The "metadata library": its purpose is to make sure all the imported
-# libraries are resolved for the ad hoc .mm compilation rules below.
+# libraries are resolved for the ad hoc rules (.mm compilation, moc) below.
 #
 # Note: use a rule hint to resolve ambiguity between C and C++ library.
 #
@@ -456,11 +456,14 @@ import core_hdr += libQt5Core%private/h{qtcore-config_p}
 # Use -f to override the path moc uses to #include the input file, which is
 # relative to the output directory, with just the name of the input file.
 #
-# Also add QtCore's exported header search directories (via libus{Qt5GuiMeta})
-# because some code will be skipped by MOC unless certain QtCore features are
-# enabled.
+# Also add QtCore's exported header search directories (via
+# libus{Qt5GuiIntfMeta}) because some code will be skipped by MOC unless
+# certain QtCore features are enabled.
 #
 # Note that hxx{moc_predefs} must always be in position 1.
+#
+# @@ Assuming shared (libus{}) is quite asymmetrical. What if only static
+#    are being built?
 #
 cxx{~'/moc_(.*)/'}: hxx{~'/\1/'} hxx{moc_predefs} \
                     hxx{$gen_hdr} $core_hdr libus{Qt5GuiIntfMeta} $moc
@@ -469,6 +472,9 @@ cxx{~'/moc_(.*)/'}: hxx{~'/\1/'} hxx{moc_predefs} \
   t = $(o).t
 
   # Remove all but the -I options from libus{Qt5GuiIntfMeta}'s poptions.
+  #
+  # @@ Could also be in the `-I <path>` form. Why do we need to do this
+  #    at all? Will some -D hurt?
   #
   core_incl = $regex.apply($cxx.lib_poptions(libus{Qt5GuiIntfMeta}, objs), \
                            '(-I.+)', '\1', format_no_copy)
