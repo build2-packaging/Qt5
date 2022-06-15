@@ -873,7 +873,7 @@ global/cxx{qconfig-install}:
   lib          = [dir_path] ($i ? $leaf($install.resolve($install.lib), $prefix) : .)
   bin          = [dir_path] ($i ? $leaf($install.resolve($install.bin), $prefix) : .)
   libexec      = [dir_path] ($i ? $leaf($install.resolve($windows ? $install.bin : $install.libexec), $prefix) : .)
-  plugins      = [dir_path] $lib
+  plugins      = [dir_path] $lib/qt5/plugins
   imports      = [dir_path] $lib
   qml          = [dir_path] $lib
   data         = [dir_path] ($i ? $leaf($install.resolve($install.data), $prefix) : .)

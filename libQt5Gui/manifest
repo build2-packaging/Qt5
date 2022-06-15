@@ -19,3 +19,6 @@ depends: * build2 >= 0.15.0-
 depends: * bpkg >= 0.15.0-
 depends: * Qt5Moc == $
 depends: * Qt5Rcc == $
+depends: libQt5Core == $
+depends: libharfbuzz ^4.2.0-
+depends: libmd4c ^0.4.8
