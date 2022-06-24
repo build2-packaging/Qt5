@@ -1,6 +1,5 @@
 # Note: If anything in this file seems underdocumented it is probably covered
 #       in libQt5Core/QtCore/buildfile.
-#
 
 import intf_libs  = libQt5Core%lib{Qt5Core}
 import impl_libs  = libpng%lib{png}
@@ -441,43 +440,25 @@ for s: cxx{$moc_src}
 #
 sys_incl = $regex.apply($cxx.sys_hdr_dirs, '(.+)', '-I\1')
 
-# Import the QtCore generated configuration headers.
-#
-# @@ TMP build2 says these generated headers need to be static dependencies of
-#    the {foo.h -> moc_foo.cpp} adhoc rules.
-#
-import core_hdr  = libQt5Core%h{qconfig}
-import core_hdr += libQt5Core%private/h{qconfig_p}
-import core_hdr += libQt5Core%h{qtcore-config}
-import core_hdr += libQt5Core%private/h{qtcore-config_p}
-
 # Rule to run moc on a header file.
 #
 # Use -f to override the path moc uses to #include the input file, which is
 # relative to the output directory, with just the name of the input file.
 #
 # Also add QtCore's exported header search directories (via
-# libus{Qt5GuiIntfMeta}) because some code will be skipped by MOC unless
+# libul{Qt5GuiIntfMeta}) because some code will be skipped by MOC unless
 # certain QtCore features are enabled.
 #
 # Note that hxx{moc_predefs} must always be in position 1.
 #
-# @@ Assuming shared (libus{}) is quite asymmetrical. What if only static
-#    are being built?
-#
 cxx{~'/moc_(.*)/'}: hxx{~'/\1/'} hxx{moc_predefs} \
-                    hxx{$gen_hdr} $core_hdr libus{Qt5GuiIntfMeta} $moc
+                    hxx{$gen_hdr} libul{Qt5GuiIntfMeta} $moc
 {{
   o = $path($>[0])
   t = $(o).t
 
-  # Remove all but the -I options from libus{Qt5GuiIntfMeta}'s poptions.
-  #
-  # @@ Could also be in the `-I <path>` form. Why do we need to do this
-  #    at all? Will some -D hurt?
-  #
-  core_incl = $regex.apply($cxx.lib_poptions(libus{Qt5GuiIntfMeta}, objs), \
-                           '(-I.+)', '\1', format_no_copy)
+  core_incl = $cxx.lib_poptions(libul{Qt5GuiIntfMeta})
+
   depdb hash $core_incl
 
   # Note: exclude libus{Qt5GuiIntfMeta} from update during match not to mess
@@ -485,7 +466,7 @@ cxx{~'/moc_(.*)/'}: hxx{~'/\1/'} hxx{moc_predefs} \
   #
   depdb dyndep                                                  \
     --byproduct --drop-cycles --what=header --default-type=h    \
-    --update-exclude libus{Qt5GuiIntfMeta}                      \
+    --update-exclude libul{Qt5GuiIntfMeta}                      \
     --file $t
 
   diag moc ($<[0])
@@ -501,20 +482,18 @@ cxx{~'/moc_(.*)/'}: hxx{~'/\1/'} hxx{moc_predefs} \
 # See the header-input moc rule regarding the header prerequisites.
 #
 moc{~'/(.*)/'}: cxx{~'/\1/'} hxx{moc_predefs} \
-                hxx{$gen_hdr} $core_hdr libus{Qt5GuiIntfMeta} $moc
+                hxx{$gen_hdr} libul{Qt5GuiIntfMeta} $moc
 {{
   o = $path($>[0])
   t = $(o).t
 
-  # Remove all but the -I options from libus{Qt5GuiIntfMeta}'s poptions.
-  #
-  core_incl = $regex.apply($cxx.lib_poptions(libus{Qt5GuiIntfMeta}, objs), \
-                           '(-I.+)', '\1', format_no_copy)
+  core_incl = $cxx.lib_poptions(libul{Qt5GuiIntfMeta})
+
   depdb hash $core_incl
 
   depdb dyndep                                                  \
     --byproduct --drop-cycles --what=header --default-type=h    \
-    --update-exclude libus{Qt5GuiIntfMeta}                      \
+    --update-exclude libul{Qt5GuiIntfMeta}                      \
     --file $t
 
   diag moc ($<[0])
@@ -532,20 +511,18 @@ moc{~'/(.*)/'}: cxx{~'/\1/'} hxx{moc_predefs} \
 # @@ TODO Remove if it turns out no .mm are moc'd on Mac.
 #
 moc{~'/(.*)/'}: mm{~'/\1/'} hxx{moc_predefs} \
-                hxx{$gen_hdr} $core_hdr libus{Qt5GuiIntfMeta} $moc
+                hxx{$gen_hdr} libul{Qt5GuiIntfMeta} $moc
 {{
   o = $path($>[0])
   t = $(o).t
 
-  # Remove all but the -I options from libus{Qt5GuiIntfMeta}'s poptions.
-  #
-  core_incl = $regex.apply($cxx.lib_poptions(libus{Qt5GuiIntfMeta}, objs), \
-                           '(-I.+)', '\1', format_no_copy)
+  core_incl = $cxx.lib_poptions(libul{Qt5GuiIntfMeta})
+
   depdb hash $core_incl
 
   depdb dyndep                                                  \
     --byproduct --drop-cycles --what=header --default-type=h    \
-    --update-exclude libus{Qt5GuiIntfMeta}                      \
+    --update-exclude libul{Qt5GuiIntfMeta}                      \
     --file $t
 
   diag moc ($<[0])
