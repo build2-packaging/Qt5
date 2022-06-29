@@ -16,6 +16,12 @@ location: https://github.com/build2-packaging/libfreetype.git##HEAD
 #
 :
 role: prerequisite
+location: https://github.com/build2-packaging/libjpeg-turbo.git##HEAD
+
+# @@ TMP Until published.
+#
+:
+role: prerequisite
 location: https://github.com/build2-packaging/harfbuzz.git##HEAD
 
 # @@ TMP Until published.
@@ -23,4 +29,3 @@ location: https://github.com/build2-packaging/harfbuzz.git##HEAD
 :
 role: prerequisite
 location: https://github.com/build2-packaging/md4c.git##HEAD
-

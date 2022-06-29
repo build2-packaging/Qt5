@@ -1,0 +1,27 @@
+1. Plugins
+
+Note: this covers only the Qt project's own plugins, not user/application
+plugins.
+
+Plugins are usually shared libraries that are loaded at runtime.
+
+The plugin implements a single public Qt interface such as
+QPlatformIntegrationPlugin, QPlatformInputContextPlugin, or QImageIOPlugin.
+
+Typically in <pluginname>main.{h,cpp}, the main plugin class uses the
+Q_PLUGIN_METADATA macro which causes moc to generate (via the
+QT_MOC_EXPORT_PLUGIN macro) the functions qt_plugin_instance() and
+qt_plugin_query_metadata() (in addition to other plugin and general
+infrastructure boilerplate).
+
+qt_plugin_instance() returns a pointer to one of the Qt interface classes
+which references an instance of the plugin's implementation class.
+
+As one might expect based on the above design, none of the plugin's code,
+including the class which implements the Qt interface class, is exported.
+Only the qt_plugin_instance() and qt_plugin_query_metadata() functions are
+exported.
+
+1.1 Macros
+
+QT_PLUGIN is defined when a plugin is being built; rarely used.
