@@ -1,0 +1,1 @@
+../../../../upstream/qtbase/src/plugins/imageformats/jpeg/qjpeghandler_p.h

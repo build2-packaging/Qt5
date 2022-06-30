@@ -1,0 +1,1 @@
+../../../../../upstream/qtbase/src/platformsupport/edid/qedidparser.cpp

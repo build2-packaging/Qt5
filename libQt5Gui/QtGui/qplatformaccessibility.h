@@ -1,1 +1,0 @@
-../../upstream/qtbase/src/gui/accessible/qplatformaccessibility.h

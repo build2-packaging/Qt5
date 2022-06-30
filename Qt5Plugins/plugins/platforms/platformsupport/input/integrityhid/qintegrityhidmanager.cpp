@@ -1,0 +1,1 @@
+../../../../../../upstream/qtbase/src/platformsupport/input/integrityhid/qintegrityhidmanager.cpp
