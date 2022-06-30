@@ -1,0 +1,4 @@
+if ($cxx.target.class == 'linux' || $cxx.target.class == 'bsd')
+{
+  source buildfile.compose
+}
