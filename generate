@@ -370,7 +370,10 @@ echo "#include <QtCore/QtCore>" > libQt5Gui/QtGui/QtGuiDepends
 # platform plugins) into Qt5Plugins/plugins/.
 #
 # Note: A few of these platform support modules are referenced from outside of
-# plugins/platforms/ so they have to reside at a higher level.
+#       plugins/platforms/ so they have to reside at a higher level.
+#
+#       Only one camelcase platform support header (out of many) is actually
+#       referenced by the code.
 #
 for mod in QtPlatformHeaders     \
            QtServiceSupport      \
@@ -384,7 +387,7 @@ for mod in QtPlatformHeaders     \
   for p in "$tmpdir/include/$mod/"*; do
     f="$(basename "$p")"
     case "$f" in
-      *.h|Q*)        # Public header.
+      *.h|QPlatformHeaderHelper) # Public header.
         cp "$p" Qt5Plugins/plugins/"$mod"/
         ;;
       "$qt_version") # Private header directory.
