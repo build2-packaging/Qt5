@@ -67,3 +67,30 @@ Objective-C blocks
 supported by GNU gcc/g++. There is an open issue to add support
 (https://gcc.gnu.org/bugzilla/show_bug.cgi?id=78352) but it's stalled for what
 looks like licensing reasons (see comment 16).
+
+5. Qt build
+
+5.1 Shared vs. static
+
+The upstream build defaults to shared; static libraries are not built by
+default.
+
+5.2 Symbol export
+
+The general convention seems to be that the definition of
+QT_BUILD_<library>_LIB causes <library>/qt<library>global.h to define
+Q_<LIBRARY>_EXPORT to Q_DECL_EXPORT, or to Q_DECL_IMPORT if
+QT_BUILD_<library>_LIB is not defined. (The upstream build automatically
+defines QT_<library>_LIB in the import/consumption case but it seems to only
+be used in their tests.)
+
+Under MSVC, Q_DECL_EXPORT is defined (in corelib/global/qcompilerdetection.h)
+to __declspec(dllexport) and Q_DECL_IMPORT to __declspec(dllimport). Under GCC
+and Clang both are defined to __attribute__((visibility("default"))) (that is,
+export the symbol).
+
+Note that as a result of the above QT_BUILD_<library>_LIB only actually
+affects symbol export under MSVC. Under GCC and Clang all symbols are exported
+by default and therefore additional mechanisms such as the -fvisibility=hidden
+and -fvisibility-inlines-hidden command-line options and/or linker version
+scripts are used in order to restrict symbol exports.
