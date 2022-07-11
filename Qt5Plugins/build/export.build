@@ -1,0 +1,7 @@
+$out_root/
+{
+  include plugins/platforms/
+  include plugins/platforminputcontexts/
+}
+
+export $out_root/plugins/$import.target

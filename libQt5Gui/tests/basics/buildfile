@@ -1,6 +1,0 @@
-# @@ TODO Somehow get Qt5Plugins to build first.
-#
-
-import libs = libQt5Gui%lib{Qt5Gui}
-
-exe{driver}: cxx{driver} $libs

@@ -1,0 +1,5 @@
+import libs  = libQt5Gui%lib{Qt5Gui}
+import libs += Qt5Plugins%platforms/lib{qxcb}
+import libs += Qt5Plugins%platforminputcontexts/lib{composeplatforminputcontextplugin}
+
+exe{gui-app}: cxx{gui-app} $libs

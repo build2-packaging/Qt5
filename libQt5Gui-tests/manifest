@@ -1,0 +1,13 @@
+: 1
+name: libQt5Gui-tests
+version: 5.15.3-a.0.z
+project: Qt5
+summary: Tests for libQt5Gui
+license: other: proprietary ; Not free/open source.
+description-file: README.md
+url: https://example.org/Qt5
+email: francois@codesynthesis.com
+#build-error-email: francois@codesynthesis.com
+depends: * build2 >= 0.14.0
+depends: * bpkg >= 0.14.0
+depends: Qt5Plugins == $
