@@ -1,1 +1,3 @@
-./: platforms/ platforminputcontexts/
+./: platforms/ platforminputcontexts/ imageformats/
+
+hxx{*}: install = false
