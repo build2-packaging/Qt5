@@ -8,3 +8,5 @@ location: libQt5Core/
 location: libQt5Gui/
 :
 location: Qt5Plugins/
+:
+location: Qt5Tests/

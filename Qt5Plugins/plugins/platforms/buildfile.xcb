@@ -408,3 +408,4 @@ if ($linux || $bsd)
 
 hxx{*}:    install = false
 lib{qxcb}: install = lib/qt5/plugins/platforms/
+lib{qxcb}: cxx.pkgconfig.lib = lib/qt5/plugins/platforms/

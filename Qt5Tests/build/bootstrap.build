@@ -1,0 +1,6 @@
+project = Qt5Tests
+
+using version
+using config
+using dist
+using test
