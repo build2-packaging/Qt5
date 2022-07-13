@@ -911,7 +911,7 @@ global/cxx{qconfig-develop}:
   lib          = [dir_path] $out_root
   libexec      = [dir_path] $out_root
   bin          = [dir_path] $out_root
-  plugins      = [dir_path] $out_root/../Qt5Plugins/plugins
+  plugins      = [dir_path] $regex.replace($out_root, $project, 'Qt5Plugins')/plugins
   imports      = [dir_path] $out_root
   qml          = [dir_path] $out_root
   arch_data    = [dir_path] $src_root
