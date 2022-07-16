@@ -120,10 +120,11 @@ lib{Qt5XcbQpa}: xcb/file{xcb.json}
 
 lib{Qt5XcbQpa}: libul{Qt5PluginsXcbMeta}
 
-# @@ TMP The following error goes away if 1) dep on lib{Qt5XcbQpa} is removed,
-#    2) if the qxcbmain.moc dep is moved from lib{qxcb} to lib{Qt5XcbQpa}, or
-#    3) both libs are made to depend on xqcbmain.moc. (Both 2) and 3) actually
-#    result in a working plugin but 1) does not.)
+# @@ TMP The following error goes away if 1) the dependency on lib{Qt5XcbQpa}
+#    is removed, or 2) if the qxcbmain.moc dep is moved from lib{qxcb} to
+#    lib{Qt5XcbQpa} (this is the option I went with), or 3) both libs are made
+#    to depend on xqcbmain.moc. (Both 2) and 3) actually result in a working
+#    plugin but 1) does not.)
 #
 #    error: /home/francois/work/build2-packaging/Qt5-cfg/Qt5Plugins/plugins/platforms/libul{Qt5PluginsXcbMeta} is not matched
 #      info: make sure this target is listed as prerequisite
@@ -345,7 +346,7 @@ $xcb_obj xcb/{obj moc}{qxcbmain}:               \
 # -DQT_VULKAN_SUPPORT_LIB
 
 # In order to share the XCB implementation (which is not small) between
-# lib{Qt5XcbQpa}, lib{qxcb-egl-integration}, and lib{qxcb-glx-integration}, the
+# lib{qxcb}, lib{qxcb-egl-integration}, and lib{qxcb-glx-integration}, the
 # upstream build compiles the bulk of the XCB sources into lib{Qt5XcbQpa}
 # which is installed into /lib along with the other major Qt libraries
 # (QtCore, QtGui, etc.).
