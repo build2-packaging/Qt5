@@ -118,7 +118,7 @@ lib{Qt5XcbQpa}: libul{Qt5XkbCommonSupport}:    cxx{$xkb_src}     $impl_libs
 #
 lib{Qt5XcbQpa}: xcb/file{xcb.json}
 
-lib{Qt5XcbQpa}: libul{Qt5PluginsXcbMeta}
+#lib{Qt5XcbQpa}: libul{Qt5PluginsXcbMeta}
 
 # @@ TMP The following error goes away if 1) the dependency on lib{Qt5XcbQpa}
 #    is removed, or 2) if the qxcbmain.moc dep is moved from lib{qxcb} to
@@ -136,7 +136,7 @@ lib{Qt5XcbQpa}: libul{Qt5PluginsXcbMeta}
 #      info: while applying rule build.alias to update /home/francois/work/build2-packaging/Qt5-cfg/Qt5Plugins/dir{plugins/}
 #      info: while applying rule build.alias to update /home/francois/work/build2-packaging/Qt5-cfg/dir{Qt5Plugins/}
 #
-lib{qxcb}: libul{Qt5PluginsXcbMeta} lib{Qt5XcbQpa}
+#lib{qxcb}: libul{Qt5PluginsXcbMeta} lib{Qt5XcbQpa}
 
 hxx{moc_predefs}: $src_root/plugins/mkspecs/features/data/cxx{dummy}
 %
@@ -182,7 +182,7 @@ lib{Qt5XcbQpa}: xcb/cxx{$moc_gen_src}
 #
 # @@ TODO qxcbmain belongs to lib{qxcb} (see above).
 #
-for s: xcb/cxx{$moc_src qxcbmain}
+for s: xcb/cxx{$moc_src}
 {
   n = $name($s)
   d = $directory($s)
@@ -193,8 +193,11 @@ for s: xcb/cxx{$moc_src qxcbmain}
 
 # @@ TMP See above.
 #
-# lib{qxcb}: xcb/moc{qxcbmain}: include = adhoc
-# xcb/moc{qxcbmain}: xcb/cxx{qxcbmain}
+lib{qxcb}: xcb/moc{qxcbmain}: include = adhoc
+xcb/moc{qxcbmain}: xcb/cxx{qxcbmain}
+
+lib{Qt5XcbQpa}: libul{Qt5PluginsXcbMeta}
+lib{qxcb}: libul{Qt5PluginsXcbMeta} lib{Qt5XcbQpa}
 
 # -I options for the system header directories.
 #
