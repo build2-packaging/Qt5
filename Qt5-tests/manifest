@@ -1,8 +1,8 @@
 : 1
-name: Qt5Tests
+name: Qt5-tests
 version: 5.15.3-a.0.z
 project: Qt5
-summary: Qt5Tests C++ executable
+summary: Tests for Qt5
 license: other: proprietary ; Not free/open source.
 description-file: README.md
 url: https://example.org/Qt5

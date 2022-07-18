@@ -1,4 +1,4 @@
-project = Qt5Tests
+project = Qt5-tests
 
 using version
 using config

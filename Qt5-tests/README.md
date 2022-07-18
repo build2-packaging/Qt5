@@ -1,3 +1,3 @@
-# Qt5Tests
+# Qt5-tests
 
 C++ executable
