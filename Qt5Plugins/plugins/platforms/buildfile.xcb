@@ -182,7 +182,7 @@ lib{Qt5XcbQpa}: xcb/cxx{$moc_gen_src}
 #
 # @@ TODO qxcbmain belongs to lib{qxcb} (see above).
 #
-for s: xcb/cxx{$moc_src}
+for s: xcb/cxx{$moc_src qxcbmain}
 {
   n = $name($s)
   d = $directory($s)
@@ -193,8 +193,8 @@ for s: xcb/cxx{$moc_src}
 
 # @@ TMP See above.
 #
-lib{qxcb}: xcb/moc{qxcbmain}: include = adhoc
-xcb/moc{qxcbmain}: xcb/cxx{qxcbmain}
+# lib{qxcb}: xcb/moc{qxcbmain}: include = adhoc
+# xcb/moc{qxcbmain}: xcb/cxx{qxcbmain}
 
 lib{Qt5XcbQpa}: libul{Qt5PluginsXcbMeta}
 lib{qxcb}: libul{Qt5PluginsXcbMeta} lib{Qt5XcbQpa}
