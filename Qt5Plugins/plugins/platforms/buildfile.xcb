@@ -92,7 +92,8 @@ moc_src = qxcbclipboard qxcbsessionmanager
       $src_root/plugins/hxx{mkspecs/**                                  \
                             QtPlatformHeaders/**                        \
                             QtPlatformHeaders/QPlatformHeaderHelper.    \
-                            Qt*Support/**}                              \
+                            Qt*Support/**                               \
+                            QtGui/**}                                   \
       platformsupport/hxx{**}                                           \
       xcb/cxx{qxcbmain}
 
@@ -100,7 +101,8 @@ moc_src = qxcbclipboard qxcbsessionmanager
       $src_root/plugins/hxx{mkspecs/**                                  \
                             QtPlatformHeaders/**                        \
                             QtPlatformHeaders/QPlatformHeaderHelper.    \
-                            Qt*Support/**}                              \
+                            Qt*Support/**                               \
+                            QtGui/**}                                   \
       platformsupport/hxx{**}                                           \
       xcb/hxx{**} xcb/cxx{$src}
 
@@ -253,11 +255,17 @@ moc{~'/(.*)/'}: cxx{~'/\1/'} hxx{moc_predefs} libul{Qt5PluginsXcbMeta} $moc
 # Note: headers in gl_integrations/ are included unconditionally so cannot be
 #       excluded even if OpenGL is disabled.
 #
-cxx.poptions =+ "-I$out_root/plugins" "-I$src_root/plugins"             \
-                "-I$out_base"         "-I$src_base"                     \
-                "-I$out_base/xcb"     "-I$src_base/xcb"                 \
-                "-I$src_base/xcb/gl_integrations"                       \
-                "-I$src_root/plugins/QtThemeSupport"
+# Add plugins/QtGui/ for inclusion of paths such as <qpa/qplatformfoo.h> and a
+# few cases such as <private/qicon_p.h> and <private/qfontengine_p.h>
+# (inclusion of private QtGui headers from another module without the `QtGui`
+# prefix).
+#
+cxx.poptions =+ "-I$out_root/plugins" "-I$src_root/plugins"     \
+                "-I$out_base"         "-I$src_base"             \
+                "-I$out_base/xcb"     "-I$src_base/xcb"         \
+                "-I$src_base/xcb/gl_integrations"               \
+                "-I$src_root/plugins/QtThemeSupport"            \
+                "-I$src_root/plugins/QtGui"
 
 # Build options.
 #
