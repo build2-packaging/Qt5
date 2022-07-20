@@ -94,3 +94,10 @@ affects symbol export under MSVC. Under GCC and Clang all symbols are exported
 by default and therefore additional mechanisms such as the -fvisibility=hidden
 and -fvisibility-inlines-hidden command-line options and/or linker version
 scripts are used in order to restrict symbol exports.
+
+@@ TODO Explain upstream inconsistency WRT private and QPA headers: headers
+   residing in both include/QtGui/5.15.3/QtGui/{private,qpa} and left in their
+   original/source-distribution locations next to the .cpp files, enabling
+   inconsistent include paths in upstream code (e.g. "foo_p.h",
+   <QtGui/private/foo_p.h>, <private/foo_p.h>, and thus necessitating
+   excessive -I options on the compilation command line.
