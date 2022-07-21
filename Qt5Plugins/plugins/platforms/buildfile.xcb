@@ -88,23 +88,23 @@ moc_gen_src = $regex.apply($moc_hdr, '(.+/)?(.+)', '\1moc_\2')
 #
 moc_src = qxcbclipboard qxcbsessionmanager
 
-./: lib{qxcb}:                                                          \
-      $src_root/plugins/hxx{mkspecs/**                                  \
-                            QtPlatformHeaders/**                        \
-                            QtPlatformHeaders/QPlatformHeaderHelper.    \
-                            Qt*Support/**                               \
-                            QtGui/**}                                   \
-      platformsupport/hxx{**}                                           \
-      xcb/cxx{qxcbmain}
+./: lib{qxcb}: ../hxx{mkspecs/**                                \
+                      QtPlatformHeaders/**                      \
+                      QtPlatformHeaders/QPlatformHeaderHelper.  \
+                      Qt*Support/**                             \
+                      QtGui/**}                                 \
+               platformsupport/hxx{**}                          \
+               xcb/cxx{qxcbmain}
 
-./: lib{Qt5XcbQpa}:                                                     \
-      $src_root/plugins/hxx{mkspecs/**                                  \
-                            QtPlatformHeaders/**                        \
-                            QtPlatformHeaders/QPlatformHeaderHelper.    \
-                            Qt*Support/**                               \
-                            QtGui/**}                                   \
-      platformsupport/hxx{**}                                           \
-      xcb/hxx{**} xcb/cxx{$src}
+./: lib{Qt5XcbQpa}: ../hxx{mkspecs/**                                   \
+                           QtPlatformHeaders/**                         \
+                           QtPlatformHeaders/QPlatformHeaderHelper.     \
+                           Qt*Support/**                                \
+                           QtGui/**}                                    \
+                    platformsupport/hxx{**}                             \
+                    xcb/hxx{**} xcb/cxx{$src}
+
+QtGui/private/hxx{qtgui-config_p}: QtGui/private/in{qtgui-config_p}
 
 [rule_hint=cxx] libul{Qt5PluginsXcbMeta}: $impl_libs
 
@@ -118,11 +118,17 @@ lib{Qt5XcbQpa}: libul{Qt5FontDatabaseSupport}: cxx{$fontdb_src}  $impl_libs
 lib{Qt5XcbQpa}: libul{Qt5EdidSupport}:         cxx{$edid_src}    $impl_libs
 lib{Qt5XcbQpa}: libul{Qt5XkbCommonSupport}:    cxx{$xkb_src}     $impl_libs
 
+libul{Qt5ServiceSupport         \
+      Qt5ThemeSupport           \
+      Qt5FontDatabaseSupport    \
+      Qt5EdidSupport            \
+      Qt5XkbCommonSupport}: QtGui/private/hxx{qtgui-config_p}
+
 # Plugin metadata file.
 #
 lib{Qt5XcbQpa}: xcb/file{xcb.json}
 
-hxx{moc_predefs}: $src_root/plugins/mkspecs/features/data/cxx{dummy}
+hxx{moc_predefs}: ../mkspecs/features/data/cxx{dummy}
 %
 if ($cxx.id != 'msvc')
 {{
@@ -200,7 +206,9 @@ sys_incl = $regex.apply($cxx.sys_hdr_dirs, '(.+)', '-I\1')
 #
 # Note that hxx{moc_predefs} must always be in position 1.
 #
-cxx{~'/moc_(.*)/'}: hxx{~'/\1/'} hxx{moc_predefs} libul{Qt5PluginsXcbMeta} $moc
+cxx{~'/moc_(.*)/'}: hxx{~'/\1/'} hxx{moc_predefs}       \
+                    QtGui/private/hxx{qtgui-config_p}   \
+                    libul{Qt5PluginsXcbMeta} $moc
 {{
   o = $path($>[0])
   t = $(o).t
@@ -228,7 +236,9 @@ cxx{~'/moc_(.*)/'}: hxx{~'/\1/'} hxx{moc_predefs} libul{Qt5PluginsXcbMeta} $moc
 #
 # See the header-input moc rule regarding the header prerequisites.
 #
-moc{~'/(.*)/'}: cxx{~'/\1/'} hxx{moc_predefs} libul{Qt5PluginsXcbMeta} $moc
+moc{~'/(.*)/'}: cxx{~'/\1/'} hxx{moc_predefs}           \
+                QtGui/private/hxx{qtgui-config_p}       \
+                libul{Qt5PluginsXcbMeta} $moc
 {{
   o = $path($>[0])
   t = $(o).t
