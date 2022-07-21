@@ -333,7 +333,7 @@ gen_hdr = private/qtgui-config_p        \
 
 # Header and source files.
 #
-lib{Qt5Gui}: hxx{** $gen_hdr Q*.} cxx{$src} c{$src_c}
+lib{Qt5Gui}: hxx{** -{$gen_hdr} +Q*.} hxx{$gen_hdr} cxx{$src} c{$src_c}
 
 # Included source files.
 #
@@ -798,5 +798,5 @@ else
 #
 lib{Qt5Gui}: cxx.pkgconfig.include = include/qt5/ include/qt5/QtGui
 
-{hxx}{../3rdparty/* private/*}: install = false
-{hxx}{* Q*.}:                   install = include/qt5/QtGui/
+{hxx}{../3rdparty/* private/*}:  install = false
+{hxx}{* Q*.}:                    install = include/qt5/QtGui/
