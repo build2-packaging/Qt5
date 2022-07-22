@@ -11,8 +11,11 @@ import! [metadata] moc = Qt5Moc%exe{qt5moc}
 #
 lib{composeplatforminputcontextplugin}:         \
   $src_root/plugins/hxx{mkspecs/**}             \
+  QtGui/private/hxx{qtgui-config_p}             \
   compose/hxx{qcomposeplatforminputcontext}     \
   compose/cxx{qcomposeplatforminputcontext qcomposeplatforminputcontextmain}
+
+QtGui/private/hxx{qtgui-config_p}: QtGui/private/in{qtgui-config_p}
 
 # Plugin metadata file.
 #
@@ -86,7 +89,9 @@ sys_incl = $regex.apply($cxx.sys_hdr_dirs, '(.+)', '-I\1')
 #
 # Note that hxx{moc_predefs} must always be in position 1.
 #
-cxx{~'/moc_(.*)/'}: hxx{~'/\1/'} hxx{moc_predefs} libul{Qt5PluginsLibComposeMeta} $moc
+cxx{~'/moc_(.*)/'}: hxx{~'/\1/'} hxx{moc_predefs}                       \
+                                 QtGui/private/hxx{qtgui-config_p}      \
+                                 libul{Qt5PluginsLibComposeMeta} $moc
 {{
   o = $path($>[0])
   t = $(o).t
@@ -114,7 +119,9 @@ cxx{~'/moc_(.*)/'}: hxx{~'/\1/'} hxx{moc_predefs} libul{Qt5PluginsLibComposeMeta
 #
 # See the header-input moc rule regarding the header prerequisites.
 #
-moc{~'/(.*)/'}: cxx{~'/\1/'} hxx{moc_predefs} libul{Qt5PluginsLibComposeMeta} $moc
+moc{~'/(.*)/'}: cxx{~'/\1/'} hxx{moc_predefs}                           \
+                                 QtGui/private/hxx{qtgui-config_p}      \
+                                 libul{Qt5PluginsLibComposeMeta} $moc
 {{
   o = $path($>[0])
   t = $(o).t
@@ -140,9 +147,10 @@ moc{~'/(.*)/'}: cxx{~'/\1/'} hxx{moc_predefs} libul{Qt5PluginsLibComposeMeta} $m
 
 # Add plugins/QtGui/ for inclusion of paths such as <qpa/qplatformfoo.h>.
 #
-cxx.poptions =+ "-I$src_root/plugins"           \
-                "-I$src_root/plugins/QtGui"     \
-                "-I$out_base/compose" "-I$src_base/compose"
+cxx.poptions =+ "-I$out_root/plugins"       "-I$src_root/plugins"       \
+                "-I$out_root/plugins/QtGui" "-I$src_root/plugins/QtGui" \
+                "-I$out_base"               "-I$src_base"               \
+                "-I$out_base/compose"       "-I$src_base/compose"
 
 # Every directory under mkspecs/ contains a unique `qplatformdefs.h`.
 #
