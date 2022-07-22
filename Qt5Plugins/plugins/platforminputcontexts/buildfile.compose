@@ -140,8 +140,9 @@ moc{~'/(.*)/'}: cxx{~'/\1/'} hxx{moc_predefs} libul{Qt5PluginsLibComposeMeta} $m
 
 # Add plugins/QtGui/ for inclusion of paths such as <qpa/qplatformfoo.h>.
 #
-cxx.poptions =+ "-I$out_base/compose" "-I$src_base/compose" \
-                "-I$src_root/plugins/QtGui"
+cxx.poptions =+ "-I$src_root/plugins"           \
+                "-I$src_root/plugins/QtGui"     \
+                "-I$out_base/compose" "-I$src_base/compose"
 
 # Every directory under mkspecs/ contains a unique `qplatformdefs.h`.
 #
