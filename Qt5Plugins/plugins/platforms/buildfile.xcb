@@ -270,12 +270,12 @@ moc{~'/(.*)/'}: cxx{~'/\1/'} hxx{moc_predefs}           \
 # (inclusion of private QtGui headers from another module without the `QtGui`
 # prefix).
 #
-cxx.poptions =+ "-I$out_root/plugins" "-I$src_root/plugins"     \
-                "-I$out_base"         "-I$src_base"             \
-                "-I$out_base/xcb"     "-I$src_base/xcb"         \
-                "-I$src_base/xcb/gl_integrations"               \
-                "-I$src_root/plugins/QtThemeSupport"            \
-                "-I$src_root/plugins/QtGui"
+cxx.poptions =+ "-I$out_root/plugins"       "-I$src_root/plugins"       \
+                "-I$out_root/plugins/QtGui" "-I$src_root/plugins/QtGui" \
+                "-I$out_base"               "-I$src_base"               \
+                "-I$out_base/xcb"           "-I$src_base/xcb"           \
+                "-I$src_base/xcb/gl_integrations"                       \
+                "-I$src_root/plugins/QtThemeSupport"
 
 # Build options.
 #
