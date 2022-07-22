@@ -46,6 +46,7 @@ rm -rf Qt5Plugins/plugins/platforms/QtGui
 rm -rf Qt5Plugins/plugins/platforms/platformsupport
 rm -rf Qt5Plugins/plugins/platforms/xcb
 rm -rf Qt5Plugins/plugins/imageformats/{gif,ico,jpeg}
+rm -rf Qt5Plugins/plugins/platforminputcontexts/QtGui
 rm -rf Qt5Plugins/plugins/platforminputcontexts/compose
 
 # Create output directories.
@@ -69,6 +70,7 @@ mkdir -p Qt5Plugins/plugins/QtGui/private
 mkdir -p Qt5Plugins/plugins/platforminputcontexts/compose
 mkdir -p Qt5Plugins/plugins/imageformats/{gif,ico,jpeg}
 mkdir -p Qt5Plugins/plugins/platforms/QtGui/private
+mkdir -p Qt5Plugins/plugins/platforminputcontexts/QtGui/private
 
 # Directory for the MIME type database source XML file.
 #
@@ -320,6 +322,8 @@ symlink_plugin_files upstream/qtbase/src/plugins/platforms/xcb/ \
 
 ln -s ../../../../../libQt5Gui/QtGui/private/qtgui-config_p.h.in \
       Qt5Plugins/plugins/platforms/QtGui/private
+ln -s ../../../../../libQt5Gui/QtGui/private/qtgui-config_p.h.in \
+      Qt5Plugins/plugins/platforminputcontexts/QtGui/private
 
 symlink_plugin_files \
   upstream/qtbase/src/plugins/platforminputcontexts/compose/ \
