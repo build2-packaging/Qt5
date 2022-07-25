@@ -2,8 +2,7 @@
 #       covered in libQt5Core/QtCore/buildfile.
 #
 
-import impl_libs  = libQt5Core%lib{Qt5Core}
-import impl_libs += libQt5Gui%lib{Qt5Gui}
+import impl_libs  = libQt5Gui%lib{Qt5Gui}
 import impl_libs += libfreetype%lib{freetype}
 
 import! [metadata] moc = Qt5Moc%exe{qt5moc}

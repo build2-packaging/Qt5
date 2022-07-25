@@ -2,8 +2,7 @@
 #       in libQt5Core/QtCore/buildfile.
 #
 
-import impl_libs  = libQt5Core%lib{Qt5Core}
-import impl_libs += libQt5Gui%lib{Qt5Gui}
+import impl_libs = libQt5Gui%lib{Qt5Gui}
 
 import impl_libs_jpeg = libjpeg-turbo%lib{jpeg}
 
