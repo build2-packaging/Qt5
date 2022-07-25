@@ -189,7 +189,11 @@ cxx.coptions += -fno-exceptions \
 
 lib{composeplatforminputcontextplugin}: cxx.libs += -pthread -lxkbcommon
 
-lib{composeplatforminputcontextplugin}: \
-  install = lib/qt5/plugins/platforminputcontexts/
-
 hxx{*}: install = false
+
+lib{composeplatforminputcontextplugin}:
+{
+  install = lib/qt5/plugins/platforminputcontexts/
+  cxx.pkgconfig.lib = lib/qt5/plugins/platforminputcontexts/
+  cxx.pkgconfig.include = # There are no public headers.
+}

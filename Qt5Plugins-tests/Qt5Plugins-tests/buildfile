@@ -1,5 +1,11 @@
 import libs  = libQt5Gui%lib{Qt5Gui}
-import libs += Qt5Plugins%platforms/lib{qxcb}
-import libs += Qt5Plugins%platforminputcontexts/lib{composeplatforminputcontextplugin}
+
+# These imports serve only to ensure that the plugins are built before this
+# test executable, not to be linked against, because libQt5Gui loads the
+# plugin libraries at runtime.
+#
+import plugins  = Qt5Plugins%lib{qxcb}
+import plugins += Qt5Plugins%lib{composeplatforminputcontextplugin}
 
 exe{gui-app}: cxx{gui-app} $libs
+exe{gui-app}: $plugins: include = adhoc

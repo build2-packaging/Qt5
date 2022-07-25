@@ -406,5 +406,10 @@ if ($linux || $bsd)
   lib{Qt5XcbQpa}: cxx.libs += -lm
 
 hxx{*}:    install = false
-lib{qxcb}: install = lib/qt5/plugins/platforms/
-lib{qxcb}: cxx.pkgconfig.lib = lib/qt5/plugins/platforms/
+
+lib{qxcb}:
+{
+  install = lib/qt5/plugins/platforms/
+  cxx.pkgconfig.lib = lib/qt5/plugins/platforms/
+  cxx.pkgconfig.include = # There are no public headers.
+}

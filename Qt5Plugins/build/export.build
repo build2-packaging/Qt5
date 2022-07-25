@@ -4,4 +4,14 @@ $out_root/
   include plugins/platforminputcontexts/
 }
 
-export $out_root/plugins/$import.target
+switch $import.target
+{
+  case lib{qxcb}
+    dir = platforms
+  case lib{composeplatforminputcontextplugin}
+    dir = platforminputcontexts
+  default
+    fail "unknown target $import.target"
+}
+
+export $out_root/plugins/$dir/$import.target
