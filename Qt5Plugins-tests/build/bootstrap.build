@@ -1,4 +1,4 @@
-project = libQt5Gui-tests
+project = Qt5Plugins-tests
 
 using version
 using config

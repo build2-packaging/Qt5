@@ -13,7 +13,6 @@ package-url: https://github.com/build2-packaging/Qt5
 email: interest@qt-project.org      ; Mailing list for developers using Qt.
 package-email: packaging@build2.org ; Mailing list.
 build-error-email: builds@build2.org
-tests: libQt5Gui-tests == $
 builds: default
 builds: -( +macos &gcc ) ; See README-DEV.
 depends: * build2 >= 0.15.0-
