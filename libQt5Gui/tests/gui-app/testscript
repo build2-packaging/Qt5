@@ -1,0 +1,4 @@
+: show-window
+: Show a window that is automatically closed after a few seconds.
+:
+$* --auto-close
