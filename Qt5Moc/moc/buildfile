@@ -178,8 +178,6 @@ exe{qt5moc}: obje{$macos_core_src_mm}: include = $macos
 
 # Rule for compiling Objective-C++ source files into object files.
 #
-# Note: these rules are only used on Mac OS (so no -fPIC, etc).
-#
 obje{~'/(.*)/'}: mm{~'/\1/'}
 {{
   depdb dyndep --what=header --default-type=h           \
@@ -199,9 +197,11 @@ obje{~'/(.*)/'}: mm{~'/\1/'}
 #
 # Add moc/QtCore/private/ for include paths such as <qglobal_p.h>.
 #
-cxx.poptions =+ "-I$src_root/moc"                \
-                "-I$src_root/moc/QtCore"         \
-                "-I$src_root/moc/QtCore/private"
+cxx.poptions =+ "-I$src_root/moc"                       \
+                "-I$src_root/moc/QtCore"                \
+                "-I$src_root/moc/QtCore/private"        \
+                "-I$src_root/moc/QtCore/private/QtCore" \
+                "-I$src_root/moc/QtCore/private/QtCore/private"
 
 # Define macros from the upstream build.
 #
