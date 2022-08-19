@@ -1,6 +1,6 @@
 : 1
 name: Qt5Rcc
-version: 5.15.3-a.0.z
+version: 5.15.7-a.0.z
 project: Qt5
 summary: Qt resource compiler
 license: other: GPL-3.0-only-with-Qt-GPL-Exception-1.0
@@ -14,6 +14,6 @@ package-email: packaging@build2.org ; Mailing list.
 build-error-email: builds@build2.org
 builds: host : &default
 builds: -( +macos &gcc ) ; See README-DEV.
-depends: * build2 >= 0.15.0-
-depends: * bpkg >= 0.15.0-
+depends: * build2 >= 0.16.0-
+depends: * bpkg >= 0.16.0-
 depends: libz ^1.2.1100
