@@ -199,9 +199,11 @@ obje{~'/(.*)/'}: mm{~'/\1/'}
 #
 # Add moc/QtCore/private/ for include paths such as <qglobal_p.h>.
 #
-cxx.poptions =+ "-I$src_root/moc"                \
-                "-I$src_root/moc/QtCore"         \
-                "-I$src_root/moc/QtCore/private"
+cxx.poptions =+ "-I$src_root/moc"                       \
+                "-I$src_root/moc/QtCore"                \
+                "-I$src_root/moc/QtCore/private"        \
+                "-I$src_root/moc/QtCore/private/QtCore" \
+                "-I$src_root/moc/QtCore/private/QtCore/private"
 
 # Define macros from the upstream build.
 #
