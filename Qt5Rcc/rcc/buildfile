@@ -173,7 +173,9 @@ obje{~'/(.*)/'}: mm{~'/\1/'}
 
 cxx.poptions =+ "-I$src_root/rcc"                       \
                 "-I$src_root/rcc/QtCore"                \
-                "-I$src_root/rcc/QtCore/private"
+                "-I$src_root/rcc/QtCore/private"        \
+                "-I$src_root/rcc/QtCore/private/QtCore" \
+                "-I$src_root/rcc/QtCore/private/QtCore/private"
 
 # Define macros from the upstream build.
 #
