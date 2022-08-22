@@ -1,4 +1,4 @@
-#define QT_QPA_DEFAULT_PLATFORM_NAME "@QT_QPA_DEFAULT_PLATFORM_NAME@"
+#define QT_QPA_DEFAULT_PLATFORM_NAME "$QT_QPA_DEFAULT_PLATFORM_NAME$"
 
 // Define macros for features disabled in qtgui-config_p.h.
 //

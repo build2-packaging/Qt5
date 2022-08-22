@@ -1,3 +1,0 @@
-import libs = libQt5Gui%lib{Qt5Gui}
-
-exe{driver}: cxx{driver} $libs

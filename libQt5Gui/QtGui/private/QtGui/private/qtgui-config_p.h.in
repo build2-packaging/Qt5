@@ -4,17 +4,14 @@
 
 // @@ TODO (platform-specific).
 //
-
-// @@ TODO Will need to enable the XCB features based on platform.
-//
-#define QT_FEATURE_xcb               -1 // Referenced by plugins only.
-#define QT_FEATURE_xkbcommon         -1
-#define QT_FEATURE_xkbcommon_x11     -1
-#define QT_FEATURE_xlib              -1
-#define QT_FEATURE_xcb_xlib          -1
-#define QT_FEATURE_xcb_sm            -1 // Session management.
-#define QT_FEATURE_system_xcb_xinput -1
-#define QT_FEATURE_drm_atomic        -1
+#define QT_FEATURE_xcb               1
+#define QT_FEATURE_xkbcommon         1
+#define QT_FEATURE_xkbcommon_x11     1
+#define QT_FEATURE_xlib              1
+#define QT_FEATURE_xcb_xlib          1
+#define QT_FEATURE_xcb_sm            1 // Session management.
+#define QT_FEATURE_system_xcb_xinput 1
+#define QT_FEATURE_drm_atomic        1
 // "Native painting (experimental)". Always disable.
 //
 #define QT_FEATURE_xcb_native_painting -1
