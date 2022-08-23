@@ -1,1 +1,0 @@
-../../../upstream/qtbase/src/gui/painting/qtriangulator_p.h
