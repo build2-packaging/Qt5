@@ -1,0 +1,1 @@
+../../../../../upstream/qtbase/src/platformsupport/windowsuiautomation/uiaserverinterfaces_p.h
