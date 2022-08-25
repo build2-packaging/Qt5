@@ -1,6 +1,34 @@
 $out_root/
 {
-  include QtGui/
+  include QtGuiPlugins/
 }
 
-export $out_root/QtGui/$import.target
+switch $import.target
+{
+  case lib{Qt5Gui}
+  {
+    $out_root/
+    {
+      include QtGui/
+    }
+    export $out_root/QtGui/lib{Qt5Gui} \
+           $out_root/QtGuiPlugins/lib{Qt5GuiPluginsMeta}
+  }
+  case lib{Qt5GuiPrivate}
+  {
+    $out_root/
+    {
+      include QtGui/
+    }
+    export $out_root/QtGui/$import.target
+  }
+  case lib{Qt5GuiPluginsMeta}   | \
+       platforms/libs{qxcb}     | \
+       imageformats/libs{qgif}  | \
+       imageformats/libs{qico}  | \
+       imageformats/libs{qjpeg} | \
+       platforminputcontexts/libs{composeplatforminputcontextplugin}
+  {
+    export $out_root/QtGuiPlugins/$import.target
+  }
+}
