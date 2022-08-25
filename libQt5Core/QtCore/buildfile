@@ -926,8 +926,15 @@ global/cxx{qconfig-develop}:
   lib          = [dir_path] $out_root
   libexec      = [dir_path] $out_root
   bin          = [dir_path] $out_root
-  plugins_proj = $regex.replace($leaf($out_root), $project, 'libQt5Plugins')
-  plugins      = [dir_path] $directory($out_root)/$plugins_proj/'libQt5Plugins'
+
+  # Empty string to prevent any plugins from being found. In the development
+  # case we register a separate path for each Qt module's plugins at runtime
+  # (for example, see the in rule for kernel/cxx{qguiapplication-develop} in
+  # libQt5Gui/QtGui/buildfile). (In the installed case all plugins are below a
+  # single plugins directory.)
+  #
+  plugins      = ''
+
   imports      = [dir_path] $out_root
   qml          = [dir_path] $out_root
   arch_data    = [dir_path] $src_root
