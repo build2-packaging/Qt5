@@ -1,0 +1,25 @@
+./: imageformats/ platforminputcontexts/ platforms/ \
+    lib{Qt5GuiPluginsMeta}
+
+include imageformats/
+include platforminputcontexts/
+include platforms/
+
+# This library presents a single target that depends on all of the plugins
+# used by libQt5Gui. Not only is this more convenient than having to import
+# and depend on multiple plugin targets, but its .pc file will be installed to
+# lib/pkgconfig/, unlike those of the actual plugin libraries which are
+# installed under lib/qt5/plugins/ (next to the libraries themselves) where
+# they will not be found.
+#
+[rule_hint=cxx] lib{Qt5GuiPluginsMeta}:
+
+lib{Qt5GuiPluginsMeta}: imageformats/libs{qgif qico qjpeg}: \
+  include = adhoc
+
+lib{Qt5GuiPluginsMeta}:                                                 \
+  platforms/libs{qxcb}                                                  \
+  platforminputcontexts/libs{composeplatforminputcontextplugin}:        \
+    include = ($linux || $bsd ? adhoc : false)
+
+hxx{*}: install = false

@@ -1,0 +1,13 @@
+include ../../../../QtGui/
+
+libul{Qt5ServiceSupport}: ../../../../QtGui/lib{Qt5Gui Qt5GuiPrivate}
+
+# Although upstream currently only builds this library on Linux and BSD, based
+# on the directory hierarchy and the name of these source files it looks like
+# the plan is to support other platforms in future.
+#
+libul{Qt5ServiceSupport}: genericunix/{hxx cxx}{*}: include = ($linux || $bsd)
+
+cxx.poptions += $platforms_poptions             \
+                -DQT_BUILD_SERVICE_SUPPORT_LIB  \
+                -DQT_NO_CAST_FROM_ASCII

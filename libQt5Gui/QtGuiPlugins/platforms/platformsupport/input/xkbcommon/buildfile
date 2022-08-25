@@ -1,0 +1,8 @@
+include ../../../../../QtGui/
+
+libul{Qt5XkbCommonSupport}: {hxx cxx}{*} \
+  ../../../../../QtGui/lib{Qt5Gui Qt5GuiPrivate}
+
+cxx.poptions += $platforms_poptions			\
+                -DQT_BUILD_XKBCOMMON_SUPPORT_LIB	\
+                -DQT_NO_CAST_FROM_ASCII

@@ -1,0 +1,13 @@
+import impl_libs = libfreetype%lib{freetype}
+
+include ../../../../QtGui/
+
+libul{Qt5FontDatabaseSupport}: ../../../../QtGui/lib{Qt5Gui Qt5GuiPrivate} \
+  $impl_libs
+
+libul{Qt5FontDatabaseSupport}: freetype/{hxx cxx}{*} fontconfig/{hxx cxx}{*}: \
+  include = ($linux || $bsd)
+
+cxx.poptions += $platforms_poptions			\
+                -DQT_BUILD_FONTDATABASE_SUPPORT_LIB	\
+                -DQT_NO_CAST_FROM_ASCII

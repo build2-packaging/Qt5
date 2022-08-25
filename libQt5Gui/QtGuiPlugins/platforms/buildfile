@@ -1,0 +1,16 @@
+cxx.poptions =+ "-I$out_root/QtGuiPlugins" "-I$src_root/QtGuiPlugins"
+
+# Poptions used in multiple scopes (but not for all objects).
+#
+platforms_poptions =                                                    \
+  -DQT_ASCII_CAST_WARNINGS                                              \
+  -DQT_NO_CAST_TO_ASCII                                                 \
+  -DQT_BUILDING_QT                                                      \
+  -DQT_DISABLE_DEPRECATED_BEFORE=($windows ? 0x040800 : 0x050000)       \
+  -DQT_DEPRECATED_WARNINGS_SINCE=0x060000                               \
+  -DQT_MOC_COMPAT                                                       \
+  -DQT_USE_QSTRINGBUILDER
+
+include xcb/
+
+./: lib{qxcb}: include = ($linux || $bsd)
