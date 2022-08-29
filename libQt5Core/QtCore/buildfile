@@ -222,101 +222,118 @@ src = animation/qabstractanimation              \
       tools/qtimeline                           \
       tools/qversionnumber
 
-# Headers to be moc'ed.
+# Headers to be moc'ed and compiled.
 #
-moc_hdr = private/QtCore/private/qabstractanimation_p           \
-          private/QtCore/private/qfactoryloader_p               \
-          private/QtCore/private/qfilesystemwatcher_p           \
-          private/QtCore/private/qfilesystemwatcher_polling_p   \
-          private/QtCore/private/qnoncontiguousbytedevice_p     \
-          private/QtCore/private/qtextstream_p                  \
-          qabstractanimation                                    \
-          qabstracteventdispatcher                              \
-          qabstractitemmodel                                    \
-          qabstractproxymodel                                   \
-          qabstractstate                                        \
-          qabstracttransition                                   \
-          qanimationgroup                                       \
-          qbuffer                                               \
-          qcalendar                                             \
-          qcborcommon                                           \
-          qcborstreamreader                                     \
-          qcborvalue                                            \
-          qconcatenatetablesproxymodel                          \
-          qcoreapplication                                      \
-          qcoreevent                                            \
-          qcryptographichash                                    \
-          qeasingcurve                                          \
-          qeventloop                                            \
-          qeventtransition                                      \
-          qfile                                                 \
-          qfiledevice                                           \
-          qfileselector                                         \
-          qfilesystemwatcher                                    \
-          qfinalstate                                           \
-          qfuturewatcher                                        \
-          qhistorystate                                         \
-          qidentityproxymodel                                   \
-          qiodevice                                             \
-          qitemselectionmodel                                   \
-          qlibrary                                              \
-          qlocale                                               \
-          qmimedata                                             \
-          qmimetype                                             \
-          qnamespace                                            \
-          qobject                                               \
-          qobjectcleanuphandler                                 \
-          qparallelanimationgroup                               \
-          qpauseanimation                                       \
-          qpluginloader                                         \
-          qprocess                                              \
-          qpropertyanimation                                    \
-          qsavefile                                             \
-          qsequentialanimationgroup                             \
-          qsettings                                             \
-          qsharedmemory                                         \
-          qsignalmapper                                         \
-          qsignaltransition                                     \
-          qsocketnotifier                                       \
-          qsortfilterproxymodel                                 \
-          qstandardpaths                                        \
-          qstate                                                \
-          qstatemachine                                         \
-          qstringlistmodel                                      \
-          qtemporaryfile                                        \
-          qthread                                               \
-          qthreadpool                                           \
-          qtimeline                                             \
-          qtimer                                                \
-          qtranslator                                           \
-          qtransposeproxymodel                                  \
-          qvariantanimation
+moc_hdr = qcalendar \
+          qmimetype
 
-unix_moc_hdr = private/QtCore/private/qeventdispatcher_unix_p
+# Headers to be moc'ed and included.
+#
+moc_hdr_adhoc = private/QtCore/private/qabstractanimation_p             \
+                private/QtCore/private/qfactoryloader_p                 \
+                private/QtCore/private/qfilesystemwatcher_p             \
+                private/QtCore/private/qfilesystemwatcher_polling_p     \
+                private/QtCore/private/qnoncontiguousbytedevice_p       \
+                private/QtCore/private/qtextstream_p                    \
+                qabstractanimation                                      \
+                qabstracteventdispatcher                                \
+                qabstractitemmodel                                      \
+                qabstractproxymodel                                     \
+                qabstractstate                                          \
+                qabstracttransition                                     \
+                qanimationgroup                                         \
+                qbuffer                                                 \
+                qcborcommon                                             \
+                qcborstreamreader                                       \
+                qcborvalue                                              \
+                qconcatenatetablesproxymodel                            \
+                qcoreapplication                                        \
+                qcoreevent                                              \
+                qcryptographichash                                      \
+                qeasingcurve                                            \
+                qeventloop                                              \
+                qeventtransition                                        \
+                qfile                                                   \
+                qfiledevice                                             \
+                qfileselector                                           \
+                qfilesystemwatcher                                      \
+                qfinalstate                                             \
+                qfuturewatcher                                          \
+                qhistorystate                                           \
+                qidentityproxymodel                                     \
+                qiodevice                                               \
+                qitemselectionmodel                                     \
+                qlibrary                                                \
+                qlocale                                                 \
+                qmimedata                                               \
+                qnamespace                                              \
+                qobject                                                 \
+                qobjectcleanuphandler                                   \
+                qparallelanimationgroup                                 \
+                qpauseanimation                                         \
+                qpluginloader                                           \
+                qprocess                                                \
+                qpropertyanimation                                      \
+                qsavefile                                               \
+                qsequentialanimationgroup                               \
+                qsettings                                               \
+                qsharedmemory                                           \
+                qsignalmapper                                           \
+                qsignaltransition                                       \
+                qsocketnotifier                                         \
+                qsortfilterproxymodel                                   \
+                qstandardpaths                                          \
+                qstate                                                  \
+                qstatemachine                                           \
+                qstringlistmodel                                        \
+                qtemporaryfile                                          \
+                qthread                                                 \
+                qthreadpool                                             \
+                qtimeline                                               \
+                qtimer                                                  \
+                qtranslator                                             \
+                qtransposeproxymodel                                    \
+                qvariantanimation
 
-linux_moc_hdr = private/QtCore/private/qfilesystemwatcher_inotify_p
+# Unix headers to be moc'd and included.
+#
+unix_moc_hdr_adhoc = private/QtCore/private/qeventdispatcher_unix_p
 
+# Linux headers to be moc'd and included.
+#
+linux_moc_hdr_adhoc = private/QtCore/private/qfilesystemwatcher_inotify_p
+
+# Windows headers to be moc'd and compiled.
+#
 win_moc_hdr = private/QtCore/private/qeventdispatcher_win_p    \
               private/QtCore/private/qfilesystemwatcher_win_p  \
               private/QtCore/private/qwindowspipereader_p      \
               private/QtCore/private/qwindowspipewriter_p      \
               qwineventnotifier
 
-macos_moc_hdr = private/QtCore/private/qeventdispatcher_cf_p   \
-                private/QtCore/private/qfilesystemwatcher_fsevents_p
+# MacOS headers to be moc'd.
+#
+macos_moc_hdr       = private/QtCore/private/qfilesystemwatcher_fsevents_p
+macos_moc_hdr_adhoc = private/QtCore/private/qeventdispatcher_cf_p
 
+# BSD headers to be moc'd and compiled.
+#
 bsd_moc_hdr = private/QtCore/private/qfilesystemwatcher_kqueue_p
 
-# Source files to be moc'ed.
+# Source files to be moc'ed and included.
 #
-moc_src = kernel/qtimer                 \
-          statemachine/qhistorystate    \
-          statemachine/qstatemachine    \
-          thread/qthreadpool
+moc_src_adhoc = kernel/qtimer                   \
+                statemachine/qhistorystate      \
+                statemachine/qstatemachine      \
+                thread/qthreadpool
 
-win_moc_src = io/qfilesystemwatcher_win
+# Windows source files to be moc'ed and included.
+#
+win_moc_src_adhoc = io/qfilesystemwatcher_win
 
-moc_mm  = kernel/qeventdispatcher_cf
+# Objective-C files to be moc'ed and included.
+#
+moc_mm_adhoc = kernel/qeventdispatcher_cf
 
 # UNIX source files.
 #
@@ -404,37 +421,35 @@ harfbuzz_src = harfbuzz-buffer  \
                harfbuzz-open    \
                harfbuzz-stream
 
-gen_hdr_pub  = qconfig qtcore-config # Generated public headers.
+# Generated headers.
+#
+gen_hdr = qconfig       private/QtCore/private/qconfig_p        \
+          qtcore-config private/QtCore/private/qtcore-config_p
 
 # Force headers that are included by C source files to be C headers otherwise
 # they are most likely to be detected as C++ headers due to being included
 # most often from C++ source files, which could break build2's header
 # dependency extraction.
 #
-c_hdr_pub = qglobal qsystemdetection qprocessordetection qcompilerdetection \
-            $gen_hdr_pub
+c_hdr = qglobal qsystemdetection qprocessordetection qcompilerdetection \
+        $gen_hdr
 
-# Public headers and source files.
+# Headers and source files.
 #
-lib{Qt5Core}: hxx{** -private/** -{$c_hdr_pub} +Q*.} h{$c_hdr_pub} cxx{$src}    \
-              ../3rdparty/harfbuzz/src/h{harfbuzz}                              \
-              ../3rdparty/harfbuzz/src/c{$harfbuzz_src}                         \
-              ../3rdparty/harfbuzz/src/cxx{harfbuzz-shaper-all}                 \
+./: lib{Qt5Core}: hxx{** -{$c_hdr} +Q*.} h{$c_hdr} cxx{$src}    \
+                  ../3rdparty/harfbuzz/src/h{harfbuzz}          \
+                  ../3rdparty/harfbuzz/src/c{$harfbuzz_src}     \
+                  ../3rdparty/harfbuzz/src/cxx{harfbuzz-shaper-all}
 
-# Private C headers.
+# This target exports search directories for the private headers which are
+# located in a deeper directory subtree to prevent them from being found by
+# accident.
 #
-c_hdr_priv = private/QtCore/private/qconfig_p \
-             private/QtCore/private/qtcore-config_p
+[rule_hint=cxx] lib{Qt5CorePrivate}:
 
-# Separate private headers to a deeper directory subtree to prevent them from
-# being found without the addition of the header search directories exported
-# by this target.
-#
-lib{Qt5CorePrivate}: hxx{private/** -{$c_hdr_priv}} h{$c_hdr_priv}
+./: lib{Qt5CorePrivate}
 
 # Included source files and indirectly-included headers.
-#
-# @@ Restore private headers here.
 #
 lib{Qt5Core}: cxx{** -{$src} -qmimeprovider_database}                   \
               global/c{qfloat16_f16c}                                   \
@@ -461,14 +476,6 @@ lib{Qt5Core}: cxx{qmimeprovider_database}:
 # Note: use a rule hint to resolve ambiguity between C and C++ library.
 #
 [rule_hint=cxx] libul{Qt5CoreMeta}: $impl_libs $intf_libs
-
-# A utility library wrapper for lib{Qt5CorePrivate} in order to get the
-# latter's exported include directories in the moc adhoc rules (@@ TMP
-# lib_poptions() doesn't accept lib{}, libs{}, or liba{}).
-#
-# Becomes unnecessary: use libul{Qt5CoreMeta}.
-#
-[rule_hint=cxx] libul{Qt5CorePrivateMeta}: lib{Qt5CorePrivate}
 
 # Generated headers and source files.
 #
@@ -591,110 +598,73 @@ else
   EOI
 }}
 
-# Dependencies involving source files generated by moc from headers (foo.h ->
-# moc_foo.cpp).
+# Dependencies involving moc-generated source files.
 #
 # Note: these would be safe to update during execute: not macro headers, not
 #       installed, and we can assume moc_q*.cpp is unique enough. But testing
 #       showed that that would result in worse performance. So we leave the
 #       pre-generation enabled.
 #
+
+# The dependencies of lib{Qt5Core} on source files (moc_foo.cpp) generated by
+# moc from headers. Note that some of these source files are compiled and some
+# are included.
+#
 for s: hxx{$moc_hdr}
-{
-  n = $name($s)
-  lib{Qt5Core}: cxx{moc_$n}: include = adhoc
-  cxx{moc_$n}: $s
-}
+  lib{Qt5Core}: cxx{moc_$name($s)}
+for s: hxx{$moc_hdr_adhoc}
+  lib{Qt5Core}: cxx{moc_$name($s)}: include = adhoc
 
-for s: hxx{$unix_moc_hdr}
-{
-  n = $name($s)
-  lib{Qt5Core}: cxx{moc_$n}: include = ($unix ? adhoc : false)
-  cxx{moc_$n}: $s
-}
+for s: hxx{$unix_moc_hdr_adhoc}
+  lib{Qt5Core}: cxx{moc_$name($s)}: include = ($unix ? adhoc : false)
 
-for s: hxx{$linux_moc_hdr}
-{
-  n = $name($s)
-  lib{Qt5Core}: cxx{moc_$n}: include = ($linux ? adhoc : false)
-  cxx{moc_$n}: $s
-}
+for s: hxx{$linux_moc_hdr_adhoc}
+  lib{Qt5Core}: cxx{moc_$name($s)}: include = ($linux ? adhoc : false)
 
 for s: hxx{$win_moc_hdr}
-{
-  n = $name($s)
-  lib{Qt5Core}: cxx{moc_$n}: include = ($windows ? adhoc : false)
-  cxx{moc_$n}: $s
-}
+  lib{Qt5Core}: cxx{moc_$name($s)}: include = $windows
 
 for s: hxx{$macos_moc_hdr}
-{
-  n = $name($s)
-  lib{Qt5Core}: cxx{moc_$n}: include = ($macos ? adhoc : false)
-  cxx{moc_$n}: $s
-}
+  lib{Qt5Core}: cxx{moc_$name($s)}: include = $macos
+for s: hxx{$macos_moc_hdr_adhoc}
+  lib{Qt5Core}: cxx{moc_$name($s)}: include = ($macos ? adhoc : false)
 
 for s: hxx{$bsd_moc_hdr}
-{
-  n = $name($s)
-  lib{Qt5Core}: cxx{moc_$n}: include = ($bsd ? adhoc : false)
-  cxx{moc_$n}: $s
-}
+  lib{Qt5Core}: cxx{moc_$name($s)}: include = $bsd
 
-# A small minority of the above outputs need to be compiled (most are
-# included), so override `include = adhoc` for those.
+# The dependencies of moc-generated source files on the headers they were
+# generated from (for example, `moc foo.h` produces moc_foo.cpp).
 #
-# @@ Not going to work.
-#
-lib{Qt5Core}: cxx{moc_qcalendar moc_qmimetype}
-
-lib{Qt5Core}: cxx{moc_qeventdispatcher_win_p    \
-                  moc_qfilesystemwatcher_win_p  \
-                  moc_qwindowspipereader_p      \
-                  moc_qwindowspipewriter_p      \
-                  moc_qwineventnotifier}: include = $windows
-
-lib{Qt5Core}: cxx{moc_qfilesystemwatcher_kqueue_p}:   include = $bsd
-lib{Qt5Core}: cxx{moc_qfilesystemwatcher_fsevents_p}: include = $macos
-
-#########################################################################
-
-for s: hxx{$win_moc_hdr $win_moc_hdr_adhoc}
+for s: hxx{$moc_hdr $moc_hdr_adhoc              \
+           $unix_moc_hdr_adhoc                  \
+           $linux_moc_hdr_adhoc                 \
+           $win_moc_hdr                         \
+           $macos_moc_hdr $macos_moc_hdr_adhoc  \
+           $bsd_moc_hdr}
   cxx{moc_$name($s)}: $s
-
-lib{Qt5Core}: cxx{$win_moc_hdr}:       include = $windows
-lib{Qt5Core}: cxx{$win_moc_hdr_adhoc}: include = ($windows ? adhoc : false)
-
-#########################################################################
 
 # Target type for source file generated by moc from a source file.
 #
 define moc: cxx
 moc{*}: extension = moc
 
-# Dependencies involving source files generated by moc from source files.
-# (foo.cpp -> foo.moc).
+# The dependencies of lib{Qt5Core} on source files (foo.moc) generated by moc
+# from source files.
 #
-for s: cxx{$moc_src}
-{
-  n = $name($s)
-  lib{Qt5Core}: moc{$n}: include = adhoc
-  moc{$n}: $s
-}
+for s: cxx{$moc_src_adhoc}
+  lib{Qt5Core}: moc{$name($s)}: include = adhoc
 
-for s: cxx{$win_moc_src}
-{
-  n = $name($s)
-  lib{Qt5Core}: moc{$n}: include = ($windows ? adhoc : false)
-  moc{$n}: $s
-}
+for s: cxx{$win_moc_src_adhoc}
+  lib{Qt5Core}: moc{$name($s)}: include = ($windows ? adhoc : false)
 
-for s: mm{$moc_mm}
-{
-  n = $name($s)
-  lib{Qt5Core}: moc{$n}: include = ($macos ? adhoc : false)
-  moc{$n}: $s
-}
+for s: mm{$moc_mm_adhoc}
+  lib{Qt5Core}: moc{$name($s)}: include = ($macos ? adhoc : false)
+
+# The dependencies of moc-generated source files on the source files they were
+# generated from (for example, `moc foo.cpp` produces foo.moc).
+#
+for s: cxx{$moc_src_adhoc $win_moc_src_adhoc} mm{$moc_mm_adhoc}
+  moc{$name($s)}: $s
 
 # -I options for the system header directories.
 #
@@ -717,30 +687,19 @@ sys_incl = $regex.apply($cxx.sys_hdr_dirs, '(.+)', '-I\1')
 #
 # Note that hxx{moc_predefs} must always be in position 1.
 #
-cxx{~'/moc_(.*)/'}: hxx{~'/\1/'} hxx{moc_predefs} h{$gen_hdr_pub}       \
-                    libul{Qt5CorePrivateMeta}                           \
-                    $moc
+cxx{~'/moc_(.*)/'}: hxx{~'/\1/'} hxx{moc_predefs} h{$gen_hdr} $moc
 {{
   o = $path($>[0])
   t = $(o).t
 
-  priv_incl = $cxx.lib_poptions(libul{Qt5CorePrivateMeta})
-
-  depdb hash $priv_incl
-
-  # Note: exclude libul{Qt5CorePrivateMeta} from update during match not to
-  #       mess up its for-install'ness.
-  #
-  depdb dyndep                                                  \
-    --byproduct --drop-cycles --what=header --default-type=h    \
-    --update-exclude libul{Qt5CorePrivateMeta}                  \
-    --file $t
+  depdb dyndep  \
+    --byproduct --drop-cycles --what=header --default-type=h --file $t
 
   diag moc ($<[0])
 
   s = $path($<[0])
 
-  $moc --include $path($<[1]) $cc.poptions $cxx.poptions $priv_incl $sys_incl \
+  $moc --include $path($<[1]) $cc.poptions $cxx.poptions $sys_incl \
     -f $leaf($s) --output-dep-file --dep-file-path $t -o $o $s
 }}
 
@@ -748,27 +707,19 @@ cxx{~'/moc_(.*)/'}: hxx{~'/\1/'} hxx{moc_predefs} h{$gen_hdr_pub}       \
 #
 # See the header-input moc rule regarding the header prerequisites.
 #
-moc{~'/(.*)/'}: cxx{~'/\1/'} hxx{moc_predefs} h{$gen_hdr_pub}   \
-                libul{Qt5CorePrivateMeta}                       \
-                $moc
+moc{~'/(.*)/'}: cxx{~'/\1/'} hxx{moc_predefs} h{$gen_hdr} $moc
 {{
   o = $path($>[0])
   t = $(o).t
 
-  priv_incl = $cxx.lib_poptions(libul{Qt5CorePrivateMeta})
-
-  depdb hash $priv_incl
-
-  depdb dyndep                                                  \
-    --byproduct --drop-cycles --what=header --default-type=h    \
-    --update-exclude libul{Qt5CorePrivateMeta}                  \
-    --file $t
+  depdb dyndep  \
+    --byproduct --drop-cycles --what=header --default-type=h --file $t
 
   diag moc ($<[0])
 
   s = $path($<[0])
 
-  $moc --include $path($<[1]) $cc.poptions $cxx.poptions $priv_incl $sys_incl \
+  $moc --include $path($<[1]) $cc.poptions $cxx.poptions $sys_incl \
     --output-dep-file --dep-file-path $t -o $o $s
 }}
 
@@ -776,27 +727,19 @@ moc{~'/(.*)/'}: cxx{~'/\1/'} hxx{moc_predefs} h{$gen_hdr_pub}   \
 #
 # See the header-input moc rule regarding the header prerequisites.
 #
-moc{~'/(.*)/'}: mm{~'/\1/'} hxx{moc_predefs} h{$gen_hdr_pub}    \
-                libul{Qt5CorePrivateMeta}                       \
-                $moc
+moc{~'/(.*)/'}: mm{~'/\1/'} hxx{moc_predefs} h{$gen_hdr} $moc
 {{
   o = $path($>[0])
   t = $(o).t
 
-  priv_incl = $cxx.lib_poptions(libul{Qt5CorePrivateMeta})
-
-  depdb hash $priv_incl
-
-  depdb dyndep                                                  \
-    --byproduct --drop-cycles --what=header --default-type=h    \
-    --update-exclude libul{Qt5CorePrivateMeta}                  \
-    --file $t
+  depdb dyndep  \
+    --byproduct --drop-cycles --what=header --default-type=h --file $t
 
   diag moc ($<[0])
 
   s = $path($<[0])
 
-  $moc --include $path($<[1]) $cc.poptions $cxx.poptions $priv_incl $sys_incl \
+  $moc --include $path($<[1]) $cc.poptions $cxx.poptions $sys_incl \
     --output-dep-file --dep-file-path $t -o $o $s
 }}
 
@@ -814,7 +757,7 @@ moc{qstatemachine}:       cxx{moc_qstatemachine}
 moc{qthreadpool}:         cxx{moc_qthreadpool}
 moc{qtimer}:              cxx{moc_qtimer}
 
-lib{Qt5Core}: libul{Qt5CoreMeta Qt5CorePrivateMeta}
+lib{Qt5Core}: libul{Qt5CoreMeta}
 
 # Generated headers and source files.
 #
@@ -1072,12 +1015,14 @@ cxx{qmimeprovider_database}: mimetypes/mime/packages/freedesktop.org.xml $xxd
 # Note: the few C source files that we compile (in harfbuzz/src/) don't
 #       need any of these.
 #
-# @@ Restore private headers here.
-#
-cxx.poptions =+ "-I$out_root"        "-I$src_root"              \
-                "-I$out_root/QtCore" "-I$src_root/QtCore"       \
-                "-I$src_root/3rdparty/harfbuzz/src"             \
-                "-I$src_root/3rdparty/forkfd"
+cxx.poptions =+                                                                 \
+  "-I$out_root"                        "-I$src_root"                            \
+  "-I$out_root/QtCore"                 "-I$src_root/QtCore"                     \
+  "-I$out_base/private"                "-I$src_base/private"                    \
+  "-I$out_base/private/QtCore"         "-I$src_base/private/QtCore"             \
+  "-I$out_base/private/QtCore/private" "-I$src_base/private/QtCore/private"     \
+  "-I$src_root/3rdparty/harfbuzz/src"                                           \
+  "-I$src_root/3rdparty/forkfd"
 
 cxx.poptions += -DQT_BUILDING_QT -DQT_BUILD_CORE_LIB            \
                 -DQT_NO_LINKED_LIST                             \
@@ -1089,7 +1034,6 @@ cxx.poptions += -DQT_BUILDING_QT -DQT_BUILD_CORE_LIB            \
                 -DQT_MOC_COMPAT                                 \
                 -DQT_USE_QSTRINGBUILDER                         \
                 -DQT_DEPRECATED_WARNINGS                        \
-                -D_REENTRANT                                    \
                 -DQT_DEPRECATED_WARNINGS_SINCE=0x060000         \
                 -DQT_NO_VERSION_TAGGING
 
@@ -1118,6 +1062,8 @@ else
   cxx.poptions += -DQT_DISABLE_DEPRECATED_BEFORE=0x050000       \
                   -DQT_NO_CAST_TO_ASCII                         \
                   -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE
+
+  lib{Qt5Core}: cxx.libs += -pthread
 
   if $linux
     lib{Qt5Core}: cxx.libs += -ldl
@@ -1227,7 +1173,7 @@ else
 # /usr/include/. Note that headers may be included with or without the
 # `QtCore/` prefix.
 #
-{h hxx}{../3rdparty/* testlib/*}: install = false
+{h hxx}{../3rdparty/* testlib/* mkspecs/*}: install = false
 {h hxx}{* Q*.}: install = include/qt5/QtCore/
 
 lib{Qt5Core}: cxx.pkgconfig.include = include/qt5/ include/qt5/QtCore
