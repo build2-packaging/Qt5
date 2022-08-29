@@ -22,6 +22,7 @@ switch $import.target
     }
     export $out_root/QtGui/$import.target
   }
+  # @@ Let's use default
   case lib{Qt5GuiPluginsMeta}   | \
        platforms/libs{qxcb}     | \
        imageformats/libs{qgif}  | \
