@@ -3,6 +3,8 @@
 #
 
 import intf_libs  = libQt5Core%lib{Qt5Core}
+
+import impl_libs  = libQt5Core%lib{Qt5CorePrivate}
 import impl_libs += libpng%lib{png}
 import impl_libs += libharfbuzz%lib{harfbuzz}
 import impl_libs += libmd4c%lib{md4c}
@@ -232,7 +234,7 @@ macos_mm = accessible/qaccessiblecache_mac      \
            image/qimage_darwin                  \
            painting/qcoregraphics
 
-# Headers to be moc'ed.
+# Headers to be moc'ed and compiled.
 #
 moc_hdr = private/QtGui/private/qaccessiblecache_p              \
           private/QtGui/private/qdnd_p                          \
@@ -244,10 +246,8 @@ moc_hdr = private/QtGui/private/qaccessiblecache_p              \
           private/QtGui/private/qlayoutpolicy_p                 \
           private/QtGui/private/qshaderlanguage_p               \
           private/QtGui/private/qshapedpixmapdndwindow_p        \
-          private/QtGui/private/qtextdocumentlayout_p           \
           private/QtGui/private/qtextimagehandler_p             \
           private/QtGui/qpa/qplatforminputcontextplugin_p       \
-          qabstracttextdocumentlayout                           \
           qaccessible                                           \
           qaccessiblebridge                                     \
           qaccessibleplugin                                     \
@@ -259,13 +259,10 @@ moc_hdr = private/QtGui/private/qaccessiblecache_p              \
           qfont                                                 \
           qfontdatabase                                         \
           qgenericplugin                                        \
-          qguiapplication                                       \
           qiconengineplugin                                     \
           qimage                                                \
           qimageiohandler                                       \
-          qinputmethod                                          \
           qkeysequence                                          \
-          qmovie                                                \
           qoffscreensurface                                     \
           qpaintdevicewindow                                    \
           qpainter                                              \
@@ -279,29 +276,37 @@ moc_hdr = private/QtGui/private/qaccessiblecache_p              \
           qpa/qplatformmenu                                     \
           qpa/qplatformnativeinterface                          \
           qpa/qplatformsharedgraphicscache                      \
-          qpa/qplatformsystemtrayicon                           \
           qpa/qplatformthemeplugin                              \
           qrasterwindow                                         \
           qscreen                                               \
           qsessionmanager                                       \
-          qstandarditemmodel                                    \
           qstylehints                                           \
           qsurface                                              \
           qsurfaceformat                                        \
-          qsyntaxhighlighter                                    \
           qtextdocument                                         \
           qtextformat                                           \
           qtextlist                                             \
           qtextobject                                           \
           qtexttable                                            \
           qtouchdevice                                          \
-          qvalidator                                            \
-          qwindow
+          qvalidator
 
-# C++ source files to be moc'ed.
+# Headers to be moc'ed and included.
 #
-moc_src = image/qpixmapcache \
-          util/qdesktopservices
+moc_hdr_adhoc = private/QtGui/private/qtextdocumentlayout_p     \
+                qabstracttextdocumentlayout                     \
+                qguiapplication                                 \
+                qinputmethod                                    \
+                qmovie                                          \
+                qpa/qplatformsystemtrayicon                     \
+                qstandarditemmodel                              \
+                qsyntaxhighlighter                              \
+                qwindow
+
+# C++ source files to be moc'ed and included.
+#
+moc_src_adhoc = image/qpixmapcache \
+                util/qdesktopservices
 
 # QMake resource files (.qrc) to be rcc'd.
 #
@@ -312,24 +317,27 @@ moc_src = image/qpixmapcache \
 qrc = painting/qmake_webgradients \
       painting/qpdf
 
-gen_hdr_pub = qtgui-config # Generated public headers.
-
-# Public headers and source files.
+# Generated headers.
 #
-lib{Qt5Gui}: hxx{** -private/** -{$gen_hdr_pub} +Q*.} hxx{$gen_hdr_pub} \
-             cxx{$src} c{$src_c}
+gen_hdr = qtgui-config private/QtGui/private/qtgui-config_p
+
+# Headers and source files.
+#
+./: lib{Qt5Gui}: hxx{** -{$gen_hdr} +Q*.} hxx{$gen_hdr} \
+                 cxx{$src} c{$src_c}
+
+# This target exports search directories for the private headers which are
+# located in a deeper directory subtree to prevent them from being found by
+# accident.
+#
+[rule_hint=cxx] lib{Qt5GuiPrivate}:
+
+./: lib{Qt5GuiPrivate}: $priv_intf_libs
 
 # Generated source files.
 #
 lib{Qt5Gui}: kernel/cxx{qguiapplication-install}: for_install = true
 lib{Qt5Gui}: kernel/cxx{qguiapplication-develop}: for_install = false
-
-# Private headers.
-#
-gen_hdr_priv = private/QtGui/private/qtgui-config_p # Generated private headers.
-
-lib{Qt5GuiPrivate}: hxx{private/** -{$gen_hdr_priv}} hxx{$gen_hdr_priv} \
-                    $priv_intf_libs
 
 # Included source files.
 #
@@ -349,19 +357,12 @@ lib{Qt5Gui}: qrc{$qrc}                                  \
 
 # The "metadata libraries": their purpose is to make sure all the imported
 # libraries are resolved for the ad hoc rules (.mm compilation, moc)
-# below. Add lib{Qt5GuiPrivate} as dependency because lib_poptions() only
-# works on libul{} targets.
+# below.
 #
 # Note: use a rule hint to resolve ambiguity between C and C++ library.
 #
 [rule_hint=cxx] libul{Qt5GuiIntfMeta}: $intf_libs
-[rule_hint=cxx] libul{Qt5GuiImplMeta}: $impl_libs lib{Qt5GuiPrivate}
-
-# A utility library wrapper for lib{Qt5GuiPrivate} in order to get the
-# latter's exported include directories in the moc adhoc rules (@@ TMP
-# lib_poptions() doesn't accept lib{}, libs{}, or liba{}).
-#
-[rule_hint=cxx] libul{Qt5GuiPrivateMeta}: lib{Qt5GuiPrivate}
+[rule_hint=cxx] libul{Qt5GuiImplMeta}: $impl_libs
 
 # Platform-specific source files.
 #
@@ -397,13 +398,17 @@ libs{Qt5Gui}: objs{$regex.apply($macos_mm,'(.+)','\1.so.o')}: include = $macos
 obja{~'/(.*).a/'}: mm{~'/\1/'} libua{Qt5GuiIntfMeta Qt5GuiImplMeta}
 {{
   dep_poptions = $cxx.lib_poptions(libua{Qt5GuiIntfMeta Qt5GuiImplMeta}, obja)
+
   depdb hash $dep_poptions
+
   depdb dyndep "-I$out_root/QtGui" "-I$src_root/QtGui"                  \
                --what=header --default-type=h                           \
                --update-exclude libua{Qt5GuiIntfMeta Qt5GuiImplMeta}    \
                -- $cxx.path $cc.poptions $cxx.poptions $dep_poptions    \
                   $cc.coptions $cxx.coptions $cxx.mode -M -MG $path($<[0])
+
   diag obj-c++ ($<[0])
+
   $cxx.path $cc.poptions $cxx.poptions $dep_poptions    \
             $cc.coptions $cxx.coptions $cxx.mode        \
             -o $path($>) -c -x objective-c++ $path($<[0])
@@ -412,13 +417,17 @@ obja{~'/(.*).a/'}: mm{~'/\1/'} libua{Qt5GuiIntfMeta Qt5GuiImplMeta}
 objs{~'/(.*).so/'}: mm{~'/\1/'} libus{Qt5GuiIntfMeta Qt5GuiImplMeta}
 {{
   dep_poptions = $cxx.lib_poptions(libus{Qt5GuiIntfMeta Qt5GuiImplMeta}, objs)
+
   depdb hash $dep_poptions
+
   depdb dyndep "-I$out_root/QtGui" "-I$src_root/QtGui"                  \
                --what=header --default-type=h                           \
                --update-exclude libus{Qt5GuiIntfMeta Qt5GuiImplMeta}    \
                -- $cxx.path $cc.poptions $cxx.poptions $dep_poptions    \
                   $cc.coptions $cxx.coptions $cxx.mode -M -MG $path($<[0])
+
   diag obj-c++ ($<[0])
+
   $cxx.path $cc.poptions $cxx.poptions $dep_poptions    \
             $cc.coptions $cxx.coptions $cxx.mode        \
             -o $path($>) -c -x objective-c++ $path($<[0])
@@ -444,80 +453,30 @@ else
   EOI
 }}
 
-# Dependencies involving source files generated by moc from headers (foo.h ->
-# moc_foo.cpp).
+# Dependencies involving moc-generated source files.
 #
-# @@ TODO Put moc outputs from qpa/ headers in that directory?
+
+# The dependencies of moc-generated source files on the headers they were
+# generated from (for example, `moc foo.h` produces moc_foo.cpp).
+#
+for s: hxx{$moc_hdr $moc_hdr_adhoc}
+  cxx{moc_$name($s)}: $s
+
+# The dependencies of lib{Qt5Gui} on source files (moc_foo.cpp) generated by
+# moc from headers. Note that some of these source files are compiled and some
+# are included.
 #
 for s: hxx{$moc_hdr}
-{
-  n = $name($s)
-  lib{Qt5Gui}: cxx{moc_$n}: include = adhoc
-  cxx{moc_$n}: $s
-}
+  lib{Qt5Gui}: cxx{moc_$name($s)}
 
-# Most of the above outputs need to be compiled (the rest are included), so
-# override `include = adhoc` in those cases.
-#
-lib{Qt5Gui}: cxx{moc_qaccessible                        \
-                 moc_qaccessiblebridge                  \
-                 moc_qaccessiblecache_p                 \
-                 moc_qaccessibleplugin                  \
-                 moc_qbrush                             \
-                 moc_qclipboard                         \
-                 moc_qcolorspace                        \
-                 moc_qdnd_p                             \
-                 moc_qdrag                              \
-                 moc_qevent                             \
-                 moc_qfont                              \
-                 moc_qfontdatabase                      \
-                 moc_qgenericplugin                     \
-                 moc_qhighdpiscaling_p                  \
-                 moc_qiconengineplugin                  \
-                 moc_qimage                             \
-                 moc_qimageiohandler                    \
-                 moc_qinputcontrol_p                    \
-                 moc_qinputdevicemanager_p              \
-                 moc_qinternalmimedata_p                \
-                 moc_qkeymapper_p                       \
-                 moc_qkeysequence                       \
-                 moc_qlayoutpolicy_p                    \
-                 moc_qoffscreensurface                  \
-                 moc_qpaintdevicewindow                 \
-                 moc_qpainter                           \
-                 moc_qpalette                           \
-                 moc_qpdfwriter                         \
-                 moc_qpictureformatplugin               \
-                 moc_qplatformdialoghelper              \
-                 moc_qplatformgraphicsbuffer            \
-                 moc_qplatforminputcontext              \
-                 moc_qplatforminputcontextplugin_p      \
-                 moc_qplatformintegrationplugin         \
-                 moc_qplatformmenu                      \
-                 moc_qplatformnativeinterface           \
-                 moc_qplatformsharedgraphicscache       \
-                 moc_qplatformthemeplugin               \
-                 moc_qrasterwindow                      \
-                 moc_qscreen                            \
-                 moc_qsessionmanager                    \
-                 moc_qshaderlanguage_p                  \
-                 moc_qshapedpixmapdndwindow_p           \
-                 moc_qstylehints                        \
-                 moc_qsurface                           \
-                 moc_qsurfaceformat                     \
-                 moc_qtextdocument                      \
-                 moc_qtextformat                        \
-                 moc_qtextimagehandler_p                \
-                 moc_qtextlist                          \
-                 moc_qtextobject                        \
-                 moc_qtexttable                         \
-                 moc_qtouchdevice                       \
-                 moc_qvalidator}
+for s: hxx{$moc_hdr_adhoc}
+  lib{Qt5Gui}: cxx{moc_$name($s)}: include = adhoc
 
-# Dependencies involving source files generated by moc from source files
-# (foo.cpp -> foo.moc).
+# Dependencies involving lib{Qt5Gui}, moc-generated source files (foo.moc),
+# and the C++ source files the .moc's were generated from (for example, `moc
+# foo.cpp` produces foo.moc).
 #
-for s: cxx{$moc_src}
+for s: cxx{$moc_src_adhoc}
 {
   n = $name($s)
   lib{Qt5Gui}: moc{$n}: include = adhoc
@@ -536,31 +495,28 @@ sys_incl = $regex.apply($cxx.sys_hdr_dirs, '(.+)', '-I\1')
 # Explicitly list the generated headers as dependencies in case the
 # moc-generated file includes any of them (if only indirectly).
 #
-# Also add the exported search directories for QtCore's public and QtGui's
-# private headers (via libul{Qt5GuiIntfMeta Qt5GuiPrivateMeta}) because some
-# code will be skipped by MOC unless certain QtCore features are enabled and
-# moc will also fail if it can't find certain QtGui headers (for example, ones
-# that define plugin interface classes).
+# Also add the exported search directories for QtCore's public headers (via
+# libul{Qt5GuiIntfMeta}) because some code will be skipped by MOC unless
+# certain QtCore features are enabled.
 #
 # Note that hxx{moc_predefs} must always be in position 1.
 #
-cxx{~'/moc_(.*)/'}: hxx{~'/\1/'} hxx{moc_predefs} hxx{$gen_hdr_pub}     \
-                    libul{Qt5GuiIntfMeta Qt5GuiPrivateMeta}             \
-                    $moc
+cxx{~'/moc_(.*)/'}: hxx{~'/\1/'} hxx{moc_predefs} hxx{$gen_hdr} \
+                    libul{Qt5GuiIntfMeta} $moc
 {{
   o = $path($>[0])
   t = $(o).t
 
-  dep_incl = $cxx.lib_poptions(libul{Qt5GuiIntfMeta Qt5GuiPrivateMeta})
+  dep_incl = $cxx.lib_poptions(libul{Qt5GuiIntfMeta})
 
   depdb hash $dep_incl
 
-  # Note: exclude libul{Qt5GuiIntfMeta Qt5GuiPrivateMeta} from update during
-  #       match not to mess up its for-install'ness.
+  # Note: exclude libul{Qt5GuiIntfMeta} from update during match not to mess
+  #       up its for-install'ness.
   #
   depdb dyndep                                                  \
     --byproduct --drop-cycles --what=header --default-type=h    \
-    --update-exclude libul{Qt5GuiIntfMeta Qt5GuiPrivateMeta}    \
+    --update-exclude libul{Qt5GuiIntfMeta}                      \
     --file $t
 
   diag moc ($<[0])
@@ -575,20 +531,19 @@ cxx{~'/moc_(.*)/'}: hxx{~'/\1/'} hxx{moc_predefs} hxx{$gen_hdr_pub}     \
 #
 # See the header-input moc rule regarding the header prerequisites.
 #
-moc{~'/(.*)/'}: cxx{~'/\1/'} hxx{moc_predefs} hxx{$gen_hdr_pub} \
-                libul{Qt5GuiIntfMeta Qt5GuiPrivateMeta}         \
-                $moc
+moc{~'/(.*)/'}: cxx{~'/\1/'} hxx{moc_predefs} hxx{$gen_hdr}     \
+                libul{Qt5GuiIntfMeta} $moc
 {{
   o = $path($>[0])
   t = $(o).t
 
-  dep_incl = $cxx.lib_poptions(libul{Qt5GuiIntfMeta Qt5GuiPrivateMeta})
+  dep_incl = $cxx.lib_poptions(libul{Qt5GuiIntfMeta})
 
   depdb hash $dep_incl
 
   depdb dyndep                                                  \
     --byproduct --drop-cycles --what=header --default-type=h    \
-    --update-exclude libul{Qt5GuiIntfMeta Qt5GuiPrivateMeta}    \
+    --update-exclude libul{Qt5GuiIntfMeta}                      \
     --file $t
 
   diag moc ($<[0])
@@ -616,7 +571,7 @@ cxx{~'/qrc_(.*)/'}: qrc{~'/.*\1/'} $rcc
   $rcc -name $name($<[0]) -o $path($>[0]) $path($<[0])
 }}
 
-lib{Qt5Gui}: libul{Qt5GuiIntfMeta Qt5GuiImplMeta Qt5GuiPrivateMeta}
+lib{Qt5Gui}: libul{Qt5GuiIntfMeta Qt5GuiImplMeta}
 
 # Generated headers and source files.
 #
@@ -659,9 +614,14 @@ kernel/cxx{qguiapplication-develop}: kernel/in{qguiapplication-develop}
 #
 # Add qpa/ because some upstream source files include qplatform*.h relatively.
 #
-cc.poptions =+ "-I$out_root"       "-I$src_root"        \
-               "-I$out_root/QtGui" "-I$src_root/QtGui"  \
-               "-I$src_base/qpa"
+cc.poptions =+                                                                  \
+  "-I$out_root"                       "-I$src_root"                             \
+  "-I$out_root/QtGui"                 "-I$src_root/QtGui"                       \
+                                      "-I$src_base/qpa"                         \
+  "-I$out_base/private"               "-I$src_base/private"                     \
+  "-I$out_base/private/QtGui"         "-I$src_base/private/QtGui"               \
+  "-I$out_base/private/QtGui/private" "-I$src_base/private/QtGui/private"       \
+                                      "-I$src_base/private/QtGui/qpa"
 
 cc.poptions += -DENABLE_PIXMAN_DRAWHELPERS              \
                -DQT_ASCII_CAST_WARNINGS                 \

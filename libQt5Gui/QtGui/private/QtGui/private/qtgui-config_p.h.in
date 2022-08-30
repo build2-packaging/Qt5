@@ -16,7 +16,14 @@
 //
 #define QT_FEATURE_xcb_native_painting -1
 
-// @@ TODO Linux and FreeBSD.
+// From https://doc.qt.io/qt-6/inputs-linux-device.html: "On your Embedded
+// Linux device, when there's no windowing system present, the mouse,
+// keyboard, and touch input are read directly via evdev or using helper
+// libraries such as libinput or tslib."
+//
+// Unlike the major platform plugins (libqxcb/libqcocoa/libwindows), the evdev
+// plugins are not loaded automatically but have to be requested via
+// QT_QPA_GENERIC_PLUGINS or the -plugin command-line option.
 //
 #define QT_FEATURE_evdev -1 // Referenced by plugins only.
 
@@ -91,6 +98,14 @@
 
 #define QT_FEATURE_freetype        1
 #define QT_FEATURE_system_freetype 1
+
+// @@ TODO From gui/configure.json: "On OS X, AAT is supported only with
+//    `-qt-harfbuzz`." Presumably the latest harfbuzz which we've packaged
+//    should work properly on MacOS by now?
+//
+//    Update: the version Qt5 patches is 1.7.4; Qt6 uses version 2.9.0 and
+//    there is no patch; we've packaged version 4.2.0.
+//
 #define QT_FEATURE_harfbuzz        1
 #define QT_FEATURE_system_harfbuzz 1
 
