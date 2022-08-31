@@ -1,3 +1,7 @@
+// This code was taken from
+// https://doc.qt.io/qt-5/qtgui-rasterwindow-example.html.
+//
+
 #include <QtGui>
 
 class RasterWindow: public QWindow

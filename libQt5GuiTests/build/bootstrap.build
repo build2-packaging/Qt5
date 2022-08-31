@@ -1,6 +1,6 @@
-project = libQt5Gui
+project = libQt5GuiTests
 
 using version
 using config
-using install
 using dist
+using test

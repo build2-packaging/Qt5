@@ -1,8 +1,5 @@
 // A minimal QtGui application that shows a blank window.
 //
-// Most of this code was taken from
-// https://doc.qt.io/qt-5/qtgui-rasterwindow-example.html.
-//
 // Options:
 //
 // --auto-close

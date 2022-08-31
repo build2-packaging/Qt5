@@ -24,3 +24,4 @@ depends: libfreetype ^2.11.1
 depends: libharfbuzz ^4.2.0
 depends: libjpeg-turbo ^2.1.3
 depends: libmd4c ^0.4.8
+tests: libQt5GuiTests == $
