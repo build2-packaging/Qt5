@@ -1,0 +1,6 @@
+project = libQt5Widgets
+
+using version
+using config
+using install
+using dist

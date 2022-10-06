@@ -1,0 +1,24 @@
+: 1
+name: libQt5Widgets
+version: 5.15.7-a.0.z
+project: Qt5
+summary: Qt5 GUI widgets library
+license: LGPL-3.0-only
+license: GPL-2.0-or-later
+license: other: available source
+description-file: README.md
+url: https://www.qt.io/
+src-url: https://invent.kde.org/qt/qt/qtbase
+package-url: https://github.com/build2-packaging/Qt5
+email: interest@qt-project.org      ; Mailing list for developers using Qt.
+package-email: packaging@build2.org ; Mailing list.
+build-error-email: builds@build2.org
+builds: default
+builds: -( +macos &gcc ) ; See README-DEV.
+depends: * build2 >= 0.16.0-
+depends: * bpkg >= 0.16.0-
+depends: * Qt5Moc == $
+depends: * Qt5Rcc == $
+depends: * Qt5Uic == $
+depends: libQt5Core == $
+depends: libQt5Gui == $

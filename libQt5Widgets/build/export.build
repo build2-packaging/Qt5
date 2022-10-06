@@ -1,0 +1,6 @@
+$out_root/
+{
+  include QtWidgets/libQt5Widgets/
+}
+
+export $out_root/QtWidgets/libQt5Widgets/$import.target
