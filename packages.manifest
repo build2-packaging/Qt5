@@ -3,6 +3,8 @@ location: Qt5Moc/
 :
 location: Qt5Rcc/
 :
+location: Qt5Uic/
+:
 location: libQt5Core/
 :
 location: libQt5Gui/
