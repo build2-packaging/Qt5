@@ -1,0 +1,5 @@
+qt5uic
+
+# Testscript output directory (can be symlink).
+#
+test-Qt5Uic

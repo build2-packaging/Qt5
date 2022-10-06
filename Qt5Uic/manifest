@@ -1,0 +1,19 @@
+: 1
+name: Qt5Uic
+version: 5.15.3-a.0.z
+project: Qt5
+summary: Qt user interface compiler
+license: other: GPL-3.0-only-with-Qt-GPL-Exception-1.0
+license: other: available source
+description-file: README.md
+url: https://www.qt.io/
+src-url: https://invent.kde.org/qt/qt/qtbase
+package-url: https://github.com/build2-packaging/Qt5
+email: interest@qt-project.org      ; Mailing list for developers using Qt.
+package-email: packaging@build2.org ; Mailing list.
+build-error-email: builds@build2.org
+builds: host : &default
+builds: -( +macos &gcc ) ; See README-DEV.
+depends: * build2 >= 0.15.0
+depends: * bpkg >= 0.15.0
+depends: libQt5Core == $
