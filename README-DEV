@@ -38,7 +38,7 @@ QMake manual: https://doc.qt.io/qt-5.5/qmake-manual.html
 - Configure
 
   $ Qt5/upstream/qtbase/configure -v \
-    -opensource -nomake examples -nomake tests -no-widgets -no-dbus
+    -opensource -nomake examples -nomake tests -no-dbus
 
 - Build
 
