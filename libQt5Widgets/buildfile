@@ -1,1 +1,1 @@
-./: {*/ -build/} doc{README.md} manifest
+./: QtWidgets/ QtWidgetsPlugins/ doc{README.md} legal{LICENSE*} manifest
