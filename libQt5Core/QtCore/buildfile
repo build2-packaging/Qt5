@@ -432,7 +432,7 @@ gen_hdr = qconfig       private/QtCore/private/qconfig_p        \
 # dependency extraction.
 #
 c_hdr = qglobal qsystemdetection qprocessordetection qcompilerdetection \
-        $gen_hdr
+        $gen_hdr testlib/3rdparty/valgrind_p
 
 # Headers and source files.
 #
@@ -449,16 +449,21 @@ c_hdr = qglobal qsystemdetection qprocessordetection qcompilerdetection \
 
 ./: lib{Qt5CorePrivate}
 
-# Included source files and indirectly-included headers.
+# Included source files.
 #
-lib{Qt5Core}: cxx{** -{$src} -qmimeprovider_database}                   \
-              global/c{qfloat16_f16c}                                   \
-              ../3rdparty/{h hxx c cxx}{** -harfbuzz/**}                \
-              ../3rdparty/harfbuzz/{cxx c}{** -harfbuzz-shaper-all      \
-                                              -{$harfbuzz_src}}         \
-              ../3rdparty/harfbuzz/h{** -harfbuzz}                      \
-              ../3rdparty/sha3/file{**.macros}                          \
-              testlib/3rdparty/h{valgrind_p}:                           \
+lib{Qt5Core}: cxx{** -{$src} -qmimeprovider_database}   \
+              global/c{qfloat16_f16c}:                  \
+  include = adhoc
+
+# Third-party: indirectly-included headers and included source files.
+#
+lib{Qt5Core}: ../3rdparty/{h    }{** -md5/md5 -harfbuzz/**}             \
+              ../3rdparty/{hxx  }{    md5/md5}                          \
+              ../3rdparty/{c cxx}{** -harfbuzz/**}                      \
+              ../3rdparty/harfbuzz/{h  }{** -harfbuzz}                  \
+              ../3rdparty/harfbuzz/{c  }{** -{$harfbuzz_src}}           \
+              ../3rdparty/harfbuzz/{cxx}{** -harfbuzz-shaper-all}       \
+              ../3rdparty/sha3/file{**.macros}:                         \
   include = adhoc
 
 # Note: this generated file is safe to update during execute: not a macro
