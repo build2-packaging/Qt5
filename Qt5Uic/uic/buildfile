@@ -1,6 +1,85 @@
-libs =
-#import libs += libhello%lib{hello}
+import libs += libQt5Core%lib{Qt5Core}
 
-exe{Qt5Uic}: {hxx cxx}{**} $libs testscript
+# Target metadata, see also --build2-metadata in main.cpp.
+#
+exe{qt5uic}:
+{
+  export.metadata = 1 qt5uic
+  qt5uic.name = [string] uic
+  qt5uic.version  = [string] $version
+  qt5uic.checksum = [string] $version
+}
 
-cxx.poptions =+ "-I$out_root" "-I$src_root"
+exe{qt5uic}: hxx{**} cxx{** -mkspecs/**} $libs testscript
+
+# Build options.
+#
+cxx.poptions =+ "-I$src_base"           \
+                "-I$src_base/cpp"       \
+                "-I$src_base/python"    \
+                "-I$src_base/shared"
+
+cxx.poptions += -DQT_CORE_LIB                                   \
+                -DQT_NO_CAST_FROM_ASCII                         \
+                -DQT_NO_DEBUG                                   \
+                -DQT_NO_EXCEPTIONS                              \
+                -DQT_NO_FOREACH                                 \
+                -DQT_NO_JAVA_STYLE_ITERATORS                    \
+                -DQT_NO_LINKED_LIST                             \
+                -DQT_NO_NARROWING_CONVERSIONS_IN_CONNECT        \
+                -DQT_UIC                                        \
+                -DQT_USE_QSTRINGBUILDER
+
+if ($cxx.target.class == 'windows')
+{
+  cxx.poptions += -D_CRT_SECURE_NO_WARNINGS \
+                  -D_USE_MATH_DEFINES       \
+                  -DUNICODE                 \
+                  -D_UNICODE                \
+                  -DWIN32
+
+  if ($cxx.target.system == 'mingw32')
+  {
+    cxx.poptions += -DMINGW_HAS_SECURE_API=1
+    cxx.coptions += -fno-keep-inline-dllexport
+  }
+  else
+    cxx.poptions += -D_ENABLE_EXTENDED_ALIGNED_STORAGE
+}
+else
+{
+  cxx.poptions += -D_LARGEFILE64_SOURCE \
+                  -D_LARGEFILE_SOURCE
+
+  cxx.libs += -pthread
+}
+
+# Add platform-specific header directories, libraries, compilation options,
+# and macro definitions.
+#
+# Every directory under mkspecs/ contains a unique `qplatformdefs.h`.
+#
+# Note that Mac OS with GCC is not supported by upstream (see README-DEV for
+# details).
+#
+switch $cxx.target.class, $cxx.id, $cxx.target.system
+{
+  case 'linux', 'gcc'
+    cxx.poptions =+ "-I$src_root/moc/mkspecs/linux-g++"
+  case 'linux', 'clang'
+    cxx.poptions =+ "-I$src_root/moc/mkspecs/linux-clang"
+  case 'macos', 'clang-apple'
+    cxx.poptions =+ "-I$src_root/moc/mkspecs/macx-clang"
+  case 'bsd', 'clang', 'freebsd'
+    cxx.poptions =+ "-I$src_root/moc/mkspecs/freebsd-clang"
+  case 'bsd', 'gcc', 'openbsd'
+    cxx.poptions =+ "-I$src_root/moc/mkspecs/openbsd-g++"
+  case 'bsd', 'gcc', 'netbsd'
+    cxx.poptions =+ "-I$src_root/moc/mkspecs/netbsd-g++"
+  case 'windows', 'msvc'
+    cxx.poptions =+ "-I$src_root/moc/mkspecs/win32-msvc"
+  case 'windows', 'msvc-clang' | 'clang'
+    cxx.poptions =+ "-I$src_root/moc/mkspecs/win32-clang-msvc"
+  case 'windows', 'gcc', 'mingw32'
+    cxx.poptions =+ "-I$src_root/moc/mkspecs/win32-g++"
+}
