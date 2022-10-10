@@ -1121,18 +1121,28 @@ switch $cxx.target.class, $cxx.id, $cxx.target.system
     cxx.poptions += "-I$src_root/QtCore/mkspecs/win32-msvc" \
                     -D_ENABLE_EXTENDED_ALIGNED_STORAGE
 
-    lib{Qt5Core}: cxx.libs += ole32.lib advapi32.lib shell32.lib        \
-                              mpr.lib netapi32.lib userenv.lib          \
-                              version.lib winmm.lib ws2_32.lib
+    lib{Qt5Core}: cxx.libs += advapi32.lib      \
+                              mpr.lib           \
+                              netapi32.lib      \
+                              ole32.lib         \
+                              userenv.lib       \
+                              version.lib       \
+                              winmm.lib         \
+                              ws2_32.lib
   }
   case 'windows', 'msvc-clang' | 'clang'
   {
     cxx.poptions += "-I$src_root/QtCore/mkspecs/win32-clang-msvc" \
                     -D_ENABLE_EXTENDED_ALIGNED_STORAGE
 
-    lib{Qt5Core}: cxx.libs += ole32.lib advapi32.lib shell32.lib        \
-                              mpr.lib netapi32.lib userenv.lib          \
-                              version.lib winmm.lib ws2_32.lib
+    lib{Qt5Core}: cxx.libs += advapi32.lib      \
+                              mpr.lib           \
+                              netapi32.lib      \
+                              ole32.lib         \
+                              userenv.lib       \
+                              version.lib       \
+                              winmm.lib         \
+                              ws2_32.lib
   }
   case 'windows', 'gcc', 'mingw32'
   {
@@ -1140,9 +1150,15 @@ switch $cxx.target.class, $cxx.id, $cxx.target.system
                     -DMINGW_HAS_SECURE_API=1
     cxx.coptions += -fno-keep-inline-dllexport
 
-    lib{Qt5Core}: cxx.libs += -lole32 -ladvapi32 -lshell32 -lmpr        \
-                              -lnetapi32 -luuid -luserenv -lversion     \
-                              -lwinmm -lws2_32
+    lib{Qt5Core}: cxx.libs += -ladvapi32        \
+                              -lmpr             \
+                              -lnetapi32        \
+                              -lole32           \
+                              -luserenv         \
+                              -luuid            \
+                              -lversion         \
+                              -lwinmm           \
+                              -lws2_32
   }
 }
 
@@ -1156,6 +1172,17 @@ lib{Qt5Core}:
                         -DQT_NO_VERSION_TAGGING
   cxx.export.libs = $intf_libs
 }
+
+if $windows
+{
+  if ($cxx.target.system == 'mingw32')
+    lib{Qt5Core}: cxx.export.libs += -lmpr -luserenv
+  else
+    lib{Qt5Core}: cxx.export.libs += mpr.lib userenv.lib
+}
+elif $macos
+    lib{Qt5Core}: cxx.export.libs += -framework DiskArbitration \
+                                     -framework IOKit
 
 liba{Qt5Core}: cxx.export.poptions += -DQT_STATIC
 libs{Qt5Core}: cxx.export.poptions += -DQT_SHARED
@@ -1187,7 +1214,7 @@ lib{Qt5Core}: cxx.pkgconfig.include = include/qt5/ include/qt5/QtCore
 # /usr/include/, recreating subdirectories. Note that private headers are
 # included prefixed with `QtCore/private/`, `private/`, or without a prefix.
 #
-{h hxx}{private/**}:
+{h hxx}{private/*}:
 {
   install = include/qt5/QtCore/private/
   install.subdirs = true
