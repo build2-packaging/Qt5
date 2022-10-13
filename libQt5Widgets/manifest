@@ -22,3 +22,4 @@ depends: * Qt5Rcc == $
 depends: * Qt5Uic == $
 depends: libQt5Core == $
 depends: libQt5Gui == $
+tests: libQt5WidgetsTests == $

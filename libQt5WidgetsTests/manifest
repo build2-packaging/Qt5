@@ -1,0 +1,15 @@
+: 1
+name: libQt5WidgetsTests
+version: 5.15.3-a.0.z
+project: Qt5
+summary: Tests for libQt5Widgets
+license: MIT
+description-file: README.md
+url: https://github.com/build2-packaging/Qt5
+email: packaging@build2.org ; Mailing list.
+build-error-email: builds@build2.org
+builds: default
+builds: -( +macos &gcc ) ; See README-DEV.
+depends: * build2 >= 0.15.0
+depends: * bpkg >= 0.15.0
+depends: * Qt5Moc == $
