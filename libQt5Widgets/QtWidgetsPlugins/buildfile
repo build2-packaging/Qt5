@@ -1,0 +1,19 @@
+./: */ lib{Qt5WidgetsPluginsMeta}
+
+if ($cxx.class == 'gcc')
+  cxx.coptions += -fvisibility=hidden -fvisibility-inlines-hidden
+
+include styles/
+
+# This library presents a single target that depends on all of the plugins
+# used by libQt5Widgets.
+#
+[rule_hint=cxx] lib{Qt5WidgetsPluginsMeta}:
+
+lib{Qt5WidgetsPluginsMeta}: styles/libs{qmacstyle}: \
+  include = ($macos ? adhoc : false)
+
+lib{Qt5WidgetsPluginsMeta}: styles/libs{qwindowsvistastyle}: \
+  include = ($windows ? adhoc : false)
+
+hxx{*}: install = false

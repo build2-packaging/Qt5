@@ -1,0 +1,8 @@
+include mac/
+include windowsvista/
+
+./: lib{qmacstyle}:          include = $macos
+./: lib{qwindowsvistastyle}: include = $windows
+
+libs{qmacstyle}: # @@ TMP dist order
+libs{qwindowsvistastyle}: # @@ TMP dist order
