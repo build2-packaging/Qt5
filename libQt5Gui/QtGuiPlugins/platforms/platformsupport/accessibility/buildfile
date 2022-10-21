@@ -1,0 +1,9 @@
+include ../../../../QtGui/
+
+[rule_hint=cxx] libul{Qt5AccessibilitySupport}: \
+                  {hxx cxx}{*}                  \
+                  ../../../../QtGui/lib{Qt5Gui Qt5GuiPrivate}
+
+cxx.poptions += $platforms_poptions                     \
+                -DQT_BUILD_ACCESSIBILITY_SUPPORT_LIB    \
+                -DQT_NO_CAST_FROM_ASCII
