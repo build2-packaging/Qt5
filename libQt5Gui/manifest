@@ -15,8 +15,8 @@ package-email: packaging@build2.org ; Mailing list.
 build-error-email: builds@build2.org
 builds: default
 builds: -( +macos &gcc ) ; See README-DEV.
-depends: * build2 >= 0.15.0
-depends: * bpkg >= 0.15.0
+depends: * build2 >= 0.16.0-
+depends: * bpkg >= 0.16.0-
 depends: * Qt5Moc == $
 depends: * Qt5Rcc == $
 depends: libQt5Core == $
@@ -24,4 +24,5 @@ depends: libfreetype ^2.11.1
 depends: libharfbuzz ^4.2.0
 depends: libjpeg-turbo ^2.1.3
 depends: libmd4c ^0.4.8
+depends: libz ^1.2.1100
 tests: libQt5GuiTests == $

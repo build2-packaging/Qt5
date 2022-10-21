@@ -1,3 +1,3 @@
-# Qt5Plugins-tests
+# libQt5Gui-tests
 
 Tests for package libQt5Gui.

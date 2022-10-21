@@ -1,27 +1,6 @@
 $out_root/
 {
-  include QtGuiPlugins/
+  include QtGui/
 }
 
-switch $import.target
-{
-  case lib{Qt5Gui}
-  {
-    $out_root/
-    {
-      include QtGui/
-    }
-    export $out_root/QtGui/lib{Qt5Gui} \
-           $out_root/QtGuiPlugins/lib{Qt5GuiPluginsMeta}
-  }
-  case lib{Qt5GuiPrivate}
-  {
-    $out_root/
-    {
-      include QtGui/
-    }
-    export $out_root/QtGui/$import.target
-  }
-  default
-    export $out_root/QtGuiPlugins/$import.target
-}
+export $out_root/QtGui/$import.target

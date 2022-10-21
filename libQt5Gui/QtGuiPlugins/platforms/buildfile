@@ -11,6 +11,17 @@ platforms_poptions =                                                    \
   -DQT_MOC_COMPAT                                                       \
   -DQT_USE_QSTRINGBUILDER
 
-include xcb/
+if ($cxx.class == 'gcc')
+  cxx.coptions += -fvisibility=hidden -fvisibility-inlines-hidden
 
-./: lib{qxcb}: include = ($linux || $bsd)
+include xcb/
+include cocoa/
+include windows/
+
+./: lib{qxcb}:     include = ($linux || $bsd)
+./: lib{qcocoa}:   include = $macos
+./: lib{qwindows}: include = $windows
+
+libs{qxcb}:     # @@ TMP dist order
+libs{qcocoa}:   # @@ TMP dist order
+libs{qwindows}: # @@ TMP dist order

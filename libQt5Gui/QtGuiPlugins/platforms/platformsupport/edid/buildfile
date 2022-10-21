@@ -1,7 +1,6 @@
-include ../../../../QtGui/
+import impl_libs = libQt5Core%lib{Qt5Core Qt5CorePrivate}
 
-libul{Qt5EdidSupport}: {hxx cxx}{*} \
-                       ../../../../QtGui/lib{Qt5Gui Qt5GuiPrivate}
+libul{Qt5EdidSupport}: {hxx cxx}{*} $impl_libs
 
 cxx.poptions += $platforms_poptions             \
                 -DQT_BUILD_EDID_SUPPORT_LIB     \

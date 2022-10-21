@@ -28,10 +28,8 @@ include ../../../QtGui/
 # Dependencies involving moc_qcomposeplatforminputcontext.cpp and
 # qcomposeplatforminputcontext.h (from which the former is generated).
 #
-../lib{composeplatforminputcontextplugin}: \
-  cxx{moc_qcomposeplatforminputcontext} # Note: compiled, not included.
-cxx{moc_qcomposeplatforminputcontext}: \
-  hxx{qcomposeplatforminputcontext}
+../lib{composeplatforminputcontextplugin}: cxx{moc_qcomposeplatforminputcontext}
+cxx{moc_qcomposeplatforminputcontext}:     hxx{qcomposeplatforminputcontext}
 
 # Dependencies involving qcomposeplatforminputcontextmain.moc and
 # qcomposeplatforminputcontextmain.cpp (from which the former is generated).

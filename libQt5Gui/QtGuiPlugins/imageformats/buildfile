@@ -13,8 +13,7 @@ include ../../QtGui/
 ./: lib{qico}:  ico/hxx{main qicohandler} \
                 ico/cxx{main qicohandler}
 ./: lib{qjpeg}: jpeg/hxx{main qjpeghandler_p} \
-                jpeg/cxx{main qjpeghandler}   \
-                $impl_libs_jpeg
+                jpeg/cxx{main qjpeghandler}
 
 lib{qgif qico qjpeg}: ../../hxx{mkspecs/**}
 
@@ -137,24 +136,14 @@ moc{~'/(.*)/'}: cxx{~'/\1/'} hxx{moc_predefs}           \
 
 lib{qgif qico qjpeg}: libul{Qt5PluginsImageFormatsMeta}
 
+lib{qjpeg}: $impl_libs_jpeg
+
 # Build options.
 #
 cxx.poptions += -DQT_PLUGIN
 
 if ($cxx.class == 'gcc')
   cxx.coptions += -fvisibility=hidden -fvisibility-inlines-hidden
-
-# @@ TODO Enable these macros if required once we've CI'd on other platforms.
-#
-# switch $cxx.target.class, $cxx.id, $cxx.target.system
-# {
-#   case 'windows', 'msvc'
-#     cxx.poptions += -D_ENABLE_EXTENDED_ALIGNED_STORAGE
-#   case 'windows', 'msvc-clang' | 'clang'
-#     cxx.poptions += -D_ENABLE_EXTENDED_ALIGNED_STORAGE
-#   case 'windows', 'gcc', 'mingw32'
-#     cxx.poptions +=  -DMINGW_HAS_SECURE_API=1
-# }
 
 gif/obj{main qgifhandler} gif/obj{moc_main}: \
   cxx.poptions =+ "-I$out_base/gif" "-I$src_base/gif"
@@ -164,11 +153,13 @@ jpeg/obj{main qjpeghandler} jpeg/obj{moc_main}: \
   cxx.poptions =+ "-I$out_base/jpeg" "-I$src_base/jpeg"
 
 if ($cxx.target.class != 'windows')
-{
   lib{qgif qico qjpeg}: cxx.libs += -pthread
-}
 
 # Installation.
 #
 hxx{*}:               install = false
 lib{qgif qico qjpeg}: install = lib/qt5/plugins/imageformats/
+
+libs{qgif}: # @@ TMP dist order
+libs{qico}: # @@ TMP dist order
+libs{qjpeg}: # @@ TMP dist order

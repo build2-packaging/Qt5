@@ -2,17 +2,30 @@
 #define QT_FEATURE_directfb -1
 #define QT_FEATURE_linuxfb  -1
 
-// @@ TODO (platform-specific).
-//
-#define QT_FEATURE_xcb               1
-#define QT_FEATURE_xkbcommon         1
-#define QT_FEATURE_xkbcommon_x11     1
-#define QT_FEATURE_xlib              1
-#define QT_FEATURE_xcb_xlib          1
-#define QT_FEATURE_xcb_sm            1 // Session management.
-#define QT_FEATURE_system_xcb_xinput 1
-#define QT_FEATURE_drm_atomic        1
-// "Native painting (experimental)". Always disable.
+#if defined(__GLIBC__)   || \
+    defined(__FreeBSD__) || \
+    defined(__OpenBSD_)  || \
+    defined(__NetBSD__)
+#  define QT_FEATURE_xcb               1
+#  define QT_FEATURE_xkbcommon         1
+#  define QT_FEATURE_xkbcommon_x11     1
+#  define QT_FEATURE_xlib              1
+#  define QT_FEATURE_xcb_xlib          1
+#  define QT_FEATURE_xcb_sm            1 // Session management.
+#  define QT_FEATURE_system_xcb_xinput 1
+#  define QT_FEATURE_drm_atomic        1
+#else
+#  define QT_FEATURE_xcb               -1
+#  define QT_FEATURE_xkbcommon         -1
+#  define QT_FEATURE_xkbcommon_x11     -1
+#  define QT_FEATURE_xlib              -1
+#  define QT_FEATURE_xcb_xlib          -1
+#  define QT_FEATURE_xcb_sm            -1
+#  define QT_FEATURE_system_xcb_xinput -1
+#  define QT_FEATURE_drm_atomic        -1
+#endif
+
+// "XCB Native painting (experimental)". Always disable.
 //
 #define QT_FEATURE_xcb_native_painting -1
 
@@ -109,7 +122,11 @@
 #define QT_FEATURE_harfbuzz        1
 #define QT_FEATURE_system_harfbuzz 1
 
-#define QT_FEATURE_fontconfig 1 // Referenced by plugins only.
+#ifndef BUILD2_AUTOCONF_MACOS
+#  define QT_FEATURE_fontconfig 1 // Referenced by plugins only.
+#else
+#  define QT_FEATURE_fontconfig -1
+#endif
 
 // "Image Text section loading".
 //
