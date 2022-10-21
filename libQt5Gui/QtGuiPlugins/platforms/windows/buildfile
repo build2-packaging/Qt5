@@ -1,0 +1,284 @@
+# Note: If anything in this file seems underdocumented it is probably covered
+#       in libQt5Core/QtCore/buildfile.
+#
+import! [metadata] moc = Qt5Moc%exe{qt5moc}
+import! [metadata] rcc = Qt5Rcc%exe{qt5rcc}
+
+include ../../../QtGui/
+
+include ../platformsupport/accessibility/
+include ../platformsupport/eventdispatchers/
+include ../platformsupport/fontdatabases/
+include ../platformsupport/themes/
+include ../platformsupport/windowsuiautomation/
+
+src = main                                              \
+      qwin10helpers                                     \
+      qwindowsbackingstore                              \
+      qwindowsclipboard                                 \
+      qwindowscontext                                   \
+      qwindowscursor                                    \
+      qwindowsdialoghelpers                             \
+      qwindowsdrag                                      \
+      qwindowsdropdataobject                            \
+      qwindowsgdiintegration                            \
+      qwindowsgdinativeinterface                        \
+      qwindowsinputcontext                              \
+      qwindowsintegration                               \
+      qwindowsinternalmimedata                          \
+      qwindowskeymapper                                 \
+      qwindowsmenu                                      \
+      qwindowsmime                                      \
+      qwindowsmousehandler                              \
+      qwindowsnativeinterface                           \
+      qwindowsole                                       \
+      qwindowsopengltester                              \
+      qwindowspointerhandler                            \
+      qwindowsscreen                                    \
+      qwindowsservices                                  \
+      qwindowssessionmanager                            \
+      qwindowssystemtrayicon                            \
+      qwindowstabletsupport                             \
+      qwindowstheme                                     \
+      qwindowswindow                                    \
+      uiautomation/qwindowsuiaaccessibility             \
+      uiautomation/qwindowsuiabaseprovider              \
+      uiautomation/qwindowsuiaexpandcollapseprovider    \
+      uiautomation/qwindowsuiagriditemprovider          \
+      uiautomation/qwindowsuiagridprovider              \
+      uiautomation/qwindowsuiainvokeprovider            \
+      uiautomation/qwindowsuiamainprovider              \
+      uiautomation/qwindowsuiaprovidercache             \
+      uiautomation/qwindowsuiarangevalueprovider        \
+      uiautomation/qwindowsuiaselectionitemprovider     \
+      uiautomation/qwindowsuiaselectionprovider         \
+      uiautomation/qwindowsuiatableitemprovider         \
+      uiautomation/qwindowsuiatableprovider             \
+      uiautomation/qwindowsuiatextprovider              \
+      uiautomation/qwindowsuiatextrangeprovider         \
+      uiautomation/qwindowsuiatoggleprovider            \
+      uiautomation/qwindowsuiautils                     \
+      uiautomation/qwindowsuiavalueprovider             \
+      uiautomation/qwindowsuiawindowprovider
+
+# C++ headers to be moc'd and the output compiled.
+#
+moc_hdr = qwindowsgdinativeinterface            \
+	  qwindowsinputcontext                  \
+	  qwindowsmenu                          \
+	  qwindowsnativeinterface               \
+	  uiautomation/qwindowsuiabaseprovider  \
+	  uiautomation/qwindowsuiamainprovider  \
+	  uiautomation/qwindowsuiaprovidercache
+
+# C++ source files to be moc'd and the output included.
+#
+moc_src_adhoc = main \
+                qwindowsdialoghelpers
+
+# C++ headers and compiled C++ source files.
+#
+../lib{qwindows}: ../../../mkspecs/hxx{**}                              \
+                     ../../hxx{QtPlatformHeaders/** Qt*Support/**}      \
+                  ../../../3rdparty/wintab/hxx{*}                       \
+                           hxx{**} cxx{$src}
+
+# Qt resource collection files and their associated resources.
+#
+../lib{qwindows}: qrc{cursors openglblacklists} \
+                  images/file{*.png} openglblacklists/file{default.json}
+
+# The "metadata library": its purpose is to make sure all the imported
+# libraries are resolved for the ad hoc moc rules below.
+#
+# Note: use a rule hint to resolve ambiguity between C and C++ library.
+#
+[rule_hint=cxx] libul{Qt5PluginsWindowsMeta}: \
+  ../../../QtGui/lib{Qt5Gui Qt5GuiPrivate}
+
+# Plugin metadata file.
+#
+../lib{qwindows}: file{windows.json}
+
+# Rule to generate a header with C++ compiler's predefined macros. It is used
+# to make them available to moc.
+#
+hxx{moc_predefs}: ../../../mkspecs/features/data/cxx{dummy}
+%
+if ($cxx.id != 'msvc')
+{{
+  diag gen ($>[0])
+  $cxx.path $cc.poptions $cxx.poptions $cc.coptions $cxx.coptions $cxx.mode \
+            -o $path($>) -dM -E $path($<)
+}}
+else
+{{
+  diag gen ($>[0])
+  cat <<EOI >$path($>)
+  #define _WIN32
+  #define WIN32
+  EOI
+}}
+
+# Dependencies involving moc-generated C++ source files.
+#
+
+# The dependencies of moc-generated C++ source files on the headers they were
+# generated from (for example, `moc foo.h` produces moc_foo.cpp).
+#
+for s: hxx{$moc_hdr}
+{
+  n = $name($s)
+  cxx{moc_$n}: $s
+  ../lib{qwindows}: cxx{moc_$n}
+}
+
+# Dependencies involving lib{qwindows}, moc-generated C++ source files
+# (foo.moc), and the C++ source files the .moc's were generated from (for
+# example, `moc foo.cpp` produces foo.moc).
+#
+for s: cxx{$moc_src_adhoc}
+{
+  n = $name($s)
+  moc{$n}: $s
+  ../lib{qwindows}: moc{$n}: include = adhoc
+}
+
+# -I options for the system header directories.
+#
+sys_incl = $regex.apply($cxx.sys_hdr_dirs, '(.+)', '-I\1')
+
+# Rule to run moc on a header file.
+#
+# Use -f to override the path moc uses to #include the input file, which is
+# relative to the output directory, with just the name of the input file.
+#
+# Note that we depend on libul{Qt5PluginsWindowsMeta} in order to ensure all
+# the imported libraries are resolved for these ad hoc rules.
+#
+# Also add QtGui's exported header search directories (via
+# libul{Qt5PluginsWindowsMeta}) otherwise certain definitions required by moc
+# will be missing.
+#
+# Note that hxx{moc_predefs} must always be in position 1.
+#
+cxx{~'/moc_(.*)/'}: hxx{~'/\1/'} hxx{moc_predefs}       \
+                    libul{Qt5PluginsWindowsMeta}        \
+                    $moc
+{{
+  o = $path($>[0])
+  t = $(o).t
+
+  dep_incl = $cxx.lib_poptions(libul{Qt5PluginsWindowsMeta})
+
+  depdb hash $dep_incl
+
+  # Note: exclude libul{Qt5PluginsWindowsMeta} from update during match not to
+  #       mess up its for-install'ness.
+  #
+  depdb dyndep                                                  \
+    --byproduct --drop-cycles --what=header --default-type=h    \
+    --update-exclude libul{Qt5PluginsWindowsMeta}               \
+    --file $t
+
+  diag moc ($<[0])
+
+  s = $path($<[0])
+
+  $moc --include $path($<[1]) $cc.poptions $cxx.poptions $dep_incl $sys_incl \
+    -f $leaf($s) --output-dep-file --dep-file-path $t -o $o $s
+}}
+
+# Rule to run moc on a source file.
+#
+moc{~'/(.*)/'}: cxx{~'/\1/'} hxx{moc_predefs}   \
+                libul{Qt5PluginsWindowsMeta}    \
+                $moc
+{{
+  o = $path($>[0])
+  t = $(o).t
+
+  dep_incl = $cxx.lib_poptions(libul{Qt5PluginsWindowsMeta})
+
+  depdb hash $dep_incl
+
+  depdb dyndep                                                  \
+    --byproduct --drop-cycles --what=header --default-type=h    \
+    --update-exclude libul{Qt5PluginsWindowsMeta}               \
+    --file $t
+
+  diag moc ($<[0])
+
+  s = $path($<[0])
+
+  $moc --include $path($<[1]) $cc.poptions $cxx.poptions $dep_incl $sys_incl \
+    --output-dep-file --dep-file-path $t -o $o $s
+}}
+
+# Dependencies involving source files generated by rcc from Qt resource
+# collection files.
+#
+../lib{qwindows}:          cxx{qrc_cursors qrc_openglblacklists}
+cxx{qrc_cursors}:          qrc{cursors}
+cxx{qrc_openglblacklists}: qrc{openglblacklists}
+
+# Rule to run rcc on a Qt resource collection file (foo.qrc -> qrc_foo.cpp).
+#
+cxx{~'/qrc_(.*)/'}: qrc{~'/.*\1/'} $rcc
+{{
+  diag rcc ($<[0])
+  $rcc -name $name($<[0]) -o $path($>[0]) $path($<[0])
+}}
+
+../lib{qwindows}:                                                       \
+  ../platformsupport/accessibility/libul{Qt5AccessibilitySupport}       \
+  ../platformsupport/eventdispatchers/libul{Qt5EventDispatcherSupport}  \
+  ../platformsupport/fontdatabases/libul{Qt5FontDatabaseSupport}        \
+  ../platformsupport/themes/libul{Qt5ThemeSupport}                      \
+  ../platformsupport/windowsuiautomation/libul{Qt5WindowsUIAutomationSupport}
+
+../lib{qwindows}: libul{Qt5PluginsWindowsMeta}
+
+# Build options.
+#
+cxx.poptions =+ "-I$out_base" "-I$src_base"                             \
+                "-I$src_base/uiautomation"                              \
+                "-I$src_root/3rdparty/wintab"                           \
+                "-I$src_root/QtGuiPlugins/QtAccessibilitySupport"       \
+                "-I$src_root/QtGuiPlugins/QtEventDispatcherSupport"     \
+                "-I$src_root/QtGuiPlugins/QtFontDatabaseSupport"        \
+                "-I$src_root/QtGuiPlugins/QtThemeSupport"               \
+                "-I$src_root/QtGuiPlugins/QtWindowsUIAutomationSupport"
+
+# Define macros.
+#
+cxx.poptions += -DQT_NO_FOREACH                         \
+                -DQT_ACCESSIBILITY_SUPPORT_LIB          \
+                -DQT_EVENTDISPATCHER_SUPPORT_LIB        \
+                -DQT_FONTDATABASE_SUPPORT_LIB           \
+                -DQT_THEME_SUPPORT_LIB                  \
+                -DQT_WINDOWSUIAUTOMATION_SUPPORT_LIB
+
+switch $cxx.target.class, $cxx.target.system
+{
+  case 'windows', 'mingw32'
+  {
+    ../lib{qwindows}: cxx.libs += -ldwmapi      \
+                                  -lshlwapi     \
+                                  -lwinspool    \
+                                  -lwtsapi32
+  }
+  case 'windows'
+  {
+    ../lib{qwindows}: cxx.libs += dwmapi.lib    \
+                                  shlwapi.lib   \
+                                  winspool.lib  \
+                                  wtsapi32.lib
+  }
+}
+
+# Installation.
+#
+hxx{*}: install = false
+
+../lib{qwindows}: install = lib/qt5/plugins/platforms/

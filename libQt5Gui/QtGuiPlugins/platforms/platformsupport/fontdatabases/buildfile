@@ -4,6 +4,14 @@ import! [metadata] moc = Qt5Moc%exe{qt5moc}
 
 include ../../../../QtGui/
 
+windows_src = windows/qwindowsfontdatabase      \
+              windows/qwindowsfontdatabase_ft   \
+              windows/qwindowsfontengine        \
+              windows/qwindowsnativeimage
+
+macos_src = mac/qfontengine_coretext \
+            mac/qcoretextfontdatabase
+
 [rule_hint=cxx] libul{Qt5FontDatabaseSupport}:
 
 libul{Qt5FontDatabaseSupport}: freetype/{hxx cxx}{*}
@@ -11,10 +19,11 @@ libul{Qt5FontDatabaseSupport}: freetype/{hxx cxx}{*}
 libul{Qt5FontDatabaseSupport}: fontconfig/{hxx cxx}{*}: \
   include = ($linux || $bsd)
 
-macos_src = mac/qfontengine_coretext \
-            mac/qcoretextfontdatabase
+libul{Qt5FontDatabaseSupport}: windows/hxx{*} cxx{$windows_src}: \
+  include = $windows
 
-libul{Qt5FontDatabaseSupport}: mac/hxx{*}: include = $macos
+libul{Qt5FontDatabaseSupport}: mac/hxx{*} mm{$macos_src}: \
+  include = $macos
 
 # Declare the dependency of the library target on the Objective-C++ source
 # files via the corresponding object files.
@@ -29,8 +38,6 @@ libua{Qt5FontDatabaseSupport}: obja{$regex.apply($macos_src,'(.+)','\1.a.o')}: \
   include = $macos
 libus{Qt5FontDatabaseSupport}: objs{$regex.apply($macos_src,'(.+)','\1.so.o')}: \
   include = $macos
-
-libul{Qt5FontDatabaseSupport}: mm{$macos_src}: include = $macos
 
 # The "metadata library": its purpose is to make sure all the imported
 # libraries are resolved for the ad hoc .mm and moc rules below.
@@ -103,8 +110,8 @@ else
   EOI
 }}
 
-libul{Qt5FontDatabaseSupport}: mac/cxx{moc_qfontengine_coretext_p}: include = $macos
 mac/cxx{moc_qfontengine_coretext_p}: mac/hxx{qfontengine_coretext_p}
+libul{Qt5FontDatabaseSupport}: mac/cxx{moc_qfontengine_coretext_p}: include = $macos
 
 # -I options for the system header directories.
 #
