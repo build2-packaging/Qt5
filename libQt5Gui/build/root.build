@@ -28,6 +28,11 @@ macos   = ($cxx.target.class  == 'macos')
 define moc: cxx
 moc{*}: extension = moc
 
+# Path to libQt5Core's moc_predefs.h header.
+#
+import corelib = libQt5Core%lib{Qt5Core}
+moc_predefs_path = $($corelib: libQt5Core.moc_predefs_path)
+
 # Define the Objective-C++ source file type.
 #
 define mm: file
