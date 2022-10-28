@@ -87,26 +87,6 @@ objs{~'/(.*).so/'}: mm{~'/\1/'} libus{Qt5PluginsMacStyleMeta}
             -o $path($>) -c -x objective-c++ $path($<[0])
 }}
 
-# Rule to generate a header with C++ compiler's predefined macros. It is used
-# to make them available to moc.
-#
-hxx{moc_predefs}: ../../../mkspecs/features/data/cxx{dummy}
-%
-if ($cxx.id != 'msvc')
-{{
-  diag gen ($>[0])
-  $cxx.path $cc.poptions $cxx.poptions $cc.coptions $cxx.coptions $cxx.mode \
-            -o $path($>) -dM -E $path($<)
-}}
-else
-{{
-  diag gen ($>[0])
-  cat <<EOI >$path($>)
-  #define _WIN32
-  #define WIN32
-  EOI
-}}
-
 # Dependencies involving moc-generated C++ source files.
 #
 
@@ -147,11 +127,7 @@ sys_incl = $regex.apply($cxx.sys_hdr_dirs, '(.+)', '-I\1')
 # libul{Qt5PluginsMacStyleMeta}) otherwise certain definitions required by moc
 # will be missing.
 #
-# Note that hxx{moc_predefs} must always be in position 1.
-#
-cxx{~'/moc_(.*)/'}: hxx{~'/\1/'} hxx{moc_predefs}       \
-                    libul{Qt5PluginsMacStyleMeta}       \
-                    $moc
+cxx{~'/moc_(.*)/'}: hxx{~'/\1/'} libul{Qt5PluginsMacStyleMeta} $moc
 {{
   o = $path($>[0])
   t = $(o).t
@@ -172,15 +148,14 @@ cxx{~'/moc_(.*)/'}: hxx{~'/\1/'} hxx{moc_predefs}       \
 
   s = $path($<[0])
 
-  $moc --include $path($<[1]) $cc.poptions $cxx.poptions $dep_incl $sys_incl \
+  $moc --include $moc_predefs_path                      \
+    $cc.poptions $cxx.poptions $dep_incl $sys_incl      \
     -f $leaf($s) --output-dep-file --dep-file-path $t -o $o $s
 }}
 
 # Rule to run moc on an Objective-C++ source file.
 #
-moc{~'/(.*)/'}: mm{~'/\1/'} hxx{moc_predefs}    \
-                libul{Qt5PluginsMacStyleMeta}   \
-                $moc
+moc{~'/(.*)/'}: mm{~'/\1/'} libul{Qt5PluginsMacStyleMeta} $moc
 {{
   o = $path($>[0])
   t = $(o).t
@@ -198,7 +173,8 @@ moc{~'/(.*)/'}: mm{~'/\1/'} hxx{moc_predefs}    \
 
   s = $path($<[0])
 
-  $moc --include $path($<[1]) $cc.poptions $cxx.poptions $dep_incl $sys_incl \
+  $moc --include $moc_predefs_path                      \
+    $cc.poptions $cxx.poptions $dep_incl $sys_incl      \
     --output-dep-file --dep-file-path $t -o $o $s
 }}
 

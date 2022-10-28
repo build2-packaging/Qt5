@@ -9,26 +9,6 @@ exe{gui-app}: hxx{window} cxx{gui-app window} $libs
   test.options = --auto-close
 }
 
-# Rule to generate a header with C++ compiler's predefined macros. It is used
-# to make them available to moc.
-#
-hxx{moc_predefs}: ../mkspecs/features/data/cxx{dummy}
-%
-if ($cxx.id != 'msvc')
-{{
-  diag gen ($>[0])
-  $cxx.path $cc.poptions $cxx.poptions $cc.coptions $cxx.coptions $cxx.mode \
-            -o $path($>) -dM -E $path($<)
-}}
-else
-{{
-  diag gen ($>[0])
-  cat <<EOI >$path($>)
-  #define _WIN32
-  #define WIN32
-  EOI
-}}
-
 exe{gui-app}:    cxx{moc_window}: include = adhoc
 cxx{moc_window}: hxx{window}
 
@@ -43,11 +23,12 @@ cxx{moc_window}: hxx{window}
 #
 sys_incl = $regex.apply($cxx.sys_hdr_dirs, '(.+)', '-I\1')
 
+import corelib = libQt5Core%lib{Qt5Core}
+moc_predefs_path = $($corelib: libQt5Core.moc_predefs_path)
+
 # Rule to run moc on a header file (foo.h -> moc_foo.cpp).
 #
-# Note that hxx{moc_predefs} must always be in position 1.
-#
-cxx{~'/moc_(.*)/'}: hxx{~'/\1/'} hxx{moc_predefs} libul{Qt5WidgetsTestsMeta} $moc
+cxx{~'/moc_(.*)/'}: hxx{~'/\1/'} libul{Qt5WidgetsTestsMeta} $moc
 {{
   o = $path($>[0])
   t = $(o).t
@@ -70,7 +51,8 @@ cxx{~'/moc_(.*)/'}: hxx{~'/\1/'} hxx{moc_predefs} libul{Qt5WidgetsTestsMeta} $mo
 
   # -i: don't include the header (we don't need it and it's simpler this way).
   #
-  $moc --include $path($<[1]) $cc.poptions $cxx.poptions $dep_incl $sys_incl \
+  $moc --include $moc_predefs_path                      \
+    $cc.poptions $cxx.poptions $dep_incl $sys_incl      \
     -i --output-dep-file --dep-file-path $t -o $o $s
 }}
 
