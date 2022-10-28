@@ -121,6 +121,10 @@ mkdir    Qt5Rcc/rcc/3rdparty
 mkdir    Qt5Rcc/rcc/QtCore
 mkdir -p Qt5Rcc/rcc/QtCore/private/QtCore/private
 
+mkdir    Qt5Uic/uic/3rdparty
+mkdir    Qt5Uic/uic/QtCore
+mkdir -p Qt5Uic/uic/QtCore/private/QtCore/private
+
 mkdir libQt5Core/3rdparty
 # Directory for the MIME type database source XML file.
 #
@@ -147,6 +151,8 @@ ln -s ../../../upstream/qtbase/src/3rdparty/{freebsd,sha1} \
    Qt5Moc/moc/3rdparty/
 ln -s ../../../upstream/qtbase/src/3rdparty/{freebsd,sha1} \
    Qt5Rcc/rcc/3rdparty/
+ln -s ../../../upstream/qtbase/src/3rdparty/{freebsd,sha1} \
+   Qt5Uic/uic/3rdparty/
 ln -s ../../upstream/qtbase/src/3rdparty/{easing,freebsd,forkfd,md4,md5,rfc6234,sha1,sha3,harfbuzz} \
    libQt5Core/3rdparty/
 ln -s ../../upstream/qtbase/src/3rdparty/{icc,wintab} \
@@ -358,6 +364,7 @@ symlink_non_module upstream/qtbase/src/tools/uic \
 for d in upstream/qtbase/src/corelib/*/; do
   symlink_module_subdir Qt5Moc/moc QtCore "$d"
   symlink_module_subdir Qt5Rcc/rcc QtCore "$d"
+  symlink_module_subdir Qt5Uic/uic QtCore "$d"
   symlink_module_subdir libQt5Core QtCore "$d"
 done
 
