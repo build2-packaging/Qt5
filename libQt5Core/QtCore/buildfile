@@ -436,9 +436,10 @@ c_hdr = qglobal qsystemdetection qprocessordetection qcompilerdetection \
 
 # Headers and source files.
 #
-./: lib{Qt5Core}: hxx{** -{$c_hdr} +Q*.} h{$c_hdr} cxx{$src}    \
-                  ../3rdparty/harfbuzz/src/h{harfbuzz}          \
-                  ../3rdparty/harfbuzz/src/c{$harfbuzz_src}     \
+./: lib{Qt5Core}: hxx{** -{$c_hdr moc_predefs} +Q*.} h{$c_hdr} hxx{moc_predefs} \
+                  cxx{$src}                                                     \
+                  ../3rdparty/harfbuzz/src/h{harfbuzz}                          \
+                  ../3rdparty/harfbuzz/src/c{$harfbuzz_src}                     \
                   ../3rdparty/harfbuzz/src/cxx{harfbuzz-shaper-all}
 
 # This target exports search directories for the private headers which are
