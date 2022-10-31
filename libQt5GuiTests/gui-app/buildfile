@@ -2,7 +2,7 @@ import libs = libQt5Gui%lib{Qt5Gui}
 
 import! [metadata] moc = Qt5Moc%exe{qt5moc}
 
-exe{gui-app}: hxx{rasterwindow} cxx{gui-app} $libs
+exe{gui-app}: hxx{rasterwindow} cxx{gui-app}
 {
   # Close the window automatically after a few seconds.
   #
@@ -17,7 +17,7 @@ cxx{moc_rasterwindow}: hxx{rasterwindow}
 #
 # Note: use a rule hint to resolve ambiguity between C and C++ library.
 #
-[rule_hint=cxx] libul{Qt5GuiTestsMeta}: $libs
+[rule_hint=cxx] libue{Qt5GuiTestsMeta}: $libs
 
 # -I options for the system header directories.
 #
@@ -28,21 +28,21 @@ moc_predefs_path = $($corelib: libQt5Core.moc_predefs_path)
 
 # Rule to run moc on a header file (foo.h -> moc_foo.cpp).
 #
-cxx{~'/moc_(.*)/'}: hxx{~'/\1/'} libul{Qt5GuiTestsMeta} $moc
+cxx{~'/moc_(.*)/'}: hxx{~'/\1/'} libue{Qt5GuiTestsMeta} $moc
 {{
   o = $path($>[0])
   t = $(o).t
 
-  dep_incl = $cxx.lib_poptions(libul{Qt5GuiTestsMeta})
+  dep_incl = $cxx.lib_poptions(libue{Qt5GuiTestsMeta})
 
   depdb hash $dep_incl
 
-  # Note: exclude libul{Qt5GuiTestsMeta} from update during match not to mess
+  # Note: exclude libue{Qt5GuiTestsMeta} from update during match not to mess
   #       up its for-install'ness.
   #
   depdb dyndep                                                  \
     --byproduct --drop-cycles --what=header --default-type=h    \
-    --update-exclude libul{Qt5GuiTestsMeta}                     \
+    --update-exclude libue{Qt5GuiTestsMeta}                     \
     --file $t
 
   diag moc ($<[0])
@@ -55,5 +55,7 @@ cxx{~'/moc_(.*)/'}: hxx{~'/\1/'} libul{Qt5GuiTestsMeta} $moc
     $cc.poptions $cxx.poptions $dep_incl $sys_incl      \
     -i --output-dep-file --dep-file-path $t -o $o $s
 }}
+
+exe{gui-app}: libue{Qt5GuiTestsMeta}
 
 cxx.poptions =+ "-I$out_base"
