@@ -28,6 +28,17 @@ moc_predefs_path = $($corelib: libQt5Core.moc_predefs_path)
 
 # Rule to run moc on a header file (foo.h -> moc_foo.cpp).
 #
+# @@ TMP - QtGui would start getting compiled right before rasterwindow.h
+#          would get moc'd, so presumably the trigger is this rule's
+#          dependency on libue{QtGuiTestsMeta}. After removing this dependency
+#          QtGui was no longer being built during match.
+#
+#        - Disabling the plugins in QtGui doesn't make a difference.
+#
+#        - Building QtGuiPlugins/platforms/ triggers it at times (so it must
+#          be racy), but neither QtGuiPlugins/imageformats/ nor
+#          QtGuiPlugins/platforminputs/ appear to trigger it.
+#
 cxx{~'/moc_(.*)/'}: hxx{~'/\1/'} libue{Qt5GuiTestsMeta} $moc
 {{
   o = $path($>[0])
