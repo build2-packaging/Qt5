@@ -681,8 +681,21 @@ for s: mm{$moc_mm_adhoc}
 # The dependencies of moc-generated source files on the source files they were
 # generated from (for example, `moc foo.cpp` produces foo.moc).
 #
-for s: cxx{$moc_src_adhoc $win_moc_src_adhoc} mm{$moc_mm_adhoc}
-  moc{$name($s)}: $s
+# The purpose of the additional cxx{moc_*} prerequisite in some cases is to
+# ensure that the moc-generated target's moc-generated dependencies are
+# updated before it itself is updated. This is necessary because a moc
+# target's dependencies are extracted at the same time as it is updated:
+# moc{foo} depends on cxx{moc_foo} because moc{foo} is generated from cxx{foo}
+# which includes cxx{moc_foo}.
+#
+for s: cxx{$moc_src_adhoc}
+  moc{$name($s)}: $s hxx{moc_predefs} cxx{moc_$name($s)}
+
+moc{qeventdispatcher_cf}: mm{kernel/qeventdispatcher_cf} hxx{moc_predefs}       \
+                          cxx{moc_qeventdispatcher_cf_p} # Note: "_p" suffix.
+
+for s: cxx{$win_moc_src_adhoc}
+  moc{$name($s)}: $s hxx{moc_predefs}
 
 # -I options for the system header directories.
 #
@@ -760,20 +773,6 @@ moc{~'/(.*)/'}: mm{~'/\1/'} hxx{moc_predefs} h{$gen_hdr} $moc
   $moc --include $path($<[1]) $cc.poptions $cxx.poptions $sys_incl \
     --output-dep-file --dep-file-path $t -o $o $s
 }}
-
-# Ensure that a moc-generated target's moc-generated dependencies are updated
-# before it itself is updated. This is necessary because a moc target's
-# dependencies are extracted at the same time as it is updated.
-#
-# moc{foo} depends on cxx{moc_foo} because moc{foo} is generated from cxx{foo}
-# which includes cxx{moc_foo}. (Note that other generated dependencies common
-# to all moc-generated targets are declared above.)
-#
-moc{qeventdispatcher_cf}: cxx{moc_qeventdispatcher_cf_p}
-moc{qhistorystate}:       cxx{moc_qhistorystate}
-moc{qstatemachine}:       cxx{moc_qstatemachine}
-moc{qthreadpool}:         cxx{moc_qthreadpool}
-moc{qtimer}:              cxx{moc_qtimer}
 
 lib{Qt5Core}: libul{Qt5CoreMeta}
 
