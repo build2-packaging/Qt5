@@ -1,12 +1,63 @@
-include ../../../../QtGui/
+# Note: If anything in this file seems underdocumented it is probably covered
+#       in libQt5Core/QtCore/buildfile.
+#
+import! [metadata] moc = Qt5Moc%exe{qt5moc}
 
-libul{Qt5ServiceSupport}: ../../../../QtGui/lib{Qt5Gui Qt5GuiPrivate}
+include ../../../../QtGui/
 
 # Although upstream currently only builds this library on Linux and BSD, based
 # on the directory hierarchy and the name of these source files it looks like
 # the plan is to support other platforms in future.
 #
 libul{Qt5ServiceSupport}: genericunix/{hxx cxx}{*}: include = ($linux || $bsd)
+
+# The "metadata library": its purpose is to make sure all the libraries are
+# resolved for the ad hoc moc compilation rules below.
+#
+# Note: use a rule hint to resolve ambiguity between C and C++ library.
+#
+[rule_hint=cxx] libul{Qt5PluginsServiceSupportMeta}: \
+  ../../../../QtGui/lib{Qt5Gui Qt5GuiPrivate}
+
+# Dependencies involving moc-generated source files.
+#
+libul{Qt5ServiceSupport}: moc{qgenericunixservices}: include = adhoc
+moc{qgenericunixservices}: genericunix/cxx{qgenericunixservices}
+
+# -I options for the system header directories.
+#
+sys_incl = $regex.apply($cxx.sys_hdr_dirs, '(.+)', '-I\1')
+
+# Rule to run moc on a source file (foo.cpp -> foo.moc).
+#
+# See the header-input moc rule regarding the header prerequisites.
+#
+moc{~'/(.*)/'}: cxx{~'/\1/'} libul{Qt5PluginsServiceSupportMeta} $moc
+{{
+  o = $path($>[0])
+  t = $(o).t
+
+  dep_incl = $cxx.lib_poptions(libul{Qt5PluginsServiceSupportMeta})
+
+  depdb hash $dep_incl
+
+  depdb dyndep                                                  \
+    --byproduct --drop-cycles --what=header --default-type=h    \
+    --update-exclude libul{Qt5PluginsServiceSupportMeta}        \
+    --file $t
+
+  diag moc ($<[0])
+
+  s = $path($<[0])
+
+  $moc --include $moc_predefs_path                      \
+    $cc.poptions $cxx.poptions $dep_incl $sys_incl      \
+    --output-dep-file --dep-file-path $t -o $o $s
+}}
+
+libul{Qt5ServiceSupport}: libul{Qt5PluginsServiceSupportMeta}
+
+cxx.poptions =+ "-I$out_base"
 
 cxx.poptions += $platforms_poptions             \
                 -DQT_BUILD_SERVICE_SUPPORT_LIB  \
