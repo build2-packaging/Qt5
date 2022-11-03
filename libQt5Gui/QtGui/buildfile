@@ -278,6 +278,7 @@ moc_hdr = private/QtGui/private/qaccessiblecache_p              \
           qpa/qplatformintegrationplugin                        \
           qpa/qplatformmenu                                     \
           qpa/qplatformnativeinterface                          \
+          qpa/qplatformservices                                 \
           qpa/qplatformsharedgraphicscache                      \
           qpa/qplatformthemeplugin                              \
           qrasterwindow                                         \
