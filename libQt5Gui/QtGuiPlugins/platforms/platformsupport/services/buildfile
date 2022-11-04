@@ -24,10 +24,6 @@ libul{Qt5ServiceSupport}: genericunix/{hxx cxx}{*}: include = ($linux || $bsd)
 libul{Qt5ServiceSupport}: moc{qgenericunixservices}: include = adhoc
 moc{qgenericunixservices}: genericunix/cxx{qgenericunixservices}
 
-# -I options for the system header directories.
-#
-sys_incl = $regex.apply($cxx.sys_hdr_dirs, '(.+)', '-I\1')
-
 # Rule to run moc on a source file (foo.cpp -> foo.moc).
 #
 # See the header-input moc rule regarding the header prerequisites.
@@ -49,6 +45,8 @@ moc{~'/(.*)/'}: cxx{~'/\1/'} libul{Qt5PluginsServiceSupportMeta} $moc
   diag moc ($<[0])
 
   s = $path($<[0])
+
+  sys_incl = $regex.apply($cxx.sys_hdr_dirs, '(.+)', '-I\1')
 
   $moc --include $moc_predefs_path                      \
     $cc.poptions $cxx.poptions $dep_incl $sys_incl      \

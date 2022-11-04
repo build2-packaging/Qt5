@@ -19,10 +19,6 @@ cxx{moc_rasterwindow}: hxx{rasterwindow}
 #
 [rule_hint=cxx] libue{Qt5GuiTestsMeta}: $libs
 
-# -I options for the system header directories.
-#
-sys_incl = $regex.apply($cxx.sys_hdr_dirs, '(.+)', '-I\1')
-
 import corelib = libQt5Core%lib{Qt5Core}
 moc_predefs_path = $($corelib: libQt5Core.moc_predefs_path)
 
@@ -59,6 +55,8 @@ cxx{~'/moc_(.*)/'}: hxx{~'/\1/'} libue{Qt5GuiTestsMeta} $moc
   diag moc ($<[0])
 
   s = $path($<[0])
+
+  sys_incl = $regex.apply($cxx.sys_hdr_dirs, '(.+)', '-I\1')
 
   # -i: don't include the header (we don't need it and it's simpler this way).
   #

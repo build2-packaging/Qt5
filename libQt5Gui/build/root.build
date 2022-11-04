@@ -122,8 +122,6 @@ else
 # Don't install headers in mkspecs/ and 3rdparty/ (which are at the root level
 # and are shared between QtGui/ and QtGuiPlugins/).
 #
-# @@ Double check not installed.
-#
 hxx{mkspecs/* 3rdparty/*}: install = false
 
 # Common options, etc., for all the plugins.

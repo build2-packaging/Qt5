@@ -446,13 +446,10 @@ c_hdr = qglobal qsystemdetection qprocessordetection qcompilerdetection \
 
   # Export the path to the generated hxx{moc_predefs} as metadata.
   #
-  # @@ Hardcode the extension.
-  #
-  moc_predefs = "moc_predefs.$(hxx{foo}: extension)"
-  libQt5Core.moc_predefs_path = [path] $out_base/$moc_predefs
-  libQt5Core.moc_predefs_path.for_install =                                   \
-    [path] ($install.root != [null]                                           \
-            ? $install.resolve($install.include)/qt5/QtCore/$moc_predefs      \
+  libQt5Core.moc_predefs_path = [path] $out_base/moc_predefs.h
+  libQt5Core.moc_predefs_path.for_install =                                     \
+    [path] ($install.root != [null]                                             \
+            ? $install.resolve($install.include)/qt5/QtCore/moc_predefs.h       \
             : .)
 }
 
@@ -728,7 +725,7 @@ cxx{~'/moc_(.*)/'}: hxx{~'/\1/'} hxx{moc_predefs} h{$gen_hdr} $moc
 
   s = $path($<[0])
 
-  sys_incl = $regex.apply($cxx.sys_hdr_dirs, '(.+)', '-I\1') # @@ other places
+  sys_incl = $regex.apply($cxx.sys_hdr_dirs, '(.+)', '-I\1')
 
   $moc --include $path($<[1]) $cc.poptions $cxx.poptions $sys_incl \
     -f $leaf($s) --output-dep-file --dep-file-path $t -o $o $s

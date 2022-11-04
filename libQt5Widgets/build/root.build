@@ -109,3 +109,8 @@ if $windows
 }
 else
   cc.poptions += -D_LARGEFILE64_SOURCE -D_LARGEFILE_SOURCE
+
+# Don't install headers in mkspecs/ (which is at the root level and is shared
+# between QtWidgets/ and QtWidgetsPlugins/).
+#
+hxx{mkspecs/*}: install = false

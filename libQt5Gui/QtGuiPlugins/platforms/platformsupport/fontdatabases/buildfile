@@ -93,10 +93,6 @@ objs{~'/(.*).so/'}: mm{~'/\1/'} libus{Qt5FontDatabaseSupportMeta}
 mac/cxx{moc_qfontengine_coretext_p}: mac/hxx{qfontengine_coretext_p}
 libul{Qt5FontDatabaseSupport}: mac/cxx{moc_qfontengine_coretext_p}: include = $macos
 
-# -I options for the system header directories.
-#
-sys_incl = $regex.apply($cxx.sys_hdr_dirs, '(.+)', '-I\1')
-
 # Rule to run moc on a header file (foo.h -> moc_foo.cpp).
 #
 # Use -f to override the path moc uses to #include the input file, which is
@@ -129,6 +125,8 @@ cxx{~'/moc_(.*)/'}: hxx{~'/\1/'} libul{Qt5FontDatabaseSupportMeta} $moc
   diag moc ($<[0])
 
   s = $path($<[0])
+
+  sys_incl = $regex.apply($cxx.sys_hdr_dirs, '(.+)', '-I\1')
 
   $moc --include $moc_predefs_path                      \
     $cc.poptions $cxx.poptions $dep_incl $sys_incl      \

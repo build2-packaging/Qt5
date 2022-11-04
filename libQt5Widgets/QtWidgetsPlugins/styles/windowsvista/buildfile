@@ -50,10 +50,6 @@ for s: cxx{$moc_src_adhoc}
   ../lib{qwindowsvistastyle}: moc{$n}: include = adhoc
 }
 
-# -I options for the system header directories.
-#
-sys_incl = $regex.apply($cxx.sys_hdr_dirs, '(.+)', '-I\1')
-
 # Rule to run moc on a header file.
 #
 # Use -f to override the path moc uses to #include the input file, which is
@@ -87,6 +83,8 @@ cxx{~'/moc_(.*)/'}: hxx{~'/\1/'} libul{Qt5PluginsWindowsVistaStyleMeta} $moc
 
   s = $path($<[0])
 
+  sys_incl = $regex.apply($cxx.sys_hdr_dirs, '(.+)', '-I\1')
+
   $moc --include $moc_predefs_path                      \
     $cc.poptions $cxx.poptions $dep_incl $sys_incl      \
     -f $leaf($s) --output-dep-file --dep-file-path $t -o $o $s
@@ -113,6 +111,8 @@ moc{~'/(.*)/'}: cxx{~'/\1/'} libul{Qt5PluginsWindowsVistaStyleMeta} $moc
   diag moc ($<[0])
 
   s = $path($<[0])
+
+  sys_incl = $regex.apply($cxx.sys_hdr_dirs, '(.+)', '-I\1')
 
   $moc --include $moc_predefs_path                      \
     $cc.poptions $cxx.poptions $dep_incl $sys_incl      \
