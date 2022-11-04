@@ -434,30 +434,32 @@ gen_hdr = qconfig       private/QtCore/private/qconfig_p        \
 c_hdr = qglobal qsystemdetection qprocessordetection qcompilerdetection \
         $gen_hdr testlib/3rdparty/valgrind_p
 
+moc_predefs = private/QtCore/private/moc_predefs
+
 # Headers, source files, and metadata.
 #
-./: lib{Qt5Core}: hxx{** -{$c_hdr moc_predefs} +Q*.} h{$c_hdr} hxx{moc_predefs} \
-                  cxx{$src}                                                     \
-                  ../3rdparty/harfbuzz/src/h{harfbuzz}                          \
-                  ../3rdparty/harfbuzz/src/c{$harfbuzz_src}                     \
+./: lib{Qt5Core}: hxx{** -{$c_hdr $moc_predefs} +Q*.} h{$c_hdr} hxx{$moc_predefs}       \
+                  cxx{$src}                                                             \
+                  ../3rdparty/harfbuzz/src/h{harfbuzz}                                  \
+                  ../3rdparty/harfbuzz/src/c{$harfbuzz_src}                             \
                   ../3rdparty/harfbuzz/src/cxx{harfbuzz-shaper-all}
-{
-  export.metadata = 1 libQt5Core
-
-  # Export the path to the generated hxx{moc_predefs} as metadata.
-  #
-  libQt5Core.moc_predefs_path = [path] $out_base/moc_predefs.h
-  libQt5Core.moc_predefs_path.for_install =                                     \
-    [path] ($install.root != [null]                                             \
-            ? $install.resolve($install.include)/qt5/QtCore/moc_predefs.h       \
-            : .)
-}
 
 # This target exports search directories for the private headers which are
 # located in a deeper directory subtree to prevent them from being found by
 # accident. Used by other Qt libraries (libQt5Gui, etc).
 #
 [rule_hint=cxx] lib{Qt5CorePrivate}:
+{
+  export.metadata = 1 libQt5Core
+
+  # Export the path to the generated hxx{moc_predefs} as metadata.
+  #
+  libQt5Core.moc_predefs_path = [path] $out_base/"$moc_predefs".h
+  libQt5Core.moc_predefs_path.for_install =                             \
+    [path] ($install.root != [null]                                     \
+            ? $install.resolve($install.include)/qt5/"$moc_predefs".h   \
+            : .)
+}
 
 ./: lib{Qt5CorePrivate}
 
@@ -598,7 +600,7 @@ objs{~'/(.*).so/'}: mm{~'/\1/'} libus{Qt5CoreMeta}
 # it can decide on the best method, potentially invoking the compiler,
 # including for MSVC).
 #
-hxx{moc_predefs}: mkspecs/features/data/cxx{dummy}
+hxx{$moc_predefs}: mkspecs/features/data/cxx{dummy}
 %
 if ($cxx.class != 'msvc')
 {{
@@ -688,13 +690,13 @@ for s: mm{$moc_mm_adhoc}
 # which includes cxx{moc_foo}.
 #
 for s: cxx{$moc_src_adhoc}
-  moc{$name($s)}: $s hxx{moc_predefs} cxx{moc_$name($s)}
+  moc{$name($s)}: $s hxx{$moc_predefs} cxx{moc_$name($s)}
 
-moc{qeventdispatcher_cf}: mm{kernel/qeventdispatcher_cf} hxx{moc_predefs}       \
+moc{qeventdispatcher_cf}: mm{kernel/qeventdispatcher_cf} hxx{$moc_predefs}      \
                           cxx{moc_qeventdispatcher_cf_p} # Note: "_p" suffix.
 
 for s: cxx{$win_moc_src_adhoc}
-  moc{$name($s)}: $s hxx{moc_predefs}
+  moc{$name($s)}: $s hxx{$moc_predefs}
 
 # Rule to run moc on a header file (foo.h -> moc_foo.cpp).
 #
@@ -713,7 +715,7 @@ for s: cxx{$win_moc_src_adhoc}
 #
 # Note that hxx{moc_predefs} must always be in position 1.
 #
-cxx{~'/moc_(.*)/'}: hxx{~'/\1/'} hxx{moc_predefs} h{$gen_hdr} $moc
+cxx{~'/moc_(.*)/'}: hxx{~'/\1/'} hxx{$moc_predefs} h{$gen_hdr} $moc
 {{
   o = $path($>[0])
   t = $(o).t
@@ -735,7 +737,7 @@ cxx{~'/moc_(.*)/'}: hxx{~'/\1/'} hxx{moc_predefs} h{$gen_hdr} $moc
 #
 # See the header-input moc rule regarding the header prerequisites.
 #
-moc{~'/(.*)/'}: cxx{~'/\1/'} hxx{moc_predefs} h{$gen_hdr} $moc
+moc{~'/(.*)/'}: cxx{~'/\1/'} hxx{$moc_predefs} h{$gen_hdr} $moc
 {{
   o = $path($>[0])
   t = $(o).t
@@ -757,7 +759,7 @@ moc{~'/(.*)/'}: cxx{~'/\1/'} hxx{moc_predefs} h{$gen_hdr} $moc
 #
 # See the header-input moc rule regarding the header prerequisites.
 #
-moc{~'/(.*)/'}: mm{~'/\1/'} hxx{moc_predefs} h{$gen_hdr} $moc
+moc{~'/(.*)/'}: mm{~'/\1/'} hxx{$moc_predefs} h{$gen_hdr} $moc
 {{
   o = $path($>[0])
   t = $(o).t

@@ -28,8 +28,11 @@ moc{*}: extension = moc
 
 # Path to libQt5Core's moc_predefs.h header.
 #
-import corelib = libQt5Core%lib{Qt5Core}
-moc_predefs_path = $($corelib: libQt5Core.moc_predefs_path)
+if ($build.mode != 'skeleton')
+{
+  import! [metadata, rule_hint=cxx.link] corelib = libQt5Core%lib{Qt5CorePrivate}
+  moc_predefs_path = $($corelib: libQt5Core.moc_predefs_path)
+}
 
 # Define the Objective-C++ source file type.
 #

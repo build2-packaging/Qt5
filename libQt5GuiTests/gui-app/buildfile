@@ -19,7 +19,7 @@ cxx{moc_rasterwindow}: hxx{rasterwindow}
 #
 [rule_hint=cxx] libue{Qt5GuiTestsMeta}: $libs
 
-import corelib = libQt5Core%lib{Qt5Core}
+import! [metadata, rule_hint=cxx.link] corelib = libQt5Core%lib{Qt5CorePrivate}
 moc_predefs_path = $($corelib: libQt5Core.moc_predefs_path)
 
 # Rule to run moc on a header file (foo.h -> moc_foo.cpp).
