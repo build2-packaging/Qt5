@@ -83,33 +83,6 @@ cxx{~'/moc_(.*)/'}: hxx{~'/\1/'} libul{Qt5PluginsImageFormatsMeta} $moc
     -f $leaf($s) --output-dep-file --dep-file-path $t -o $o $s
 }}
 
-# Rule to run moc on a source file.
-#
-# See the header-input moc rule regarding the header prerequisites.
-#
-moc{~'/(.*)/'}: cxx{~'/\1/'} libul{Qt5PluginsImageFormatsMeta} $moc
-{{
-  o = $path($>[0])
-  t = $(o).t
-
-  dep_incl = $cxx.lib_poptions(libul{Qt5PluginsImageFormatsMeta})
-
-  depdb hash $dep_incl
-
-  depdb dyndep                                                  \
-    --byproduct --drop-cycles --what=header --default-type=h    \
-    --update-exclude libul{Qt5PluginsImageFormatsMeta}          \
-    --file $t
-
-  diag moc ($<[0])
-
-  s = $path($<[0])
-
-  $moc --include $moc_predefs_path                      \
-    $cc.poptions $cxx.poptions $dep_incl $sys_incl      \
-    --output-dep-file --dep-file-path $t -o $o $s
-}}
-
 lib{qgif qico qjpeg}: libul{Qt5PluginsImageFormatsMeta}
 
 lib{qjpeg}: $impl_libs_jpeg
@@ -133,7 +106,6 @@ if ($cxx.target.class != 'windows')
 
 # Installation.
 #
-hxx{*}:               install = false
 lib{qgif qico qjpeg}: install = lib/qt5/plugins/imageformats/
 
 libs{qgif}: # @@ TMP dist order

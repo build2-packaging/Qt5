@@ -446,17 +446,19 @@ c_hdr = qglobal qsystemdetection qprocessordetection qcompilerdetection \
 
   # Export the path to the generated hxx{moc_predefs} as metadata.
   #
+  # @@ Hardcode the extension.
+  #
   moc_predefs = "moc_predefs.$(hxx{foo}: extension)"
   libQt5Core.moc_predefs_path = [path] $out_base/$moc_predefs
-  libQt5Core.moc_predefs_path.for_install =                                     \
-    [path] ($install.root != [null]                                             \
-            ? $install.resolve($install.include)/qt5/QtCore/$moc_predefs        \
+  libQt5Core.moc_predefs_path.for_install =                                   \
+    [path] ($install.root != [null]                                           \
+            ? $install.resolve($install.include)/qt5/QtCore/$moc_predefs      \
             : .)
 }
 
 # This target exports search directories for the private headers which are
 # located in a deeper directory subtree to prevent them from being found by
-# accident.
+# accident. Used by other Qt libraries (libQt5Gui, etc).
 #
 [rule_hint=cxx] lib{Qt5CorePrivate}:
 
@@ -601,7 +603,7 @@ objs{~'/(.*).so/'}: mm{~'/\1/'} libus{Qt5CoreMeta}
 #
 hxx{moc_predefs}: mkspecs/features/data/cxx{dummy}
 %
-if ($cxx.id != 'msvc')
+if ($cxx.class != 'msvc')
 {{
   diag gen ($>[0])
   $cxx.path $cc.poptions $cxx.poptions $cc.coptions $cxx.coptions $cxx.mode \
@@ -697,10 +699,6 @@ moc{qeventdispatcher_cf}: mm{kernel/qeventdispatcher_cf} hxx{moc_predefs}       
 for s: cxx{$win_moc_src_adhoc}
   moc{$name($s)}: $s hxx{moc_predefs}
 
-# -I options for the system header directories.
-#
-sys_incl = $regex.apply($cxx.sys_hdr_dirs, '(.+)', '-I\1')
-
 # Rule to run moc on a header file (foo.h -> moc_foo.cpp).
 #
 # Use -f to override the path moc uses to #include the input file, which is
@@ -730,6 +728,8 @@ cxx{~'/moc_(.*)/'}: hxx{~'/\1/'} hxx{moc_predefs} h{$gen_hdr} $moc
 
   s = $path($<[0])
 
+  sys_incl = $regex.apply($cxx.sys_hdr_dirs, '(.+)', '-I\1') # @@ other places
+
   $moc --include $path($<[1]) $cc.poptions $cxx.poptions $sys_incl \
     -f $leaf($s) --output-dep-file --dep-file-path $t -o $o $s
 }}
@@ -750,6 +750,8 @@ moc{~'/(.*)/'}: cxx{~'/\1/'} hxx{moc_predefs} h{$gen_hdr} $moc
 
   s = $path($<[0])
 
+  sys_incl = $regex.apply($cxx.sys_hdr_dirs, '(.+)', '-I\1')
+
   $moc --include $path($<[1]) $cc.poptions $cxx.poptions $sys_incl \
     --output-dep-file --dep-file-path $t -o $o $s
 }}
@@ -769,6 +771,8 @@ moc{~'/(.*)/'}: mm{~'/\1/'} hxx{moc_predefs} h{$gen_hdr} $moc
   diag moc ($<[0])
 
   s = $path($<[0])
+
+  sys_incl = $regex.apply($cxx.sys_hdr_dirs, '(.+)', '-I\1')
 
   $moc --include $path($<[1]) $cc.poptions $cxx.poptions $sys_incl \
     --output-dep-file --dep-file-path $t -o $o $s
@@ -1008,7 +1012,9 @@ global/cxx{qconfig-install qconfig-develop}: global/in{qconfig}
 #
 # @@ TODO Use RCC instead of the Perl script. Not sure why upstream (even Qt6)
 #    doesn't use RCC given that even Qt5 has a mimetypes.qrc. (Then the
-#    compression TODO above would also be moot.)
+#    compression TODO above would also be moot.) But that means we will have
+#    dependency on RCC. I think using zstd (when we have it) is the best
+#    option.
 #
 cxx{qmimeprovider_database}: mimetypes/mime/packages/freedesktop.org.xml $xxd
 {{

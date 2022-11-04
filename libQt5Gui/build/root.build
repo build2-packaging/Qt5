@@ -118,3 +118,39 @@ if $windows
 }
 else
   cc.poptions += -D_LARGEFILE64_SOURCE -D_LARGEFILE_SOURCE
+
+# Don't install headers in mkspecs/ and 3rdparty/ (which are at the root level
+# and are shared between QtGui/ and QtGuiPlugins/).
+#
+# @@ Double check not installed.
+#
+hxx{mkspecs/* 3rdparty/*}: install = false
+
+# Common options, etc., for all the plugins.
+#
+QtGuiPlugins/
+{
+  platforms/
+  {
+    cxx.poptions =+ "-I$out_root/QtGuiPlugins" "-I$src_root/QtGuiPlugins"
+
+    # Poptions used in multiple scopes (but not for all objects).
+    #
+    platforms_poptions =                                                    \
+      -DQT_ASCII_CAST_WARNINGS                                              \
+      -DQT_NO_CAST_TO_ASCII                                                 \
+      -DQT_BUILDING_QT                                                      \
+      -DQT_DISABLE_DEPRECATED_BEFORE=($windows ? 0x040800 : 0x050000)       \
+      -DQT_DEPRECATED_WARNINGS_SINCE=0x060000                               \
+      -DQT_MOC_COMPAT                                                       \
+      -DQT_USE_QSTRINGBUILDER
+
+    if ($cxx.class == 'gcc')
+      cxx.coptions += -fvisibility=hidden -fvisibility-inlines-hidden
+  }
+
+  # Don't install any plugin headers (for static linking the API is presumably
+  # declared by the Qt plugin infrastructure).
+  #
+  hxx{*}: install = false
+}

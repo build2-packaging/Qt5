@@ -3,9 +3,3 @@
 # Don't install tests.
 #
 tests/: install = false
-
-# Don't install headers in mkspecs/ (which is at this level because it is
-# referenced in root.build and its headers are shared between QtGui/ and
-# QtGuiPlugins/).
-#
-hxx{mkspecs/*}: install = false

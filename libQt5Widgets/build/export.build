@@ -1,3 +1,5 @@
+# @@ Support importing plugins.
+#
 $out_root/
 {
   include QtWidgets/

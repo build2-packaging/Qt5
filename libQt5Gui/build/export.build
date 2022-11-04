@@ -1,3 +1,5 @@
+# @@ TODO: support importing plugins.
+#
 $out_root/
 {
   include QtGui/

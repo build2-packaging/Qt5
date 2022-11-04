@@ -1,27 +1,21 @@
-./: imageformats/ platforminputcontexts/ platforms/ \
-    lib{Qt5GuiPluginsMeta}
-
 include imageformats/
 include platforminputcontexts/
 include platforms/
 
-# This library presents a single target that depends on all of the plugins
-# used by libQt5Gui.
+# Pull plugin subdirectories in case we have optional plugins that are
+# not loaded by default.
 #
-[rule_hint=cxx] lib{Qt5GuiPluginsMeta}:
+./: imageformats/ platforminputcontexts/ platforms/ alias{Qt5GuiPlugins}
 
-lib{Qt5GuiPluginsMeta}: imageformats/libs{qgif qico qjpeg}: \
-  include = adhoc
+# This alias presents a single target that depends on all of the plugins
+# loaded by libQt5Gui for a specific platform.
+#
+alias{Qt5GuiPlugins}: imageformats/libs{qgif qico qjpeg}
 
-lib{Qt5GuiPluginsMeta}:                                                 \
-  platforms/libs{qxcb}                                                  \
-  platforminputcontexts/libs{composeplatforminputcontextplugin}:        \
-    include = ($linux || $bsd ? adhoc : false)
+alias{Qt5GuiPlugins}:                                                 \
+  platforms/libs{qxcb}                                                \
+  platforminputcontexts/libs{composeplatforminputcontextplugin}:      \
+    include = ($linux || $bsd)
 
-lib{Qt5GuiPluginsMeta}: platforms/libs{qcocoa}: \
-  include = ($macos ? adhoc : false)
-
-lib{Qt5GuiPluginsMeta}: platforms/libs{qwindows}: \
-  include = ($windows ? adhoc : false)
-
-hxx{*}: install = false
+alias{Qt5GuiPlugins}: platforms/libs{qcocoa}: include = $macos
+alias{Qt5GuiPlugins}: platforms/libs{qwindows}: include = $windows

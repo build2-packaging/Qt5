@@ -161,8 +161,6 @@ exe{qt5uic}: obje{$macos_core_src_mm}: include = $macos
 
 # Rule for compiling Objective-C++ source files into object files.
 #
-# Note: these rules are only used on Mac OS (so no -fPIC, etc).
-#
 obje{~'/(.*)/'}: mm{~'/\1/'}
 {{
   depdb dyndep --what=header --default-type=h           \

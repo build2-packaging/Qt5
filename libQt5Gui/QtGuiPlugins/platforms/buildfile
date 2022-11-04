@@ -1,18 +1,4 @@
-cxx.poptions =+ "-I$out_root/QtGuiPlugins" "-I$src_root/QtGuiPlugins"
-
-# Poptions used in multiple scopes (but not for all objects).
-#
-platforms_poptions =                                                    \
-  -DQT_ASCII_CAST_WARNINGS                                              \
-  -DQT_NO_CAST_TO_ASCII                                                 \
-  -DQT_BUILDING_QT                                                      \
-  -DQT_DISABLE_DEPRECATED_BEFORE=($windows ? 0x040800 : 0x050000)       \
-  -DQT_DEPRECATED_WARNINGS_SINCE=0x060000                               \
-  -DQT_MOC_COMPAT                                                       \
-  -DQT_USE_QSTRINGBUILDER
-
-if ($cxx.class == 'gcc')
-  cxx.coptions += -fvisibility=hidden -fvisibility-inlines-hidden
+# Note: see root.build for the common part.
 
 include xcb/
 include cocoa/
