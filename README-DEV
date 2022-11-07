@@ -1,6 +1,15 @@
-1. Licensing
+1. TODO upon upstream upgrade
 
-1.1. Qt Core
+1.1. Generate libQt5Gui/QtGui/painting/qmake_webgradients.qrc
+
+  - Configure the upstream build (see above for instructions)
+  - CD to the build directory
+  - Run `make sub-src-qmake_all`
+  - Find the generated file at `src/gui/.rcc/qmake_webgradients.qrc`.
+
+2. Licensing
+
+2.1. Qt Core
 
 License choices:
 
@@ -10,7 +19,7 @@ License choices:
 
   c) LGPL v3-only
 
-1.2. Meta-Object Compiler (MOC)
+2.2. Meta-Object Compiler (MOC)
 
 License choices:
 
@@ -22,18 +31,18 @@ License choices:
      itself, MOC output (such as a program compiled with MOC-generated source
      files) to be distributed under any terms.
 
-2. Qt mailing lists
+3. Qt mailing lists
 
 They're listed on qt-project.org which is a fact not easy to discover starting
 from https://qt.io/ but see https://wiki.qt.io/Online_Communities.
 
-3. Build system notes
+4. Build system notes
 
 Configure/build system: https://wiki.qt.io/Qt5_Build_System
 
 QMake manual: https://doc.qt.io/qt-5.5/qmake-manual.html
 
-3.1 Running the upstream build
+4.1 Running the upstream build
 
 - Configure
 
@@ -44,7 +53,7 @@ QMake manual: https://doc.qt.io/qt-5.5/qmake-manual.html
 
   $ make
 
-3.2 Platform-specific code
+4.2 Platform-specific code
 
 In qmake, platform-specific code is wrapped in a "platform scope" which looks
 like this:
@@ -59,7 +68,7 @@ under upstream/qtbase/mkspecs/, while the more specific platform names like
 `linux-g++`, `freebsd-clang`, or `win32-clang-msvc` each have a directory
 under upstream/qtbase/mkspecs/.
 
-3.3 Qt module configuration
+4.3 Qt module configuration
 
 In general, the qt<module>-config.h header defines the macros for public/user
 features, while the qt<module>-config_p.h header defines macros for
@@ -82,7 +91,7 @@ qtconfig{,_p}.h and qtcore-config{,_p}.h, respectively. Entries in the
 `features` array in configure.json files correspond to .prf files under
 upstream/qtbase/mkspecs/features/. See https://wiki.qt.io/Qt5_Build_System.
 
-4. Platform/compiler support issues
+5. Platform/compiler support issues
 
 Mac OS with GCC is not supported because certain system headers make use of
 Objective-C blocks
@@ -91,14 +100,14 @@ supported by GNU gcc/g++. There is an open issue to add support
 (https://gcc.gnu.org/bugzilla/show_bug.cgi?id=78352) but it's stalled for what
 looks like licensing reasons (see comment 16).
 
-5. Qt build
+6. Qt build
 
-5.1 Shared vs. static
+6.1 Shared vs. static
 
 The upstream build defaults to shared; static libraries are not built by
 default.
 
-5.2 Symbol export
+6.2 Symbol export
 
 The general convention seems to be that the definition of
 QT_BUILD_<library>_LIB causes <library>/qt<library>global.h to define
