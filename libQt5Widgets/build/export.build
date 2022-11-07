@@ -1,8 +1,19 @@
-# @@ Support importing plugins.
-#
-$out_root/
+switch $import.target
 {
-  include QtWidgets/
+  case lib{Qt5Widgets}
+  {
+    $out_root/
+    {
+      include QtWidgets/
+    }
+    export $out_root/QtWidgets/$import.target
+  }
+  default # Plugins.
+  {
+    $out_root/
+    {
+      include QtWidgetsPlugins/
+    }
+    export $out_root/QtWidgetsPlugins/styles/$import.target
+  }
 }
-
-export $out_root/QtWidgets/$import.target

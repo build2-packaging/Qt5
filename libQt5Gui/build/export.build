@@ -1,8 +1,17 @@
-# @@ TODO: support importing plugins.
-#
 $out_root/
 {
   include QtGui/
+  include QtGuiPlugins/
 }
 
-export $out_root/QtGui/$import.target
+switch $import.target
+{
+  case lib{Qt5Gui} | lib{Qt5GuiPrivate}
+    export $out_root/QtGui/$import.target
+  case lib{qxcb}
+    export $out_root/QtGuiPlugins/platforms/$import.target
+  case lib{qgif} | lib{qico} | lib{qjpeg}
+    export $out_root/QtGuiPlugins/imageformats/$import.target
+  case lib{composeplatforminputcontextplugin}
+    export $out_root/QtGuiPlugins/platforminputcontexts/$import.target
+}
