@@ -49,13 +49,6 @@ qrc{*}: extension = qrc
 if! $config.libQt5Gui.debug
   cc.poptions += -DQT_NO_DEBUG
 
-# Define because QtWidgets is not yet being built.
-#
-# @@ Although this is only referenced by the Cocoa plugin it's less likely to
-#    be forgotten about here.
-#
-cc.poptions += -DQT_NO_WIDGETS
-
 # Every directory under mkspecs/ contains a unique `qplatformdefs.h`.
 #
 # Note that Mac OS with GCC is not supported by upstream (see README-DEV for

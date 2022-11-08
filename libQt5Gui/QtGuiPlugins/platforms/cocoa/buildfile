@@ -21,9 +21,12 @@ src = main                              \
       qcocoaapplicationdelegate         \
       qcocoabackingstore                \
       qcocoaclipboard                   \
+      qcocoacolordialoghelper           \
       qcocoacursor                      \
       qcocoadrag                        \
       qcocoaeventdispatcher             \
+      qcocoafiledialoghelper            \
+      qcocoafontdialoghelper            \
       qcocoahelpers                     \
       qcocoainputcontext                \
       qcocoaintegration                 \
@@ -49,14 +52,27 @@ src = main                              \
       qnswindow                         \
       qnswindowdelegate
 
-      # @@ TODO Requires QtWidgets
-      #
-      # qprintengine_mac
-      # qcocoaprintersupport
-      # qcocoaprintdevice
-      # qcocoacolordialoghelper
-      # qcocoafiledialoghelper
-      # qcocoafontdialoghelper
+# @@ The following sources depend on QtWidgets (as of version 5.15.7) but are
+#    only used by the QPrintSupport module, which we don't currently build, so
+#    exclude them from the build.
+#
+#    (@@ TODO If/when we do decide to build QtPrintSupport, apply the changes
+#        in upstream Qt6 commit 7f179eff61826323afea474b8ecd1a04f0a41e32 which
+#        moves these sources to that module.)
+#
+#      qpaintengine_mac
+#      qprintengine_mac
+#      qcocoaprintersupport
+#      qcocoaprintdevice
+#
+
+# @@ The following sources depend on QtWidgets but we've applied upstream Qt6
+#    commit 1cee9cc5870b475b141dfa6ad84de2038a28d5b8 to break that (false,
+#    weak) dependency.
+#
+#      qcocoacolordialoghelper
+#      qcocoafiledialoghelper
+#      qcocoafontdialoghelper
 
 # C++ source files to be compiled.
 #
@@ -285,7 +301,8 @@ cxx{~'/qrc_(.*)/'}: qrc{~'/.*\1/'} $rcc
 
 # Build options.
 #
-cxx.poptions =+ "-I$out_base" "-I$src_base"
+cxx.poptions =+ "-I$out_base" "-I$src_base" \
+                "-I$src_root/QtGuiPlugins/QtFontDatabaseSupport"
 
 # Define macros.
 #
@@ -296,8 +313,7 @@ cxx.poptions += -DQT_NO_FOREACH                 \
                 -DQT_GRAPHICS_SUPPORT_LIB       \
                 -DQT_THEME_SUPPORT_LIB
 
-../lib{qcocoa}: cxx.libs += -lcups                      \
-                            -framework AppKit           \
+../lib{qcocoa}: cxx.libs += -framework AppKit           \
                             -framework CoreServices     \
                             -framework Carbon           \
                             -framework IOKit            \
