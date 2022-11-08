@@ -1,1 +1,1 @@
-../../../../upstream/qtbase/src/plugins/platforms/cocoa/qcocoahelpers.mm
+../../../../downstream/qtbase/src/plugins/platforms/cocoa/qcocoahelpers.mm

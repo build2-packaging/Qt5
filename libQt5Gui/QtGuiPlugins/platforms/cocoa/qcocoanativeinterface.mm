@@ -1,1 +1,1 @@
-../../../../upstream/qtbase/src/plugins/platforms/cocoa/qcocoanativeinterface.mm
+../../../../downstream/qtbase/src/plugins/platforms/cocoa/qcocoanativeinterface.mm

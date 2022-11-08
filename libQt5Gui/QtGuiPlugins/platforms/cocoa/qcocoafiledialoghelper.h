@@ -1,1 +1,1 @@
-../../../../upstream/qtbase/src/plugins/platforms/cocoa/qcocoafiledialoghelper.h
+../../../../downstream/qtbase/src/plugins/platforms/cocoa/qcocoafiledialoghelper.h

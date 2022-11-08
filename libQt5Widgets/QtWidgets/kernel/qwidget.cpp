@@ -1,1 +1,1 @@
-../../../upstream/qtbase/src/widgets/kernel/qwidget.cpp
+../../../downstream/qtbase/src/widgets/kernel/qwidget.cpp
