@@ -2,5 +2,6 @@ project = libQt5Gui
 
 using version
 using config
+using test
 using install
 using dist

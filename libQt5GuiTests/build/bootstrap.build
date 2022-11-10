@@ -1,6 +1,0 @@
-project = libQt5GuiTests
-
-using version
-using config
-using dist
-using test
