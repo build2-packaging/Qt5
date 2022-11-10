@@ -9,7 +9,7 @@ cxx{*}: extension = cpp
 #
 hxx{*}: cxx.importable = true
 
-# Every exe{} in this project is by default a test.
+# Every exe{} in this subproject is by default a test.
 #
 exe{*}: test = true
 

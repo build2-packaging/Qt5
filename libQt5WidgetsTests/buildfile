@@ -1,1 +1,0 @@
-./: {*/ -build/ -mkspecs/} manifest doc{README.md} legal{LICENSE}

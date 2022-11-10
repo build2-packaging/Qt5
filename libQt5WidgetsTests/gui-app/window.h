@@ -1,1 +1,0 @@
-../../upstream/qtbase/examples/widgets/widgets/spinboxes/window.h

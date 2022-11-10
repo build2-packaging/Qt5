@@ -1,6 +1,0 @@
-project = libQt5WidgetsTests
-
-using version
-using config
-using dist
-using test

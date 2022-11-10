@@ -1,1 +1,5 @@
-./: QtWidgets/ QtWidgetsPlugins/ doc{README.md} legal{LICENSE*} manifest
+./: QtWidgets/ QtWidgetsPlugins/ tests/ doc{README.md} legal{LICENSE*} manifest
+
+# Don't install tests.
+#
+tests/: install = false

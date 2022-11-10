@@ -10,5 +10,3 @@ location: libQt5Core/
 location: libQt5Gui/
 :
 location: libQt5Widgets/
-:
-location: libQt5WidgetsTests/
