@@ -94,8 +94,6 @@ rm_symlinks libQt5Gui/QtGuiPlugins/
 rm_empty_dirs libQt5Gui/QtGuiPlugins/
 rm -rf libQt5Gui/QtGuiPlugins/{Qt*Support,QtPlatformHeaders}
 
-rm -f libQt5GuiTests/mkspecs
-
 rm -f libQt5Widgets/mkspecs
 rm -rf libQt5Widgets/QtWidgets/QtPlatformHeaders
 rm_symlinks libQt5Widgets/QtWidgets/
@@ -105,8 +103,7 @@ rm -f  libQt5Widgets/QtWidgets/Q*
 rm_symlinks libQt5Widgets/QtWidgetsPlugins/
 rm_empty_dirs libQt5Widgets/QtWidgetsPlugins/
 
-rm_symlinks libQt5WidgetsTests/gui-app
-rm -f libQt5WidgetsTests/mkspecs
+rm_symlinks libQt5Widgets/tests/gui-app
 
 # Create output directories.
 #
@@ -141,9 +138,7 @@ ln -s ../../upstream/qtbase/mkspecs Qt5Rcc/rcc/
 ln -s ../../upstream/qtbase/mkspecs Qt5Uic/uic/
 ln -s ../../upstream/qtbase/mkspecs libQt5Core/QtCore/
 ln -s    ../upstream/qtbase/mkspecs libQt5Gui/
-ln -s    ../upstream/qtbase/mkspecs libQt5GuiTests/
 ln -s    ../upstream/qtbase/mkspecs libQt5Widgets/
-ln -s    ../upstream/qtbase/mkspecs libQt5WidgetsTests/
 
 # Symlink the upstream third-party directories.
 #
@@ -471,10 +466,10 @@ ln -s ../../../upstream/qtbase/src/widgets/dialogs/qfiledialog.ui \
 ln -s ../../../upstream/qtbase/src/widgets/dialogs/images \
       libQt5Widgets/QtWidgets/dialogs/
 
-ln -s ../../upstream/qtbase/examples/widgets/widgets/spinboxes/window.h \
-      libQt5WidgetsTests/gui-app/
-ln -s ../../upstream/qtbase/examples/widgets/widgets/spinboxes/window.cpp \
-      libQt5WidgetsTests/gui-app/
+ln -s ../../../upstream/qtbase/examples/widgets/widgets/spinboxes/window.h \
+      libQt5Widgets/tests/gui-app/
+ln -s ../../../upstream/qtbase/examples/widgets/widgets/spinboxes/window.cpp \
+      libQt5Widgets/tests/gui-app/
 
 symlink_non_module upstream/qtbase/src/plugins/styles/mac/ \
                    libQt5Widgets/QtWidgetsPlugins/styles/
