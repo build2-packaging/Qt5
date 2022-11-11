@@ -25,3 +25,4 @@ depends: libharfbuzz ^4.2.0
 depends: libjpeg-turbo ^2.1.3
 depends: libmd4c ^0.4.8
 depends: libz ^1.2.1100
+tests: libQt5GuiTests == $
