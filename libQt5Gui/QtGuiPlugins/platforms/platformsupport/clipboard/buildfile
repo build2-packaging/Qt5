@@ -1,0 +1,75 @@
+import impl_libs = libQt5Core%lib{Qt5CorePrivate}
+
+include ../../../../QtGui/
+
+libul{Qt5ClipboardSupport}: hxx{*}
+
+# Declare the dependency of the library target on the Objective-C++ source
+# files via the corresponding object files.
+#
+obja{qmacmime.a.o}:  mm{qmacmime}
+objs{qmacmime.so.o}: mm{qmacmime}
+libua{Qt5ClipboardSupport}: obja{qmacmime.a.o}
+libus{Qt5ClipboardSupport}: objs{qmacmime.so.o}
+
+# @@ TMP QtCore doesn't need this "extra dependency" -- the `lib{}: obj{} :
+#    mm{}` chain works for distribution. Does it not work here because this is
+#    a libul{}?
+#
+libul{Qt5ClipboardSupport}: mm{qmacmime}
+
+# The "metadata library": its purpose is to make sure all the imported
+# libraries are resolved for the ad hoc .mm rules below.
+#
+# Note: use a rule hint to resolve ambiguity between C and C++ library.
+#
+[rule_hint=cxx] libul{Qt5ClipboardSupportMeta}: ../../../../QtGui/lib{Qt5Gui} \
+                                                $impl_libs
+
+# Rules for compiling Objective-C++ source files into object files.
+#
+# Note: these rules are only used on Mac OS (so no -fPIC, etc).  Note: exclude
+# libua{Qt5ClipboardSupportMeta} from update during match not to mess
+# up its for-install'ness.
+#
+obja{~'/(.*).a/'}: mm{~'/\1/'} libua{Qt5ClipboardSupportMeta}
+{{
+  dep_poptions = $cxx.lib_poptions(libua{Qt5ClipboardSupportMeta}, obja)
+
+  depdb hash $dep_poptions
+
+  depdb dyndep --what=header --default-type=h                           \
+               --update-exclude libua{Qt5ClipboardSupportMeta}          \
+               -- $cxx.path $cc.poptions $cxx.poptions $dep_poptions    \
+                  $cc.coptions $cxx.coptions $cxx.mode -M -MG $path($<[0])
+
+  diag obj-c++ ($<[0])
+
+  $cxx.path $cc.poptions $cxx.poptions $dep_poptions    \
+            $cc.coptions $cxx.coptions $cxx.mode        \
+            -o $path($>) -c -x objective-c++ $path($<[0])
+}}
+
+objs{~'/(.*).so/'}: mm{~'/\1/'} libus{Qt5ClipboardSupportMeta}
+{{
+  dep_poptions = $cxx.lib_poptions(libus{Qt5ClipboardSupportMeta}, objs)
+
+  depdb hash $dep_poptions
+
+  depdb dyndep --what=header --default-type=h                           \
+               --update-exclude libus{Qt5ClipboardSupportMeta}          \
+               -- $cxx.path $cc.poptions $cxx.poptions $dep_poptions    \
+                  $cc.coptions $cxx.coptions $cxx.mode -M -MG $path($<[0])
+
+  diag obj-c++ ($<[0])
+
+  $cxx.path $cc.poptions $cxx.poptions $dep_poptions    \
+            $cc.coptions $cxx.coptions $cxx.mode        \
+            -o $path($>) -c -x objective-c++ $path($<[0])
+}}
+
+libul{Qt5ClipboardSupport}: libul{Qt5ClipboardSupportMeta}
+
+cxx.poptions += $platforms_poptions                     \
+                -DQT_BUILD_CLIPBOARD_SUPPORT_LIB        \
+                -DQT_NO_CAST_FROM_ASCII

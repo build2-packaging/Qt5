@@ -1,0 +1,21 @@
+include imageformats/
+include platforminputcontexts/
+include platforms/
+
+# Pull plugin subdirectories in case we have optional plugins that are
+# not loaded by default.
+#
+./: imageformats/ platforminputcontexts/ platforms/ alias{Qt5GuiPlugins}
+
+# This alias presents a single target that depends on all of the plugins
+# loaded by libQt5Gui for a specific platform.
+#
+alias{Qt5GuiPlugins}: imageformats/libs{qgif qico qjpeg}
+
+alias{Qt5GuiPlugins}:                                                 \
+  platforms/libs{qxcb}                                                \
+  platforminputcontexts/libs{composeplatforminputcontextplugin}:      \
+    include = ($linux || $bsd)
+
+alias{Qt5GuiPlugins}: platforms/libs{qcocoa}: include = $macos
+alias{Qt5GuiPlugins}: platforms/libs{qwindows}: include = $windows

@@ -1,0 +1,33 @@
+# Note: If anything in this file seems underdocumented it is probably covered
+#       in libQt5Core/QtCore/buildfile.
+#
+
+include ../../../../QtGui/
+
+# Although upstream currently only builds this library on Linux and BSD, based
+# on the directory hierarchy and the name of these source files it looks like
+# the plan is to support other platforms in future.
+#
+libul{Qt5ServiceSupport}: genericunix/{hxx cxx}{*}: include = ($linux || $bsd)
+
+# The "metadata library": its purpose is to make sure all the libraries are
+# resolved for the ad hoc moc compilation rules below.
+#
+# Note: use a rule hint to resolve ambiguity between C and C++ library.
+#
+[rule_hint=cxx] libul{Qt5PluginsServiceSupportMeta}: \
+  ../../../../QtGui/lib{Qt5Gui Qt5GuiPrivate}
+
+# Dependencies involving moc-generated source files.
+#
+libul{Qt5ServiceSupport}: moc{qgenericunixservices}: include = adhoc
+moc{qgenericunixservices}: genericunix/cxx{qgenericunixservices} \
+                           libul{Qt5PluginsServiceSupportMeta}
+
+libul{Qt5ServiceSupport}: libul{Qt5PluginsServiceSupportMeta}
+
+cxx.poptions =+ "-I$out_base"
+
+cxx.poptions += $platforms_poptions             \
+                -DQT_BUILD_SERVICE_SUPPORT_LIB  \
+                -DQT_NO_CAST_FROM_ASCII

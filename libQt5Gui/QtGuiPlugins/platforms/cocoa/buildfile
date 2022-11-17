@@ -1,0 +1,251 @@
+# Note: If anything in this file seems underdocumented it is probably covered
+#       in libQt5Core/QtCore/buildfile.
+#
+include ../../../QtGui/
+
+include ../platformsupport/accessibility/
+include ../platformsupport/clipboard/
+include ../platformsupport/fontdatabases/
+include ../platformsupport/graphics/
+include ../platformsupport/themes/
+
+# Objective-C++ source files to be compiled (some source files are included).
+#
+src = main                              \
+      qcocoaaccessibility               \
+      qcocoaaccessibilityelement        \
+      qcocoaapplication                 \
+      qcocoaapplicationdelegate         \
+      qcocoabackingstore                \
+      qcocoaclipboard                   \
+      qcocoacolordialoghelper           \
+      qcocoacursor                      \
+      qcocoadrag                        \
+      qcocoaeventdispatcher             \
+      qcocoafiledialoghelper            \
+      qcocoafontdialoghelper            \
+      qcocoahelpers                     \
+      qcocoainputcontext                \
+      qcocoaintegration                 \
+      qcocoaintrospection               \
+      qcocoakeymapper                   \
+      qcocoamenu                        \
+      qcocoamenubar                     \
+      qcocoamenuitem                    \
+      qcocoamenuloader                  \
+      qcocoamimetypes                   \
+      qcocoanativeinterface             \
+      qcocoansmenu                      \
+      qcocoascreen                      \
+      qcocoaservices                    \
+      qcocoasystemtrayicon              \
+      qcocoatheme                       \
+      qcocoawindow                      \
+      qcocoawindowmanager               \
+      qiosurfacegraphicsbuffer          \
+      qmacclipboard                     \
+      qmultitouch_mac                   \
+      qnsview                           \
+      qnswindow                         \
+      qnswindowdelegate
+
+# @@ The following sources depend on QtWidgets (as of version 5.15.7) but are
+#    only used by the QPrintSupport module, which we don't currently build, so
+#    exclude them from the build.
+#
+#    (@@ TODO If/when we do decide to build QtPrintSupport, apply the changes
+#        in upstream Qt6 commit 7f179eff61826323afea474b8ecd1a04f0a41e32 which
+#        moves these sources to that module.)
+#
+#      qpaintengine_mac
+#      qprintengine_mac
+#      qcocoaprintersupport
+#      qcocoaprintdevice
+#
+
+# The following sources depend on QtWidgets but we've applied upstream Qt6
+# commit 1cee9cc5870b475b141dfa6ad84de2038a28d5b8 to break that (false,
+# weak) dependency.
+#
+#      qcocoacolordialoghelper
+#      qcocoafiledialoghelper
+#      qcocoafontdialoghelper
+
+# C++ source files to be compiled.
+#
+src_cxx = qcocoasessionmanager
+
+# Objective-C++ headers to be moc'd and the output compiled.
+#
+moc_hdr = qcocoaeventdispatcher \
+          qcocoainputcontext    \
+          qcocoanativeinterface
+
+# Objective-C++ headers to be moc'd and the output included.
+#
+moc_hdr_adhoc = qcocoabackingstore      \
+                qcocoaclipboard         \
+                qcocoaintegration       \
+                qcocoamenubar           \
+                qcocoawindow
+
+# Objective-C++ source files to be moc'd and the output included.
+#
+moc_src_adhoc = main \
+                qcocoascreen
+
+# C++ headers and compiled C++ source files.
+#
+../lib{qcocoa}: ../../../mkspecs/hxx{**}                                \
+                   ../../hxx{QtPlatformHeaders/** Qt*Support/**}        \
+                         hxx{*} cxx{$src_cxx}
+
+# Declare the dependency of the library target on the Objective-C++ source
+# files via the corresponding object files.
+#
+for n: $src
+{
+  obja{$(n).a.o}:  mm{$n}
+  objs{$(n).so.o}: mm{$n}
+}
+
+../liba{qcocoa}: obja{$regex.apply($src,'(.+)','\1.a.o')}
+../libs{qcocoa}: objs{$regex.apply($src,'(.+)','\1.so.o')}
+
+# Included Objective-C++ source files.
+#
+../lib{qcocoa}: mm{* -{$src}}: include = adhoc
+
+# The "metadata library": its purpose is to make sure all the imported
+# libraries are resolved for the ad hoc Objective-C++ compilation and moc
+# rules below.
+#
+# Note: use a rule hint to resolve ambiguity between C and C++ library.
+#
+[rule_hint=cxx] libul{Qt5PluginsCocoaMeta}: \
+  ../../../QtGui/lib{Qt5Gui Qt5GuiPrivate}
+
+# Plugin metadata file.
+#
+../lib{qcocoa}: file{cocoa.json}: include = adhoc
+
+# Rules for compiling Objective-C++ source files into object files.
+#
+# Note: these rules are only used on Mac OS (so no -fPIC, etc).  Note: exclude
+# libua{Qt5PluginsCocoaMeta} from update during match not to mess up its
+# for-install'ness.
+#
+# @@ TODO: replace `--update-exclude libu?{Qt5PluginsCocoaMeta}` with
+#          update=unmatch once we have the ability to specify
+#          prerequisite-specific variables for pattern prerequisites.
+#
+obja{~'/(.*).a/'}: mm{~'/\1/'} libua{Qt5PluginsCocoaMeta}
+{{
+  dep_poptions = $cxx.lib_poptions(libua{Qt5PluginsCocoaMeta}, obja)
+
+  depdb hash $dep_poptions
+
+  depdb dyndep "-I$out_root/QtGui" "-I$src_root/QtGui"                  \
+               --what=header --default-type=h                           \
+               --update-exclude libua{Qt5PluginsCocoaMeta}              \
+               -- $cxx.path $cc.poptions $cxx.poptions $dep_poptions    \
+                  $cc.coptions $cxx.coptions $cxx.mode -M -MG $path($<[0])
+
+  diag obj-c++ ($<[0])
+
+  $cxx.path $cc.poptions $cxx.poptions $dep_poptions    \
+            $cc.coptions $cxx.coptions $cxx.mode        \
+            -o $path($>) -c -x objective-c++ $path($<[0])
+}}
+
+objs{~'/(.*).so/'}: mm{~'/\1/'} libus{Qt5PluginsCocoaMeta}
+{{
+  dep_poptions = $cxx.lib_poptions(libus{Qt5PluginsCocoaMeta}, objs)
+
+  depdb hash $dep_poptions
+
+  depdb dyndep "-I$out_root/QtGui" "-I$src_root/QtGui"                  \
+               --what=header --default-type=h                           \
+               --update-exclude libus{Qt5PluginsCocoaMeta}              \
+               -- $cxx.path $cc.poptions $cxx.poptions $dep_poptions    \
+                  $cc.coptions $cxx.coptions $cxx.mode -M -MG $path($<[0])
+
+  diag obj-c++ ($<[0])
+
+  $cxx.path $cc.poptions $cxx.poptions $dep_poptions    \
+            $cc.coptions $cxx.coptions $cxx.mode        \
+            -o $path($>) -c -x objective-c++ $path($<[0])
+}}
+
+# Dependencies involving moc-generated C++ source files.
+#
+
+# The dependencies of moc-generated C++ source files on the headers they were
+# generated from (for example, `moc foo.h` produces moc_foo.cpp).
+#
+for s: hxx{$moc_hdr $moc_hdr_adhoc}
+  cxx{moc_$name($s)}: $s libul{Qt5PluginsCocoaMeta}
+
+# The dependencies of lib{qcocoa} on C++ source files (moc_foo.cpp) generated
+# by moc from headers. Note that some of these C++ source files are compiled
+# and some are included.
+#
+for s: hxx{$moc_hdr}
+  ../lib{qcocoa}: cxx{moc_$name($s)}
+for s: hxx{$moc_hdr_adhoc}
+  ../lib{qcocoa}: cxx{moc_$name($s)}: include = adhoc
+
+# Dependencies involving lib{qcocoa}, moc-generated C++ source files
+# (foo.moc), and the Objective-C++ source files the .moc's were generated from
+# (for example, `moc foo.mm` produces foo.moc).
+#
+for s: mm{$moc_src_adhoc}
+{
+  n = $name($s)
+  moc{$n}: $s libul{Qt5PluginsCocoaMeta}
+  ../lib{qcocoa}: moc{$n}: include = adhoc
+}
+
+# Dependencies involving source files generated by rcc from Qt resource
+# collection files and their associated resources.
+#
+../lib{qcocoa}:           cxx{qrc_qcocoaresources}
+cxx{qrc_qcocoaresources}: qrc{qcocoaresources} images/file{*.png}
+
+../lib{qcocoa}:                                                         \
+  ../platformsupport/accessibility/libul{Qt5AccessibilitySupport}       \
+  ../platformsupport/themes/libul{Qt5ThemeSupport}                      \
+  ../platformsupport/fontdatabases/libul{Qt5FontDatabaseSupport}        \
+  ../platformsupport/graphics/libul{Qt5GraphicsSupport}                 \
+  ../platformsupport/clipboard/libul{Qt5ClipboardSupport}
+
+../lib{qcocoa}: libul{Qt5PluginsCocoaMeta}
+
+# Build options.
+#
+cxx.poptions =+ "-I$out_base" "-I$src_base" \
+                "-I$src_root/QtGuiPlugins/QtFontDatabaseSupport"
+
+# Define macros.
+#
+cxx.poptions += -DQT_NO_FOREACH                 \
+                -DQT_ACCESSIBILITY_SUPPORT_LIB  \
+                -DQT_CLIPBOARD_SUPPORT_LIB      \
+                -DQT_FONTDATABASE_SUPPORT_LIB   \
+                -DQT_GRAPHICS_SUPPORT_LIB       \
+                -DQT_THEME_SUPPORT_LIB
+
+../lib{qcocoa}: cxx.libs += -framework AppKit           \
+                            -framework CoreServices     \
+                            -framework Carbon           \
+                            -framework IOKit            \
+                            -framework QuartzCore       \
+                            -framework CoreVideo        \
+                            -framework Metal            \
+                            -framework IOSurface
+
+# Installation.
+#
+hxx{*}: install = false
+
+../lib{qcocoa}: install = lib/qt5/plugins/platforms/

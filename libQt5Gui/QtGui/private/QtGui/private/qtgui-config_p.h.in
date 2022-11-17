@@ -1,0 +1,162 @@
+#define QT_FEATURE_vnc      -1
+#define QT_FEATURE_directfb -1
+#define QT_FEATURE_linuxfb  -1
+
+#if defined(__GLIBC__)   || \
+    defined(__FreeBSD__) || \
+    defined(__OpenBSD_)  || \
+    defined(__NetBSD__)
+#  define QT_FEATURE_xcb               1
+#  define QT_FEATURE_xkbcommon         1
+#  define QT_FEATURE_xkbcommon_x11     1
+#  define QT_FEATURE_xlib              1
+#  define QT_FEATURE_xcb_xlib          1
+#  define QT_FEATURE_xcb_sm            1 // Session management.
+#  define QT_FEATURE_system_xcb_xinput 1
+#  define QT_FEATURE_drm_atomic        1
+#else
+#  define QT_FEATURE_xcb               -1
+#  define QT_FEATURE_xkbcommon         -1
+#  define QT_FEATURE_xkbcommon_x11     -1
+#  define QT_FEATURE_xlib              -1
+#  define QT_FEATURE_xcb_xlib          -1
+#  define QT_FEATURE_xcb_sm            -1
+#  define QT_FEATURE_system_xcb_xinput -1
+#  define QT_FEATURE_drm_atomic        -1
+#endif
+
+// "XCB Native painting (experimental)". Always disable.
+//
+#define QT_FEATURE_xcb_native_painting -1
+
+// From https://doc.qt.io/qt-6/inputs-linux-device.html: "On your Embedded
+// Linux device, when there's no windowing system present, the mouse,
+// keyboard, and touch input are read directly via evdev or using helper
+// libraries such as libinput or tslib."
+//
+// Unlike the major platform plugins (libqxcb/libqcocoa/libwindows), the evdev
+// plugins are not loaded automatically but have to be requested via
+// QT_QPA_GENERIC_PLUGINS or the -plugin command-line option.
+//
+#define QT_FEATURE_evdev -1 // Referenced by plugins only.
+
+// Disable DirectX/ANGLE.
+//
+#define QT_FEATURE_direct2d         -1
+#define QT_FEATURE_direct2d1_1      -1
+#define QT_FEATURE_dxgi             -1
+#define QT_FEATURE_direct3d11       -1
+#define QT_FEATURE_direct3d11_1     -1
+#define QT_FEATURE_direct3d9        -1
+#define QT_FEATURE_directwrite      -1
+#define QT_FEATURE_directwrite1     -1
+#define QT_FEATURE_directwrite2     -1
+#define QT_FEATURE_dxgi1_2          -1
+#define QT_FEATURE_dxguid           -1
+#define QT_FEATURE_angle_d3d11_qdtd -1
+
+// Disable EGL/EGLFS.
+//
+#define QT_FEATURE_egl             -1
+#define QT_FEATURE_eglfs           -1
+#define QT_FEATURE_egl_x11         -1
+#define QT_FEATURE_eglfs_brcm      -1
+#define QT_FEATURE_eglfs_egldevice -1
+#define QT_FEATURE_eglfs_gbm       -1
+#define QT_FEATURE_eglfs_mali      -1
+#define QT_FEATURE_eglfs_openwfd   -1
+#define QT_FEATURE_eglfs_rcar      -1
+#define QT_FEATURE_eglfs_viv       -1
+#define QT_FEATURE_eglfs_viv_wl    -1
+#define QT_FEATURE_eglfs_x11       -1
+
+#define QT_FEATURE_xcb_egl_plugin -1
+#define QT_FEATURE_xcb_glx_plugin -1
+#define QT_FEATURE_xcb_glx        -1
+
+// Disable features required only by EGL/EGLFS and/or linuxfb.
+//
+// VSP2 is a video signal processor IC and this feature is required by EGLFS
+// (only, apparently).
+//
+#define QT_FEATURE_vsp2       -1
+#define QT_FEATURE_eglfs_vsp2 -1
+#define QT_FEATURE_mtdev      -1 // Multitouch events.
+#define QT_FEATURE_tslib      -1 // Touchscreens.
+#define QT_FEATURE_kms        -1 // Kernel Mode Setting (X11/DRM).
+
+// @@ TODO https://www.tuio.org/: "TUIO is an open framework that defines a
+//         common protocol and API for tangible multitouch surfaces."
+//
+//         Seems to be quite widely used and has no dependencies so seems best
+//         to enable it.
+//
+#define QT_FEATURE_tuiotouch 1 // "Provides the TuioTouch input plugin."
+
+// Image formats.
+//
+// Note that none of these are affected by the public QT_FEATURE_imageformat_
+// macros. While the public QT_FEATURE_imageformat_ macros are referenced in
+// Qt code, these below are only used internally in qmake buildfiles, for
+// example to decide whether the corresponding plugin should be built or
+// whether to use the bundled 3rdparty implementations or the system-installed
+// ones.
+//
+#define QT_FEATURE_gif         1
+#define QT_FEATURE_ico         1
+#define QT_FEATURE_jpeg        1
+#define QT_FEATURE_system_jpeg 1
+#define QT_FEATURE_png         1
+#define QT_FEATURE_system_png  1
+
+#define QT_FEATURE_freetype        1
+#define QT_FEATURE_system_freetype 1
+
+// @@ TODO From gui/configure.json: "On OS X, AAT is supported only with
+//    `-qt-harfbuzz`." Presumably the latest harfbuzz which we've packaged
+//    should work properly on MacOS by now?
+//
+//    Update: the version Qt5 patches is 1.7.4; Qt6 uses version 2.9.0 and
+//    there is no patch; we've packaged version 4.2.0.
+//
+#define QT_FEATURE_harfbuzz        1
+#define QT_FEATURE_system_harfbuzz 1
+
+#ifndef BUILD2_AUTOCONF_MACOS
+#  define QT_FEATURE_fontconfig 1 // Referenced by plugins only.
+#else
+#  define QT_FEATURE_fontconfig -1
+#endif
+
+// "Image Text section loading".
+//
+#define QT_FEATURE_imageio_text_loading 1
+
+#if QT_CONFIG(libudev)
+# define QT_FEATURE_libinput          1
+# define QT_FEATURE_libinput_axis_api 1 // Depends on libinput.
+#else
+# define QT_FEATURE_libinput          -1
+# define QT_FEATURE_libinput_axis_api -1
+#endif
+
+// "Provides support for detecting the desktop environment, launching external
+// processes and opening URLs."
+//
+#define QT_FEATURE_multiprocess 1
+
+// "Internal painting support for 64 bit (16 bpc) rasterization." (QPainter).
+//
+#define QT_FEATURE_raster_64bit 1
+
+// Disable all Integrity features (unsupported platform).
+//
+#define QT_FEATURE_integrityfb  -1
+#define QT_FEATURE_integrityhid -1
+
+#define QT_FEATURE_accessibility_atspi_bridge -1
+
+// Qt's own Vulkan header generator. Not referenced in any Qt code so can
+// always be disabled.
+//
+#define QT_FEATURE_vkgen -1

@@ -1,0 +1,13 @@
+# Note: see root.build for the common part.
+
+include xcb/
+include cocoa/
+include windows/
+
+./: lib{qxcb}:     include = ($linux || $bsd)
+./: lib{qcocoa}:   include = $macos
+./: lib{qwindows}: include = $windows
+
+libs{qxcb}:     # @@ TMP dist order
+libs{qcocoa}:   # @@ TMP dist order
+libs{qwindows}: # @@ TMP dist order

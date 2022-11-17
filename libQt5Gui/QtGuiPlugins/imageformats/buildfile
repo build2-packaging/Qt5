@@ -1,0 +1,69 @@
+# Note: if anything in this file seems underdocumented it is probably covered
+#       in libQt5Core/QtCore/buildfile.
+#
+
+import impl_libs_jpeg = libjpeg-turbo%lib{jpeg}
+
+include ../../QtGui/
+
+./: lib{qgif}:  gif/hxx{main qgifhandler_p} \
+                gif/cxx{main qgifhandler}
+./: lib{qico}:  ico/hxx{main qicohandler} \
+                ico/cxx{main qicohandler}
+./: lib{qjpeg}: jpeg/hxx{main qjpeghandler_p} \
+                jpeg/cxx{main qjpeghandler}
+
+lib{qgif qico qjpeg}: ../../hxx{mkspecs/**}
+
+# Plugin metadata files.
+#
+lib{qgif}:  gif/file{gif.json}: include = adhoc
+lib{qico}:  ico/file{ico.json}: include = adhoc
+lib{qjpeg}: jpeg/file{jpeg.json}: include = adhoc
+
+# The "metadata library": its purpose is to make sure all the imported
+# libraries are resolved for the moc ad hoc rules below.
+#
+# Note: use a rule hint to resolve ambiguity between C and C++ library.
+#
+[rule_hint=cxx] libul{Qt5PluginsImageFormatsMeta}: \
+                  ../../QtGui/lib{Qt5Gui Qt5GuiPrivate}
+
+# Dependencies involving moc_main.cpp and main.h (from which it is generated).
+#
+lib{qgif}:  gif/cxx{moc_main}
+lib{qico}:  ico/cxx{moc_main}
+lib{qjpeg}: jpeg/cxx{moc_main}
+
+gif/cxx{moc_main}:  gif/hxx{main} libul{Qt5PluginsImageFormatsMeta}
+ico/cxx{moc_main}:  ico/hxx{main} libul{Qt5PluginsImageFormatsMeta}
+jpeg/cxx{moc_main}: jpeg/hxx{main} libul{Qt5PluginsImageFormatsMeta}
+
+lib{qgif qico qjpeg}: libul{Qt5PluginsImageFormatsMeta}
+
+lib{qjpeg}: $impl_libs_jpeg
+
+# Build options.
+#
+cxx.poptions += -DQT_PLUGIN
+
+if ($cxx.class == 'gcc')
+  cxx.coptions += -fvisibility=hidden -fvisibility-inlines-hidden
+
+gif/obj{main qgifhandler} gif/obj{moc_main}: \
+  cxx.poptions =+ "-I$out_base/gif" "-I$src_base/gif"
+ico/obj{main qicohandler} ico/obj{moc_main}: \
+  cxx.poptions =+ "-I$out_base/ico" "-I$src_base/ico"
+jpeg/obj{main qjpeghandler} jpeg/obj{moc_main}: \
+  cxx.poptions =+ "-I$out_base/jpeg" "-I$src_base/jpeg"
+
+if ($cxx.target.class != 'windows')
+  lib{qgif qico qjpeg}: cxx.libs += -pthread
+
+# Installation.
+#
+lib{qgif qico qjpeg}: install = lib/qt5/plugins/imageformats/
+
+libs{qgif}: # @@ TMP dist order
+libs{qico}: # @@ TMP dist order
+libs{qjpeg}: # @@ TMP dist order

@@ -1,4 +1,4 @@
-./: {*/ -build/ -3rdparty/} manifest doc{README.md} legal{LICENSE*}
+./: QtGui/ QtGuiPlugins/ tests/ manifest doc{README.md} legal{LICENSE*}
 
 # Don't install tests.
 #

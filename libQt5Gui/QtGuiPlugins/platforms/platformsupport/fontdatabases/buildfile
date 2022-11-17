@@ -1,0 +1,99 @@
+import impl_libs = libfreetype%lib{freetype}
+
+include ../../../../QtGui/
+
+windows_src = windows/qwindowsfontdatabase      \
+              windows/qwindowsfontdatabase_ft   \
+              windows/qwindowsfontengine        \
+              windows/qwindowsnativeimage
+
+macos_src = mac/qfontengine_coretext \
+            mac/qcoretextfontdatabase
+
+libul{Qt5FontDatabaseSupport}: freetype/{hxx cxx}{*}
+
+libul{Qt5FontDatabaseSupport}: fontconfig/{hxx cxx}{*}: \
+  include = ($linux || $bsd)
+
+libul{Qt5FontDatabaseSupport}: windows/hxx{*} cxx{$windows_src}: \
+  include = $windows
+
+libul{Qt5FontDatabaseSupport}: mac/hxx{*} mm{$macos_src}: \
+  include = $macos
+
+# Declare the dependency of the library target on the Objective-C++ source
+# files via the corresponding object files.
+#
+for n: $macos_src
+{
+  obja{$(n).a.o}:  mm{$n}
+  objs{$(n).so.o}: mm{$n}
+}
+
+libua{Qt5FontDatabaseSupport}: obja{$regex.apply($macos_src,'(.+)','\1.a.o')}: \
+  include = $macos
+libus{Qt5FontDatabaseSupport}: objs{$regex.apply($macos_src,'(.+)','\1.so.o')}: \
+  include = $macos
+
+# The "metadata library": its purpose is to make sure all the imported
+# libraries are resolved for the ad hoc .mm and moc rules below.
+#
+# Note: use a rule hint to resolve ambiguity between C and C++ library.
+#
+[rule_hint=cxx] libul{Qt5FontDatabaseSupportMeta}:              \
+                  ../../../../QtGui/lib{Qt5Gui Qt5GuiPrivate}   \
+                  $impl_libs
+
+# Rules for compiling Objective-C++ source files into object files.
+#
+# Note: these rules are only used on Mac OS (so no -fPIC, etc).  Note: exclude
+# libua{Qt5FontDatabaseSupportMeta} from update during match not to mess up
+# its for-install'ness.
+#
+obja{~'/(.*).a/'}: mm{~'/\1/'} libua{Qt5FontDatabaseSupportMeta}
+{{
+  dep_poptions = $cxx.lib_poptions(libua{Qt5FontDatabaseSupportMeta}, obja)
+
+  depdb hash $dep_poptions
+
+  depdb dyndep --what=header --default-type=h                           \
+               --update-exclude libua{Qt5FontDatabaseSupportMeta}       \
+               -- $cxx.path $cc.poptions $cxx.poptions $dep_poptions    \
+                  $cc.coptions $cxx.coptions $cxx.mode -M -MG $path($<[0])
+
+  diag obj-c++ ($<[0])
+
+  $cxx.path $cc.poptions $cxx.poptions $dep_poptions    \
+            $cc.coptions $cxx.coptions $cxx.mode        \
+            -o $path($>) -c -x objective-c++ $path($<[0])
+}}
+
+objs{~'/(.*).so/'}: mm{~'/\1/'} libus{Qt5FontDatabaseSupportMeta}
+{{
+  dep_poptions = $cxx.lib_poptions(libus{Qt5FontDatabaseSupportMeta}, objs)
+
+  depdb hash $dep_poptions
+
+  depdb dyndep --what=header --default-type=h                           \
+               --update-exclude libus{Qt5FontDatabaseSupportMeta}       \
+               -- $cxx.path $cc.poptions $cxx.poptions $dep_poptions    \
+                  $cc.coptions $cxx.coptions $cxx.mode -M -MG $path($<[0])
+
+  diag obj-c++ ($<[0])
+
+  $cxx.path $cc.poptions $cxx.poptions $dep_poptions    \
+            $cc.coptions $cxx.coptions $cxx.mode        \
+            -o $path($>) -c -x objective-c++ $path($<[0])
+}}
+
+mac/cxx{moc_qfontengine_coretext_p}: mac/hxx{qfontengine_coretext_p} \
+                                     libul{Qt5FontDatabaseSupportMeta}
+libul{Qt5FontDatabaseSupport}: mac/cxx{moc_qfontengine_coretext_p}: include = $macos
+
+libul{Qt5FontDatabaseSupport}: libul{Qt5FontDatabaseSupportMeta}
+
+cxx.poptions =+ "-I$out_base/mac" "-I$src_base/mac"
+
+cxx.poptions += $platforms_poptions			\
+                -DQT_BUILD_FONTDATABASE_SUPPORT_LIB	\
+                -DQT_NO_CAST_FROM_ASCII

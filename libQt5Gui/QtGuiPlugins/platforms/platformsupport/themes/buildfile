@@ -1,0 +1,9 @@
+include ../../../../QtGui/
+
+libul{Qt5ThemeSupport}: {cxx hxx}{*} ../../../../QtGui/lib{Qt5Gui Qt5GuiPrivate}
+
+libul{Qt5ThemeSupport}: genericunix/{hxx cxx}{*}: include = ($linux || $bsd)
+
+cxx.poptions += $platforms_poptions             \
+                -DQT_BUILD_THEME_SUPPORT_LIB    \
+                -DQT_NO_CAST_FROM_ASCII

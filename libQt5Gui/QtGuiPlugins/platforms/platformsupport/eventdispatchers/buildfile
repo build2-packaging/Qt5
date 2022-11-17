@@ -1,0 +1,25 @@
+include ../../../../QtGui/
+
+libul{Qt5EventDispatcherSupport}: hxx{qwindowsguieventdispatcher_p}     \
+                                  cxx{qwindowsguieventdispatcher}
+
+# The "metadata library": its purpose is to make sure all the imported
+# libraries are resolved for the ad hoc .mm rules below.
+#
+# Note: use a rule hint to resolve ambiguity between C and C++ library.
+#
+[rule_hint=cxx] libul{Qt5EventDispatcherSupportMeta}: \
+  ../../../../QtGui/lib{Qt5Gui Qt5GuiPrivate}
+
+cxx{moc_qwindowsguieventdispatcher_p}: hxx{qwindowsguieventdispatcher_p} \
+                                       libul{Qt5EventDispatcherSupportMeta}
+libul{Qt5EventDispatcherSupport}: cxx{moc_qwindowsguieventdispatcher_p}
+
+libul{Qt5EventDispatcherSupport}: libul{Qt5EventDispatcherSupportMeta}
+
+cxx.poptions =+ "-I$out_base" "-I$src_base"
+
+cxx.poptions += $platforms_poptions			\
+                -DQT_BUILD_EVENTDISPATCHER_SUPPORT_LIB  \
+                -DQT_NO_CAST_FROM_ASCII
+

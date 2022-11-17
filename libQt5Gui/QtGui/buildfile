@@ -1,0 +1,656 @@
+# Note: If anything in this file seems underdocumented it is probably covered
+#       in libQt5Core/QtCore/buildfile.
+#
+
+import intf_libs  = libQt5Core%lib{Qt5Core}
+
+import impl_libs  = libQt5Core%lib{Qt5CorePrivate}
+import impl_libs += libpng%lib{png}
+import impl_libs += libharfbuzz%lib{harfbuzz}
+import impl_libs += libmd4c%lib{md4c}
+import impl_libs += libz%lib{z}
+
+# Interface libraries for lib{Qt5GuiPrivate}.
+#
+import priv_intf_libs = libQt5Core%lib{Qt5CorePrivate}
+
+# For post hoc dependency (see below).
+#
+include ../QtGuiPlugins/
+
+# C++ source files.
+#
+src = accessible/qaccessible                    \
+      accessible/qaccessiblebridge              \
+      accessible/qaccessiblecache               \
+      accessible/qaccessibleobject              \
+      accessible/qaccessibleplugin              \
+      accessible/qplatformaccessibility         \
+      animation/qguivariantanimation            \
+      image/qbitmap                             \
+      image/qbmphandler                         \
+      image/qicon                               \
+      image/qiconengine                         \
+      image/qiconengineplugin                   \
+      image/qiconloader                         \
+      image/qimage                              \
+      image/qimage_compat                       \
+      image/qimage_conversions                  \
+      image/qimage_ssse3                        \
+      image/qimageiohandler                     \
+      image/qimagepixmapcleanuphooks            \
+      image/qimagereader                        \
+      image/qimagereaderwriterhelpers           \
+      image/qimagewriter                        \
+      image/qmovie                              \
+      image/qpaintengine_pic                    \
+      image/qpicture                            \
+      image/qpictureformatplugin                \
+      image/qpixmap                             \
+      image/qpixmap_blitter                     \
+      image/qpixmap_raster                      \
+      image/qpixmapcache                        \
+      image/qplatformpixmap                     \
+      image/qpnghandler                         \
+      image/qppmhandler                         \
+      image/qxbmhandler                         \
+      image/qxpmhandler                         \
+      itemmodels/qstandarditemmodel             \
+      kernel/qclipboard                         \
+      kernel/qcursor                            \
+      kernel/qdnd                               \
+      kernel/qdrag                              \
+      kernel/qevent                             \
+      kernel/qgenericplugin                     \
+      kernel/qgenericpluginfactory              \
+      kernel/qguivariant                        \
+      kernel/qhighdpiscaling                    \
+      kernel/qinputdevicemanager                \
+      kernel/qinputmethod                       \
+      kernel/qinternalmimedata                  \
+      kernel/qkeymapper                         \
+      kernel/qkeysequence                       \
+      kernel/qoffscreensurface                  \
+      kernel/qpaintdevicewindow                 \
+      kernel/qpalette                           \
+      kernel/qpixelformat                       \
+      kernel/qplatformclipboard                 \
+      kernel/qplatformcursor                    \
+      kernel/qplatformdialoghelper              \
+      kernel/qplatformdrag                      \
+      kernel/qplatformgraphicsbuffer            \
+      kernel/qplatformgraphicsbufferhelper      \
+      kernel/qplatforminputcontext              \
+      kernel/qplatforminputcontextfactory       \
+      kernel/qplatforminputcontextplugin        \
+      kernel/qplatformintegration               \
+      kernel/qplatformintegrationfactory        \
+      kernel/qplatformintegrationplugin         \
+      kernel/qplatformmenu                      \
+      kernel/qplatformnativeinterface           \
+      kernel/qplatformoffscreensurface          \
+      kernel/qplatformscreen                    \
+      kernel/qplatformservices                  \
+      kernel/qplatformsessionmanager            \
+      kernel/qplatformsharedgraphicscache       \
+      kernel/qplatformsurface                   \
+      kernel/qplatformsystemtrayicon            \
+      kernel/qplatformtheme                     \
+      kernel/qplatformthemefactory              \
+      kernel/qplatformthemeplugin               \
+      kernel/qplatformwindow                    \
+      kernel/qrasterwindow                      \
+      kernel/qscreen                            \
+      kernel/qsessionmanager                    \
+      kernel/qshapedpixmapdndwindow             \
+      kernel/qshortcutmap                       \
+      kernel/qsimpledrag                        \
+      kernel/qstylehints                        \
+      kernel/qsurface                           \
+      kernel/qsurfaceformat                     \
+      kernel/qtestsupport_gui                   \
+      kernel/qtouchdevice                       \
+      kernel/qwindow                            \
+      kernel/qwindowsysteminterface             \
+      math3d/qgenericmatrix                     \
+      math3d/qmatrix4x4                         \
+      math3d/qquaternion                        \
+      math3d/qvector2d                          \
+      math3d/qvector3d                          \
+      math3d/qvector4d                          \
+      painting/qbackingstore                    \
+      painting/qbezier                          \
+      painting/qblendfunctions                  \
+      painting/qblittable                       \
+      painting/qbrush                           \
+      painting/qcolor                           \
+      painting/qcolorspace                      \
+      painting/qcolortransform                  \
+      painting/qcolortrclut                     \
+      painting/qcompositionfunctions            \
+      painting/qcosmeticstroker                 \
+      painting/qcssutil                         \
+      painting/qdrawhelper                      \
+      painting/qdrawhelper_avx2                 \
+      painting/qdrawhelper_sse2                 \
+      painting/qdrawhelper_sse4                 \
+      painting/qdrawhelper_ssse3                \
+      painting/qemulationpaintengine            \
+      painting/qicc                             \
+      painting/qimagescale                      \
+      painting/qimagescale_sse4                 \
+      painting/qmatrix                          \
+      painting/qmemrotate                       \
+      painting/qoutlinemapper                   \
+      painting/qpagedpaintdevice                \
+      painting/qpagelayout                      \
+      painting/qpagesize                        \
+      painting/qpaintdevice                     \
+      painting/qpaintengine                     \
+      painting/qpaintengine_blitter             \
+      painting/qpaintengine_raster              \
+      painting/qpaintengineex                   \
+      painting/qpainter                         \
+      painting/qpainterpath                     \
+      painting/qpathclipper                     \
+      painting/qpathsimplifier                  \
+      painting/qpdf                             \
+      painting/qpdfwriter                       \
+      painting/qpen                             \
+      painting/qplatformbackingstore            \
+      painting/qpolygon                         \
+      painting/qrasterizer                      \
+      painting/qregion                          \
+      painting/qstroker                         \
+      painting/qtextureglyphcache               \
+      painting/qtransform                       \
+      painting/qtriangulatingstroker            \
+      painting/qtriangulator                    \
+      text/qabstracttextdocumentlayout          \
+      text/qcssparser                           \
+      text/qdistancefield                       \
+      text/qfont                                \
+      text/qfontdatabase                        \
+      text/qfontengine                          \
+      text/qfontengine_qpf2                     \
+      text/qfontengineglyphcache                \
+      text/qfontmetrics                         \
+      text/qfontsubset                          \
+      text/qfragmentmap                         \
+      text/qglyphrun                            \
+      text/qharfbuzzng                          \
+      text/qinputcontrol                        \
+      text/qplatformfontdatabase                \
+      text/qrawfont                             \
+      text/qstatictext                          \
+      text/qsyntaxhighlighter                   \
+      text/qtextcursor                          \
+      text/qtextdocument                        \
+      text/qtextdocument_p                      \
+      text/qtextdocumentfragment                \
+      text/qtextdocumentlayout                  \
+      text/qtextdocumentwriter                  \
+      text/qtextengine                          \
+      text/qtextformat                          \
+      text/qtexthtmlparser                      \
+      text/qtextimagehandler                    \
+      text/qtextlayout                          \
+      text/qtextlist                            \
+      text/qtextmarkdownimporter                \
+      text/qtextmarkdownwriter                  \
+      text/qtextobject                          \
+      text/qtextodfwriter                       \
+      text/qtextoption                          \
+      text/qtexttable                           \
+      text/qzip                                 \
+      util/qabstractlayoutstyleinfo             \
+      util/qastchandler                         \
+      util/qdesktopservices                     \
+      util/qgridlayoutengine                    \
+      util/qktxhandler                          \
+      util/qlayoutpolicy                        \
+      util/qpkmhandler                          \
+      util/qshaderformat                        \
+      util/qshadergenerator                     \
+      util/qshadergraph                         \
+      util/qshadergraphloader                   \
+      util/qshaderlanguage                      \
+      util/qshadernode                          \
+      util/qshadernodeport                      \
+      util/qshadernodesloader                   \
+      util/qtexturefiledata                     \
+      util/qtexturefilereader                   \
+      util/qvalidator
+
+# C source files.
+#
+src_c = painting/qgrayraster
+
+# Windows C++ source files.
+#
+win_src = image/qpixmap_win
+
+# Objective-C++ source files.
+#
+macos_mm = accessible/qaccessiblecache_mac      \
+           image/qimage_darwin                  \
+           painting/qcoregraphics
+
+# Headers to be moc'ed and output compiled.
+#
+moc_hdr = private/QtGui/private/qaccessiblecache_p              \
+          private/QtGui/private/qdnd_p                          \
+          private/QtGui/private/qhighdpiscaling_p               \
+          private/QtGui/private/qinputcontrol_p                 \
+          private/QtGui/private/qinputdevicemanager_p           \
+          private/QtGui/private/qinternalmimedata_p             \
+          private/QtGui/private/qkeymapper_p                    \
+          private/QtGui/private/qlayoutpolicy_p                 \
+          private/QtGui/private/qshaderlanguage_p               \
+          private/QtGui/private/qshapedpixmapdndwindow_p        \
+          private/QtGui/private/qtextimagehandler_p             \
+          private/QtGui/qpa/qplatforminputcontextplugin_p       \
+          qaccessible                                           \
+          qaccessiblebridge                                     \
+          qaccessibleplugin                                     \
+          qbrush                                                \
+          qclipboard                                            \
+          qcolorspace                                           \
+          qdrag                                                 \
+          qevent                                                \
+          qfont                                                 \
+          qfontdatabase                                         \
+          qgenericplugin                                        \
+          qiconengineplugin                                     \
+          qimage                                                \
+          qimageiohandler                                       \
+          qkeysequence                                          \
+          qoffscreensurface                                     \
+          qpaintdevicewindow                                    \
+          qpainter                                              \
+          qpalette                                              \
+          qpdfwriter                                            \
+          qpictureformatplugin                                  \
+          qpa/qplatformdialoghelper                             \
+          qpa/qplatformgraphicsbuffer                           \
+          qpa/qplatforminputcontext                             \
+          qpa/qplatformintegrationplugin                        \
+          qpa/qplatformmenu                                     \
+          qpa/qplatformnativeinterface                          \
+          qpa/qplatformservices                                 \
+          qpa/qplatformsharedgraphicscache                      \
+          qpa/qplatformthemeplugin                              \
+          qrasterwindow                                         \
+          qscreen                                               \
+          qsessionmanager                                       \
+          qstylehints                                           \
+          qsurface                                              \
+          qsurfaceformat                                        \
+          qtextdocument                                         \
+          qtextformat                                           \
+          qtextlist                                             \
+          qtextobject                                           \
+          qtexttable                                            \
+          qtouchdevice                                          \
+          qvalidator
+
+# Headers to be moc'ed and output included.
+#
+moc_hdr_adhoc = private/QtGui/private/qtextdocumentlayout_p     \
+                qabstracttextdocumentlayout                     \
+                qguiapplication                                 \
+                qinputmethod                                    \
+                qmovie                                          \
+                qpa/qplatformsystemtrayicon                     \
+                qstandarditemmodel                              \
+                qsyntaxhighlighter                              \
+                qwindow
+
+# C++ source files to be moc'ed and output included.
+#
+moc_src_adhoc = image/qpixmapcache \
+                util/qdesktopservices
+
+# QMake resource collection files (.qrc).
+#
+# Note that our qmake_webgradients.qrc is a copy of the one generated by the
+# upstream build (see README-DEV for generation instructions) and that
+# qpdf.qrc is not generated by upstream.
+#
+qrc = painting/qmake_webgradients \
+      painting/qpdf
+
+# Generated headers.
+#
+gen_hdr = qtgui-config \
+          private/QtGui/private/qtgui-config_p
+
+# Headers and source files.
+#
+./: lib{Qt5Gui}: ../mkspecs/hxx{**}                     \
+                 hxx{** -{$gen_hdr} +Q*.} hxx{$gen_hdr} \
+                 cxx{$src} c{$src_c}
+
+# Make sure plugins are built if the shared Qt5Gui library is built.
+#
+libs{Qt5Gui}: ../QtGuiPlugins/alias{Qt5GuiPlugins}: include = posthoc
+
+# This target exports search directories for the private headers which are
+# located in a deeper directory subtree to prevent them from being found by
+# accident. Used by other Qt libraries (libQt5Widgets, etc).
+#
+[rule_hint=cxx] lib{Qt5GuiPrivate}:
+
+./: lib{Qt5GuiPrivate}: $priv_intf_libs
+
+# Generated source files.
+#
+lib{Qt5Gui}: kernel/cxx{qguiapplication-install}: for_install = true
+lib{Qt5Gui}: kernel/cxx{qguiapplication-develop}: for_install = false
+
+# Included source files.
+#
+lib{Qt5Gui}: cxx{** -{$src} -qguiapplication*}: include = adhoc
+
+# The "metadata libraries": their purpose is to make sure all the imported
+# libraries are resolved for the ad hoc rules (.mm compilation, moc) below.
+#
+# Note: use a rule hint to resolve ambiguity between C and C++ library.
+#
+[rule_hint=cxx] libul{Qt5GuiIntfMeta}: $intf_libs
+[rule_hint=cxx] libul{Qt5GuiImplMeta}: $impl_libs
+
+# Platform-specific source files.
+#
+lib{Qt5Gui}: cxx{$win_src}: include = $windows
+
+# Declare the dependency of the library target on the Objective-C++ source
+# files via the corresponding object files.
+#
+for n: $macos_mm
+{
+  obja{$(n).a.o}:  mm{$n}
+  objs{$(n).so.o}: mm{$n}
+}
+
+liba{Qt5Gui}: obja{$regex.apply($macos_mm,'(.+)','\1.a.o')}:  include = $macos
+libs{Qt5Gui}: objs{$regex.apply($macos_mm,'(.+)','\1.so.o')}: include = $macos
+
+# Rules for compiling Objective-C++ source files into object files.
+#
+# Note: these rules are only used on Mac OS (so no -fPIC, etc).  Note: exclude
+# libua{Qt5GuiIntfMeta Qt5GuiImplMeta} from update during match not to mess up
+# its for-install'ness.
+#
+# @@ TODO: replace `--update-exclude libu?{Qt5GuiIntfMeta Qt5GuiImplMeta}`
+#          with update=unmatch once we have the ability to specify
+#          prerequisite-specific variables for pattern prerequisites.
+#
+obja{~'/(.*).a/'}: mm{~'/\1/'} libua{Qt5GuiIntfMeta Qt5GuiImplMeta}
+{{
+  dep_poptions = $cxx.lib_poptions(libua{Qt5GuiIntfMeta Qt5GuiImplMeta}, obja)
+
+  depdb hash $dep_poptions
+
+  depdb dyndep "-I$out_root/QtGui" "-I$src_root/QtGui"                  \
+               --what=header --default-type=h                           \
+               --update-exclude libua{Qt5GuiIntfMeta Qt5GuiImplMeta}    \
+               -- $cxx.path $cc.poptions $cxx.poptions $dep_poptions    \
+                  $cc.coptions $cxx.coptions $cxx.mode -M -MG $path($<[0])
+
+  diag obj-c++ ($<[0])
+
+  $cxx.path $cc.poptions $cxx.poptions $dep_poptions    \
+            $cc.coptions $cxx.coptions $cxx.mode        \
+            -o $path($>) -c -x objective-c++ $path($<[0])
+}}
+
+objs{~'/(.*).so/'}: mm{~'/\1/'} libus{Qt5GuiIntfMeta Qt5GuiImplMeta}
+{{
+  dep_poptions = $cxx.lib_poptions(libus{Qt5GuiIntfMeta Qt5GuiImplMeta}, objs)
+
+  depdb hash $dep_poptions
+
+  depdb dyndep "-I$out_root/QtGui" "-I$src_root/QtGui"                  \
+               --what=header --default-type=h                           \
+               --update-exclude libus{Qt5GuiIntfMeta Qt5GuiImplMeta}    \
+               -- $cxx.path $cc.poptions $cxx.poptions $dep_poptions    \
+                  $cc.coptions $cxx.coptions $cxx.mode -M -MG $path($<[0])
+
+  diag obj-c++ ($<[0])
+
+  $cxx.path $cc.poptions $cxx.poptions $dep_poptions    \
+            $cc.coptions $cxx.coptions $cxx.mode        \
+            -o $path($>) -c -x objective-c++ $path($<[0])
+}}
+
+# Dependencies involving moc-generated source files.
+#
+# Note: Explicitly list the generated headers as dependencies in case the
+# moc-generated file includes any of them (if only indirectly).
+#
+
+# The dependencies of moc-generated source files on the headers they were
+# generated from (for example, `moc foo.h` produces moc_foo.cpp).
+#
+for s: hxx{$moc_hdr $moc_hdr_adhoc}
+  cxx{moc_$name($s)}: $s libul{Qt5GuiIntfMeta} hxx{$gen_hdr}
+
+# The dependencies of lib{Qt5Gui} on source files generated by moc from
+# headers. Note that some of these source files are compiled and some are
+# included.
+#
+for s: hxx{$moc_hdr}
+  lib{Qt5Gui}: cxx{moc_$name($s)}
+
+for s: hxx{$moc_hdr_adhoc}
+  lib{Qt5Gui}: cxx{moc_$name($s)}: include = adhoc
+
+# Dependencies involving lib{Qt5Gui}, moc-generated source files (foo.moc),
+# and the C++ source files the .moc's were generated from (for example, `moc
+# foo.cpp` produces foo.moc).
+#
+for s: cxx{$moc_src_adhoc}
+{
+  n = $name($s)
+  lib{Qt5Gui}: moc{$n}: include = adhoc
+  moc{$n}: $s libul{Qt5GuiIntfMeta} hxx{$gen_hdr}
+}
+
+# Dependencies involving source files generated by rcc from Qt resource
+# collection files and their associated resources.
+#
+for s: qrc{$qrc}
+{
+  n = $name($s)
+  lib{Qt5Gui}: cxx{qrc_$(n)}
+  cxx{qrc_$(n)}: $s painting/file{webgradients.binaryjson       \
+                                  qpdfa_metadata.xml}           \
+                    ../3rdparty/icc/file{sRGB2014.icc}
+}
+
+lib{Qt5Gui}: libul{Qt5GuiIntfMeta Qt5GuiImplMeta}
+
+# Generated headers and source files.
+#
+using autoconf
+
+# Public QtGui library configuration (mostly high-level features).
+#
+# See the .in file for more information.
+#
+hxx{qtgui-config}: in{qtgui-config}
+{
+  # Defined in upstream/qtbase/src/gui/configure.pri.
+  #
+  QT_QPA_DEFAULT_PLATFORM_NAME = ($windows ? "windows" \
+                                           : $QT_QPA_DEFAULT_PLATFORM_NAME)
+  QT_QPA_DEFAULT_PLATFORM_NAME = ($macos   ? "cocoa" \
+                                           : $QT_QPA_DEFAULT_PLATFORM_NAME)
+  QT_QPA_DEFAULT_PLATFORM_NAME = ($linux   ? "xcb" \
+                                           : $QT_QPA_DEFAULT_PLATFORM_NAME)
+  QT_QPA_DEFAULT_PLATFORM_NAME = ($bsd     ? "xcb" \
+                                           : $QT_QPA_DEFAULT_PLATFORM_NAME)
+}
+
+# Private QtGui library configuration (lower-level features and settings).
+#
+# See the .in file for more information.
+#
+private/QtGui/private/hxx{qtgui-config_p}: private/QtGui/private/in{qtgui-config_p}
+
+# Development version of qguiapplication.cpp in which $out_root/QtGuiPlugins/
+# is registered to be searched for the QtGui plugins at runtime. (The
+# unmodified upstream version is used for the installed case.)
+#
+kernel/cxx{qguiapplication-develop}: kernel/in{qguiapplication-develop}
+{
+  in.symbol = '@' # Upstream file already contains a few '$...$' replacements.
+
+  # Escape backslashes on Windows.
+  #
+  gui_plugins_path = $regex.replace("$out_root/QtGuiPlugins", '\\', '\\\\')
+}
+
+# Build options.
+#
+# Add qpa/ because some upstream source files include qplatform*.h relatively.
+#
+cc.poptions =+                                                                  \
+  "-I$out_root"                       "-I$src_root"                             \
+  "-I$out_root/QtGui"                 "-I$src_root/QtGui"                       \
+                                      "-I$src_base/qpa"                         \
+  "-I$out_base/private"               "-I$src_base/private"                     \
+  "-I$out_base/private/QtGui"         "-I$src_base/private/QtGui"               \
+  "-I$out_base/private/QtGui/private" "-I$src_base/private/QtGui/private"       \
+                                      "-I$src_base/private/QtGui/qpa"
+
+# Note: QT_NO_VERSION_TAGGING and QT_SHARED/QT_STATIC are exported by QtCore
+#       so need neither be defined again nor exported.
+#
+cc.poptions += -DENABLE_PIXMAN_DRAWHELPERS              \
+               -DQT_ASCII_CAST_WARNINGS                 \
+               -DQT_BUILD_GUI_LIB                       \
+               -DQT_DEPRECATED_WARNINGS_SINCE=0x060000  \
+               -DQT_MOC_COMPAT                          \
+               -DQT_NO_CAST_TO_ASCII                    \
+               -DQT_NO_FOREACH                          \
+               -DQT_NO_USING_NAMESPACE                  \
+               -DQT_USE_QSTRINGBUILDER                  \
+               -DQT_BUILDING_QT
+
+# Add platform-specific header directories, libraries, compilation options,
+# and macro definitions.
+#
+if $windows
+  cc.poptions += -DQT_DISABLE_DEPRECATED_BEFORE=0x040800
+else
+{
+  cc.poptions += -DQT_DISABLE_DEPRECATED_BEFORE=0x050000
+
+  lib{Qt5Gui}: cxx.libs += -pthread
+
+  if $linux
+    lib{Qt5Gui}: cxx.libs += -ldl
+}
+
+export_libs=
+
+switch $cxx.target.class, $cxx.target.system
+{
+  case 'macos'
+    lib{Qt5Gui}: cxx.libs += -framework AppKit          \
+                             -framework CoreGraphics    \
+                             -framework Foundation      \
+                             -framework Metal
+  case 'windows', 'mingw32'
+  {
+    export_libs = -ladvapi32 \
+                  -lcomdlg32 \
+                  -lgdi32    \
+                  -limm32    \
+                  -lole32    \
+                  -loleaut32 \
+                  -luuid     \
+                  -lwinmm    \
+                  -lws2_32
+
+    lib{Qt5Gui}: cxx.libs += $export_libs
+  }
+
+  case 'windows'
+  {
+    export_libs = advapi32.lib  \
+                  comdlg32.lib  \
+                  gdi32.lib     \
+                  imm32.lib     \
+                  ole32.lib     \
+                  oleaut32.lib  \
+                  uuid.lib      \
+                  winmm.lib     \
+                  ws2_32.lib
+
+    lib{Qt5Gui}: cxx.libs += $export_libs
+  }
+
+}
+
+# Export options.
+#
+lib{Qt5Gui}:
+{
+  cxx.export.poptions = "-I$out_root"  "-I$src_root" \
+                        "-I$out_base"  "-I$src_base" \
+                        -DQT_GUI_LIB
+
+  cxx.export.libs = $intf_libs $export_libs
+}
+
+lib{Qt5GuiPrivate}:
+{
+  # Add private/QtGui/ for inclusion of paths such as <qpa/qplatformfoo_p.h>
+  # and a few cases such as <private/qicon_p.h> and <private/qfontengine_p.h>
+  # (inclusion of private QtGui headers from another module without the
+  # `QtGui` prefix).
+  #
+  cxx.export.poptions =                                                         \
+    "-I$out_base/private"               "-I$src_base/private"                   \
+    "-I$out_base/private/QtGui"         "-I$src_base/private/QtGui"             \
+    "-I$out_base/private/QtGui/private" "-I$src_base/private/QtGui/private"     \
+    "-I$src_base/private/QtGui/qpa"
+
+  cxx.export.libs = $priv_intf_libs
+}
+
+# For pre-releases use the complete version to make sure they cannot be used
+# in place of another pre-release or the final version. See the version module
+# for details on the version.* variable values.
+#
+if $version.pre_release
+  lib{Qt5Gui}: bin.lib.version = "-$version.project_id"
+else
+  lib{Qt5Gui}: bin.lib.version = "-$version.major.$version.minor"
+
+# Install public headers into the qt5/QtGui/ subdirectory of, say,
+# /usr/include/. Note that headers may be included with or without the
+# `QtGui/` prefix.
+#
+{hxx}{* Q*.}: install = include/qt5/QtGui/
+{hxx}{qpa/*}: install = include/qt5/QtGui/qpa/
+
+lib{Qt5Gui}: cxx.pkgconfig.include = include/qt5/ include/qt5/QtGui
+
+# Install private headers into the qt5/QtGui/private/ subdirectory of, say,
+# /usr/include/, recreating subdirectories. Note that private headers may be
+# included prefixed with `QtGui/private/`, `private/`, or without a prefix.
+#
+{hxx}{private/*}:
+{
+  install = include/qt5/QtGui/private/
+  install.subdirs = true
+}
+
+lib{Qt5GuiPrivate}:                                             \
+  cxx.pkgconfig.include = include/qt5/QtGui/private             \
+                          include/qt5/QtGui/private/QtGui       \
+                          include/qt5/QtGui/private/QtGui/private
