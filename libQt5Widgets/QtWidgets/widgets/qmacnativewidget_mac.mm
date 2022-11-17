@@ -1,0 +1,1 @@
+../../../upstream/qtbase/src/widgets/widgets/qmacnativewidget_mac.mm

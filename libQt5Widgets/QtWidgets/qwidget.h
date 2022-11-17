@@ -1,0 +1,1 @@
+../../downstream/qtbase/src/widgets/kernel/qwidget.h

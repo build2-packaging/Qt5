@@ -1,0 +1,1 @@
+../../../../../upstream/qtbase/src/platformsupport/eventdispatchers/qwindowsguieventdispatcher_p.h
