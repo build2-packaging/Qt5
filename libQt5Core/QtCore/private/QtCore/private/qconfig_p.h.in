@@ -55,7 +55,7 @@
 
 // Zstandard support.
 //
-// @@ TMP System only, not bundled with Qt.
+// @@ System only, not bundled with Qt.
 //
 //    Used to:
 //
