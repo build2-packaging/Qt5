@@ -1,0 +1,9 @@
+./: */ alias{Qt5WidgetsPlugins}
+
+include styles/
+
+alias{Qt5WidgetsPlugins}: styles/libs{qmacstyle}: \
+  include = ($macos ? adhoc : false)
+
+alias{Qt5WidgetsPlugins}: styles/libs{qwindowsvistastyle}: \
+  include = ($windows ? adhoc : false)
