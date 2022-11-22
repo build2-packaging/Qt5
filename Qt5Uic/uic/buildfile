@@ -115,11 +115,6 @@ win_core_src = QtCore/global/qoperatingsystemversion_win        \
 #
 macos_core_src = QtCore/kernel/qcoreapplication_mac
 
-# Define the Objective-C++ source file type.
-#
-define mm: file
-mm{*}: extension = mm
-
 # The Mac OS-specific Objective-C++ QtCore source files required to build
 # uic.
 #
@@ -136,6 +131,7 @@ exe{qt5uic}: hxx{**}                                            \
 exe{qt5uic}: cxx{$unix_core_src}:                include = $unix
 exe{qt5uic}: cxx{QtCore/io/qstandardpaths_unix}: include = ($unix && ! $macos)
 exe{qt5uic}: cxx{$macos_core_src}:               include = $macos
+exe{qt5uic}: mm{$macos_core_src_mm}:             include = $macos
 exe{qt5uic}: cxx{$win_core_src}:                 include = $windows
 
 # Ensure that C and C++ source files that are included by other source files
@@ -150,27 +146,6 @@ exe{qt5uic}: cxx{3rdparty/sha1/sha1                     \
                  QtCore/text/qchar                      \
                  QtCore/text/qstringmatcher             \
                  QtCore/text/qunicodetables}: include = adhoc
-
-# Declare the dependency of the uic executable on the Objective-C++ source
-# files via the corresponding object files.
-#
-for n: $macos_core_src_mm
-  obje{$(n).o}: mm{$n}
-
-exe{qt5uic}: obje{$macos_core_src_mm}: include = $macos
-
-# Rule for compiling Objective-C++ source files into object files.
-#
-obje{~'/(.*)/'}: mm{~'/\1/'}
-{{
-  depdb dyndep --what=header --default-type=h           \
-               -- $cxx.path $cc.poptions $cxx.poptions  \
-                  $cc.coptions $cxx.coptions $cxx.mode -M -MG $path($<[0])
-  diag objcxx ($<[0])
-  $cxx.path $cc.poptions $cxx.poptions                  \
-            $cc.coptions $cxx.coptions $cxx.mode        \
-            -o $path($>) -c -x objective-c++ $path($<[0])
-}}
 
 # Build options.
 #
