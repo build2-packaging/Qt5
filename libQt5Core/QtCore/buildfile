@@ -436,13 +436,14 @@ c_hdr = qglobal qsystemdetection qprocessordetection qcompilerdetection \
 
 moc_predefs = private/QtCore/private/moc_predefs
 
-# Headers, source files, and metadata.
+# Headers, source files, metadata, and libraries.
 #
 ./: lib{Qt5Core}: hxx{** -{$c_hdr $moc_predefs} +Q*.} h{$c_hdr} hxx{$moc_predefs}       \
                   cxx{$src}                                                             \
                   ../3rdparty/harfbuzz/src/h{harfbuzz}                                  \
                   ../3rdparty/harfbuzz/src/c{$harfbuzz_src}                             \
-                  ../3rdparty/harfbuzz/src/cxx{harfbuzz-shaper-all}
+                  ../3rdparty/harfbuzz/src/cxx{harfbuzz-shaper-all}                     \
+                  $impl_libs $intf_libs
 
 # This target exports search directories for the private headers which are
 # located in a deeper directory subtree to prevent them from being found by
@@ -489,13 +490,6 @@ lib{Qt5Core}: cxx{qmimeprovider_database}:
   update = execute
 }
 
-# The "metadata library": its purpose is to make sure all the imported
-# libraries are resolved for the ad hoc .mm compilation rules below.
-#
-# Note: use a rule hint to resolve ambiguity between C and C++ library.
-#
-[rule_hint=cxx] libul{Qt5CoreMeta}: $impl_libs $intf_libs
-
 # Generated headers and source files.
 #
 lib{Qt5Core}: global/cxx{qconfig-install}: for_install = true
@@ -507,6 +501,7 @@ lib{Qt5Core}: cxx{$unix_src}:  include = $unix
 lib{Qt5Core}: cxx{$linux_src}: include = $linux
 lib{Qt5Core}: cxx{$win_src}:   include = $windows
 lib{Qt5Core}: cxx{$macos_src}: include = $macos
+lib{Qt5Core}: mm{$macos_mm}:   include = $macos
 lib{Qt5Core}: cxx{io/qfilesystemwatcher_kqueue}: include = $bsd
 lib{Qt5Core}: cxx{io/qstandardpaths_unix        \
                   io/qstorageinfo_unix          \
@@ -514,63 +509,6 @@ lib{Qt5Core}: cxx{io/qstandardpaths_unix        \
                   text/qlocale_unix             \
                   time/qtimezoneprivate_tz}:  include = ($unix && ! $macos)
 lib{Qt5Core}: cxx{time/qtimezoneprivate_icu}: include = (! $macos)
-
-# Define the Objective-C++ source file type.
-#
-define mm: file
-mm{*}: extension = mm
-
-# Declare the dependency of the library target on the Objective-C++ source
-# files via the corresponding object files.
-#
-for n: $macos_mm
-{
-  obja{$(n).a.o}: mm{$n}
-  objs{$(n).so.o}: mm{$n}
-}
-
-liba{Qt5Core}: obja{$regex.apply($macos_mm,'(.+)','\1.a.o')}:  include = $macos
-libs{Qt5Core}: objs{$regex.apply($macos_mm,'(.+)','\1.so.o')}: include = $macos
-
-# Rules for compiling Objective-C++ source files into object files.
-#
-# Note: these rules are only used on Mac OS (so no -fPIC, etc).
-# Note: exclude libua{Qt5CoreMeta} from update during match not to mess
-#       up its for-install'ness.
-#
-# @@ TODO: replace `--update-exclude libu?{Qt5CoreMeta}` with update=unmatch
-#          once we have the ability to specify prerequisite-specific variables
-#          for pattern prerequisites.
-#
-obja{~'/(.*).a/'}: mm{~'/\1/'} libua{Qt5CoreMeta}
-{{
-  dep_poptions = $cxx.lib_poptions(libua{Qt5CoreMeta}, obja)
-  depdb hash $dep_poptions
-  depdb dyndep "-I$out_root/QtCore" "-I$src_root/QtCore"                \
-               --what=header --default-type=h                           \
-               --update-exclude libua{Qt5CoreMeta}                      \
-               -- $cxx.path $cc.poptions $cxx.poptions $dep_poptions    \
-                  $cc.coptions $cxx.coptions $cxx.mode -M -MG $path($<[0])
-  diag obj-c++ ($<[0])
-  $cxx.path $cc.poptions $cxx.poptions $dep_poptions    \
-            $cc.coptions $cxx.coptions $cxx.mode        \
-            -o $path($>) -c -x objective-c++ $path($<[0])
-}}
-
-objs{~'/(.*).so/'}: mm{~'/\1/'} libus{Qt5CoreMeta}
-{{
-  dep_poptions = $cxx.lib_poptions(libus{Qt5CoreMeta}, objs)
-  depdb hash $dep_poptions
-  depdb dyndep "-I$out_root/QtCore" "-I$src_root/QtCore"                \
-               --what=header --default-type=h                           \
-               --update-exclude libus{Qt5CoreMeta}                      \
-               -- $cxx.path $cc.poptions $cxx.poptions $dep_poptions    \
-                  $cc.coptions $cxx.coptions $cxx.mode -M -MG $path($<[0])
-  diag obj-c++ ($<[0])
-  $cxx.path $cc.poptions $cxx.poptions $dep_poptions    \
-            $cc.coptions $cxx.coptions $cxx.mode        \
-            -o $path($>) -c -x objective-c++ $path($<[0])
-}}
 
 # Rule to generate a header with C++ compiler's predefined macros. It is used
 # to make them available to moc.
@@ -770,8 +708,6 @@ moc{~'/(.*)/'}: mm{~'/\1/'} hxx{$moc_predefs} h{$gen_hdr} $moc
   $moc --include $path($<[1]) $cc.poptions $cxx.poptions $sys_incl \
     --output-dep-file --dep-file-path $t -o $o $s
 }}
-
-lib{Qt5Core}: libul{Qt5CoreMeta}
 
 # Generated headers and source files.
 #
