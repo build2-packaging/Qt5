@@ -9,6 +9,8 @@ cxx{*}: extension = cpp
 #
 hxx{*}: cxx.importable = true
 
+using cxx.objcxx
+
 # The test target for cross-testing (running tests under Wine, etc).
 #
 test.target = $cxx.target
