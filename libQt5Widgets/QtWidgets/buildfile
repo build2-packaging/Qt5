@@ -237,8 +237,8 @@ lib{Qt5Widgets}: kernel/cxx{qapplication-develop}: for_install = false
 
 # Platform-specific source files.
 #
-lib{Qt5Widgets}: cxx{$macos_src}: include = $macos
-lib{Qt5Widgets}: cxx{$win_src}:   include = $windows
+lib{Qt5Widgets}: cxx{$macos_src} mm{$macos_mm}: include = $macos
+lib{Qt5Widgets}: cxx{$win_src}:                 include = $windows
 
 # util/qsystemtrayicon_{x11,qpa}.cpp: build the former on XCB platforms and
 # the latter on non-XCB platforms.
@@ -257,59 +257,6 @@ lib{Qt5Widgets}: ui{$ui}
 #
 [rule_hint=cxx] libul{Qt5WidgetsIntfMeta}: $intf_libs
 [rule_hint=cxx] libul{Qt5WidgetsImplMeta}: $impl_libs
-
-# Declare the dependency of the library target on the Objective-C++ source
-# files via the corresponding object files.
-#
-for n: $macos_mm
-{
-  obja{$(n).a.o}: mm{$n}
-  objs{$(n).so.o}: mm{$n}
-}
-
-liba{Qt5Widgets}: obja{$regex.apply($macos_mm,'(.+)','\1.a.o')}:  include = $macos
-libs{Qt5Widgets}: objs{$regex.apply($macos_mm,'(.+)','\1.so.o')}: include = $macos
-
-# Rules for compiling Objective-C++ source files into object files.
-#
-# Note: these rules are only used on Mac OS (so no -fPIC, etc).
-# Note: exclude libua{Qt5WidgetsIntfMeta Qt5WidgetsImplMeta} from update
-#       during match not to mess up its for-install'ness.
-#
-# @@ TODO: replace `--update-exclude libu?{Qt5WidgetsIntfMeta
-#          Qt5WidgetsImplMeta}` with update=unmatch once we have the ability
-#          to specify prerequisite-specific variables for pattern
-#          prerequisites.
-#
-obja{~'/(.*).a/'}: mm{~'/\1/'} libua{Qt5WidgetsIntfMeta Qt5WidgetsImplMeta}
-{{
-  dep_poptions = $cxx.lib_poptions(libua{Qt5WidgetsIntfMeta Qt5WidgetsImplMeta}, obja)
-  depdb hash $dep_poptions
-  depdb dyndep "-I$out_root/QtWidgets" "-I$src_root/QtWidgets"                  \
-               --what=header --default-type=h                                   \
-               --update-exclude libua{Qt5WidgetsIntfMeta Qt5WidgetsImplMeta}    \
-               -- $cxx.path $cc.poptions $cxx.poptions $dep_poptions            \
-                  $cc.coptions $cxx.coptions $cxx.mode -M -MG $path($<[0])
-  diag obj-c++ ($<[0])
-  $cxx.path $cc.poptions $cxx.poptions $dep_poptions    \
-            $cc.coptions $cxx.coptions $cxx.mode        \
-            -o $path($>) -c -x objective-c++ $path($<[0])
-}}
-
-objs{~'/(.*).so/'}: mm{~'/\1/'} libus{Qt5WidgetsIntfMeta Qt5WidgetsImplMeta}
-{{
-  dep_poptions = $cxx.lib_poptions(libus{Qt5WidgetsIntfMeta Qt5WidgetsImplMeta}, objs)
-  depdb hash $dep_poptions
-  depdb dyndep "-I$out_root/QtWidgets" "-I$src_root/QtWidgets"                  \
-               --what=header --default-type=h                                   \
-               --update-exclude libus{Qt5WidgetsIntfMeta Qt5WidgetsImplMeta}    \
-               -- $cxx.path $cc.poptions $cxx.poptions $dep_poptions            \
-                  $cc.coptions $cxx.coptions $cxx.mode -M -MG $path($<[0])
-  diag obj-c++ ($<[0])
-  $cxx.path $cc.poptions $cxx.poptions $dep_poptions    \
-            $cc.coptions $cxx.coptions $cxx.mode        \
-            -o $path($>) -c -x objective-c++ $path($<[0])
-}}
 
 # Dependencies involving moc-generated source files.
 #
