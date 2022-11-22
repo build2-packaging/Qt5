@@ -68,8 +68,6 @@ if ($build.mode != 'skeleton')
       --update-exclude ($<[1])                                  \
       --file $t
 
-    diag moc ($<[0])
-
     s = $path($<[0])
 
     sys_incl = $regex.apply($cxx.sys_hdr_dirs, '(.+)', '-I\1')
@@ -94,8 +92,6 @@ if ($build.mode != 'skeleton')
       --byproduct --drop-cycles --what=header --default-type=h  \
       --update-exclude ($<[1])                                  \
       --file $t
-
-    diag moc ($<[0])
 
     s = $path($<[0])
 
@@ -122,8 +118,6 @@ if ($build.mode != 'skeleton')
       --update-exclude ($<[1])                                  \
       --file $t
 
-    diag moc ($<[0])
-
     s = $path($<[0])
 
     sys_incl = $regex.apply($cxx.sys_hdr_dirs, '(.+)', '-I\1')
@@ -144,7 +138,6 @@ if ($build.mode != 'skeleton')
   #
   cxx{~'/qrc_(.*)/'}: qrc{~'/.*\1/'} $rcc
   {{
-    diag rcc ($<[0])
     $rcc -name $name($<[0]) -o $path($>[0]) $path($<[0])
   }}
 

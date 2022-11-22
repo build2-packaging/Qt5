@@ -22,8 +22,6 @@ cxx{~'/moc_(.*)/'}: hxx{~'/\1/'} $moc
   depdb dyndep  \
     --byproduct --drop-cycles --what=header --default-type=h --file $t
 
-  diag moc ($<[0])
-
   s = $path($<[0])
 
   # -i: don't include the header (we don't need it and it's simpler this way).

@@ -604,13 +604,13 @@ hxx{$moc_predefs}: mkspecs/features/data/cxx{dummy}
 %
 if ($cxx.class != 'msvc')
 {{
-  diag gen ($>[0])
+  diag gen ($<[0]) -> $>
   $cxx.path $cc.poptions $cxx.poptions $cc.coptions $cxx.coptions $cxx.mode \
             -o $path($>) -dM -E $path($<)
 }}
 else
 {{
-  diag gen ($>[0])
+  diag gen ($<[0]) -> $>
   cat <<EOI >$path($>)
   #define _WIN32
   #define WIN32
@@ -723,8 +723,6 @@ cxx{~'/moc_(.*)/'}: hxx{~'/\1/'} hxx{$moc_predefs} h{$gen_hdr} $moc
   depdb dyndep  \
     --byproduct --drop-cycles --what=header --default-type=h --file $t
 
-  diag moc ($<[0])
-
   s = $path($<[0])
 
   sys_incl = $regex.apply($cxx.sys_hdr_dirs, '(.+)', '-I\1')
@@ -745,8 +743,6 @@ moc{~'/(.*)/'}: cxx{~'/\1/'} hxx{$moc_predefs} h{$gen_hdr} $moc
   depdb dyndep  \
     --byproduct --drop-cycles --what=header --default-type=h --file $t
 
-  diag moc ($<[0])
-
   s = $path($<[0])
 
   sys_incl = $regex.apply($cxx.sys_hdr_dirs, '(.+)', '-I\1')
@@ -766,8 +762,6 @@ moc{~'/(.*)/'}: mm{~'/\1/'} hxx{$moc_predefs} h{$gen_hdr} $moc
 
   depdb dyndep  \
     --byproduct --drop-cycles --what=header --default-type=h --file $t
-
-  diag moc ($<[0])
 
   s = $path($<[0])
 
@@ -1017,7 +1011,7 @@ global/cxx{qconfig-install qconfig-develop}: global/in{qconfig}
 #
 cxx{qmimeprovider_database}: mimetypes/mime/packages/freedesktop.org.xml $xxd
 {{
-    diag xxd ($<[0])
+    diag xxd ($<[0]) -> $>
 
     i = $path($<[0]) # Input.
     o = $path($>)    # Output.
