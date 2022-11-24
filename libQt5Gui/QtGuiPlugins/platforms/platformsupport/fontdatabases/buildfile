@@ -22,7 +22,7 @@ libul{Qt5FontDatabaseSupport}: mac/hxx{*} mm{$macos_src}: \
   include = $macos
 
 # The "metadata library": its purpose is to make sure all the imported
-# libraries are resolved for the ad hoc .mm and moc rules below.
+# libraries are resolved for the ad hoc moc rules.
 #
 # Note: use a rule hint to resolve ambiguity between C and C++ library.
 #
