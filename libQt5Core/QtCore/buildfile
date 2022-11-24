@@ -542,13 +542,13 @@ hxx{$moc_predefs}: mkspecs/features/data/cxx{dummy}
 %
 if ($cxx.class != 'msvc')
 {{
-  diag gen ($<[0]) -> $>
+  diag gen $>
   $cxx.path $cc.poptions $cxx.poptions $cc.coptions $cxx.coptions $cxx.mode \
             -o $path($>) -dM -E $path($<)
 }}
 else
 {{
-  diag gen ($<[0]) -> $>
+  diag gen $>
   cat <<EOI >$path($>)
   #define _WIN32
   #define WIN32
@@ -947,16 +947,16 @@ global/cxx{qconfig-install qconfig-develop}: global/in{qconfig}
 #
 cxx{qmimeprovider_database}: mimetypes/mime/packages/freedesktop.org.xml $xxd
 {{
-    diag xxd ($<[0]) -> $>
+  diag xxd ($<[0]) -> $>
 
-    i = $path($<[0]) # Input.
-    o = $path($>)    # Output.
+  i = $path($<[0]) # Input.
+  o = $path($>)    # Output.
 
-    echo '#define MIME_DATABASE_IS_UNCOMPRESSED'               >$o
-    echo 'static const unsigned char mimetype_database[] = {' >>$o
-    $xxd -i <$i                                               >>$o
-    echo '};'                                                 >>$o
-    echo 'static constexpr size_t MimeTypeDatabaseOriginalSize = sizeof(mimetype_database);' >> $o
+  echo '#define MIME_DATABASE_IS_UNCOMPRESSED'               >$o
+  echo 'static const unsigned char mimetype_database[] = {' >>$o
+  $xxd -i <$i                                               >>$o
+  echo '};'                                                 >>$o
+  echo 'static constexpr size_t MimeTypeDatabaseOriginalSize = sizeof(mimetype_database);' >> $o
 }}
 
 # Build options.
