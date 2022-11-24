@@ -358,7 +358,6 @@ lib{Qt5Gui}: cxx{** -{$src} -qguiapplication*}: include = adhoc
 # Note: use a rule hint to resolve ambiguity between C and C++ library.
 #
 [rule_hint=cxx] libul{Qt5GuiMeta}: $intf_libs
-[rule_hint=cxx] libul{Qt5GuiImplMeta}: $impl_libs
 
 # Platform-specific source files.
 #
