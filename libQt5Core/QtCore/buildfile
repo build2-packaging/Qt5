@@ -463,10 +463,16 @@ moc_predefs = private/QtCore/private/moc_predefs
 
 ./: lib{Qt5CorePrivate}
 
+# Generated source files.
+#
+gen_src = qmimeprovider_database        \
+          global/qconfig-develop        \
+          global/qconfig-install
+
 # Included source files.
 #
-lib{Qt5Core}: cxx{** -{$src} -qmimeprovider_database}   \
-              global/c{qfloat16_f16c}:                  \
+lib{Qt5Core}: cxx{** -{$src $gen_src}}                          \
+              global/cxx{qconfig} global/c{qfloat16_f16c}:      \
   include = adhoc
 
 # Third-party: indirectly-included headers and included source files.
@@ -480,6 +486,9 @@ lib{Qt5Core}: ../3rdparty/{h    }{** -md5/md5 -harfbuzz/**}             \
               ../3rdparty/sha3/file{**.macros}:                         \
   include = adhoc
 
+# Generated source files.
+#
+
 # Note: this generated file is safe to update during execute: not a macro
 #       header, not installed, and we assume q*.cpp is unique enough.
 #
@@ -489,8 +498,6 @@ lib{Qt5Core}: cxx{qmimeprovider_database}:
   update = execute
 }
 
-# Generated headers and source files.
-#
 lib{Qt5Core}: global/cxx{qconfig-install}: for_install = true
 lib{Qt5Core}: global/cxx{qconfig-develop}: for_install = false
 
@@ -778,7 +785,6 @@ private/QtCore/private/h{qtcore-config_p}: private/QtCore/private/in{qtcore-conf
 #
 # See also comments in qconfig.cpp.in.
 #
-lib{Qt5Core}: global/cxx{qconfig}: include = adhoc
 
 # Installed case: Here the installation prefix is an absolute path and the
 # other paths are all relative (to the prefix).
