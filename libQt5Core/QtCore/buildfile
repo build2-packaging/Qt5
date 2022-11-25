@@ -442,8 +442,7 @@ moc_predefs = private/QtCore/private/moc_predefs
                   cxx{$src}                                                             \
                   ../3rdparty/harfbuzz/src/h{harfbuzz}                                  \
                   ../3rdparty/harfbuzz/src/c{$harfbuzz_src}                             \
-                  ../3rdparty/harfbuzz/src/cxx{harfbuzz-shaper-all}                     \
-                  $impl_libs $intf_libs
+                  ../3rdparty/harfbuzz/src/cxx{harfbuzz-shaper-all}
 
 # This target exports search directories for the private headers which are
 # located in a deeper directory subtree to prevent them from being found by
@@ -708,6 +707,8 @@ moc{~'/(.*)/'}: mm{~'/\1/'} hxx{$moc_predefs} h{$gen_hdr} $moc
   $moc --include $path($<[1]) $cc.poptions $cxx.poptions $sys_incl \
     --output-dep-file --dep-file-path $t -o $o $s
 }}
+
+lib{Qt5Core}: $impl_libs $intf_libs
 
 # Generated headers and source files.
 #
