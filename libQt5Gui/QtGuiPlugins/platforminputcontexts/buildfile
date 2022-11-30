@@ -2,4 +2,3 @@ include compose/
 
 ./: lib{composeplatforminputcontextplugin}: include = ($linux || $bsd)
 
-libs{composeplatforminputcontextplugin}: # @@ TMP dist order

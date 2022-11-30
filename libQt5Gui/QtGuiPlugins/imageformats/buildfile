@@ -63,7 +63,3 @@ if ($cxx.target.class != 'windows')
 # Installation.
 #
 lib{qgif qico qjpeg}: install = lib/qt5/plugins/imageformats/
-
-libs{qgif}: # @@ TMP dist order
-libs{qico}: # @@ TMP dist order
-libs{qjpeg}: # @@ TMP dist order
