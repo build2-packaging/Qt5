@@ -4,13 +4,17 @@
 
 include ../../../QtWidgets/
 
-../lib{qwindowsvistastyle}: ../../../mkspecs/hxx{**} hxx{*} cxx{*}
+src = main                      \
+      qwindowsvistastyle        \
+      qwindowsxpstyle
 
 moc_hdr = qwindowsvistastyle_p          \
           qwindowsvistastyle_p_p        \
           qwindowsxpstyle_p
 
 moc_src_adhoc = main
+
+../lib{qwindowsvistastyle}: ../../../mkspecs/hxx{**} hxx{*} cxx{$src}
 
 # The "metadata library": its purpose is to make sure all the imported
 # libraries are resolved for the ad hoc moc rules below.

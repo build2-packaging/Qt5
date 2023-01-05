@@ -348,9 +348,14 @@ libs{Qt5Gui}: ../QtGuiPlugins/alias{Qt5GuiPlugins}: include = posthoc
 lib{Qt5Gui}: kernel/cxx{qguiapplication-install}: for_install = true
 lib{Qt5Gui}: kernel/cxx{qguiapplication-develop}: for_install = false
 
+# The names of generated C++ source files (including moc outputs).
+#
+gen_src = $regex.apply($moc_hdr $moc_hdr_adhoc, '(.+/)?(.+)', 'moc_\2') \
+          qguiapplication-install qguiapplication-develop
+
 # Included source files.
 #
-lib{Qt5Gui}: cxx{** -{$src} -qguiapplication*}: include = adhoc
+lib{Qt5Gui}: cxx{** -{$src $gen_src}}: include = adhoc
 
 # The "metadata library": its purpose is to make sure all the imported
 # libraries are resolved for the ad hoc moc rules below.
