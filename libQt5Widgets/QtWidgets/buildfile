@@ -230,7 +230,9 @@ libs{Qt5Widgets}: ../QtWidgetsPlugins/alias{Qt5WidgetsPlugins}: \
 
 ./: lib{Qt5WidgetsPrivate}: $priv_intf_libs
 
-# Generated source files.
+# Note: kernel/qapplication-develop.cpp is generated (see below) but
+# kernel/qapplication-install.cpp is a symlink to the unmodified upstream
+# version.
 #
 lib{Qt5Widgets}: kernel/cxx{qapplication-install}: for_install = true
 lib{Qt5Widgets}: kernel/cxx{qapplication-develop}: for_install = false
@@ -245,10 +247,6 @@ lib{Qt5Widgets}: cxx{$win_src}:                 include = $windows
 #
 lib{Qt5Widgets}: cxx{util/qsystemtrayicon_x11}: include = ($linux || $bsd)
 lib{Qt5Widgets}: cxx{util/qsystemtrayicon_qpa}: include = ($windows || $macos)
-
-# User interface definition files.
-#
-lib{Qt5Widgets}: ui{$ui}
 
 # The "metadata library": its purpose is to make sure all the imported
 # libraries are resolved for the ad hoc moc rules below.
@@ -324,6 +322,11 @@ for s: cxx{kernel/qtooltip              \
 
 # More or less as above, except with different cxx{moc_*} dependencies.
 #
+for n: qdockwidget              \
+       qitemeditorfactory       \
+       qlistwidget
+  lib{Qt5Widgets}: moc{$n}: include = adhoc
+
 moc{qdockwidget}:        cxx{widgets/qdockwidget}                       \
                          libul{Qt5WidgetsMeta} hxx{$gen_hdr}            \
                          cxx{moc_qdockwidget} cxx{moc_qdockwidget_p}
