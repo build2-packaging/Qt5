@@ -60,7 +60,7 @@ function rm_empty_dirs () # <dir>
     #
     rm_empty_dirs "$sd"
 
-    if [[ -z "$(ls "$sd")" ]]; then
+    if [[ -z "$(ls -a "$sd")" ]]; then
       rmdir "$sd"
     fi
   done
@@ -113,16 +113,10 @@ rm -f libQt5WidgetsTests/mkspecs
 # 3rdparty/ has to be a sibling to QtCore/ because the QtCore source files use
 # include paths such as "../../3rdparty/freebsd/strtoll.c".
 #
-mkdir    Qt5Moc/moc/3rdparty
-mkdir    Qt5Moc/moc/QtCore
 mkdir -p Qt5Moc/moc/QtCore/private/QtCore/private
 
-mkdir    Qt5Rcc/rcc/3rdparty
-mkdir    Qt5Rcc/rcc/QtCore
 mkdir -p Qt5Rcc/rcc/QtCore/private/QtCore/private
 
-mkdir    Qt5Uic/uic/3rdparty
-mkdir    Qt5Uic/uic/QtCore
 mkdir -p Qt5Uic/uic/QtCore/private/QtCore/private
 
 mkdir libQt5Core/3rdparty
@@ -134,29 +128,81 @@ mkdir libQt5Gui/3rdparty
 mkdir libQt5Gui/QtGui/qpa
 mkdir libQt5Gui/QtGui/private/QtGui/qpa
 
-# Symlink the upstream platform-specific include directories.
+# Create a symlink to one or more upstream directories and set the
+# `symlink=dir` attribute on each in the containing directory's
+# .gitattributes.
 #
-ln -s ../../upstream/qtbase/mkspecs Qt5Moc/moc/
-ln -s ../../upstream/qtbase/mkspecs Qt5Rcc/rcc/
-ln -s ../../upstream/qtbase/mkspecs Qt5Uic/uic/
-ln -s ../../upstream/qtbase/mkspecs libQt5Core/QtCore/
-ln -s    ../upstream/qtbase/mkspecs libQt5Gui/
-ln -s    ../upstream/qtbase/mkspecs libQt5GuiTests/
-ln -s    ../upstream/qtbase/mkspecs libQt5Widgets/
-ln -s    ../upstream/qtbase/mkspecs libQt5WidgetsTests/
+# Create symlinks to all <target-dir-path> arguments inside
+# <symlink-dir-path>.
+#
+# Recreates .gitattributes from scratch so invoke this function only once for
+# each containing directory.
+#
+function symlink_dirs ()
+  # <target-dir-path> [<target-dir-path>..] <symlink-dir-path>
+{
+  local args=("$@")
+
+  # Process the symlink path (the last function argument).
+  #
+  local si="${#args[@]}"-1      # Symlink path's index in `args()`
+  local sp="${args[$si]}"       # Symlink path.
+  sp="${sp%/}"                  # Strip trailing '/'.
+  unset "args[$si]"             # Remove from `args` (leaving only targets).
+
+  # Target path prefix consisting of the right number of "../"s to get from
+  # the symlink directory to the project root (working) directory.
+  #
+  local tpfx="$(sed -E 's%[^/]+%..%g' <<<"$sp")"
+
+  rm -f "$sp/.gitattributes"
+
+  # Apply the prefix to each target and create its entry in .gitattributes.
+  #
+  local i # Index into `args` array.
+  for i in "${!args[@]}"; do
+    local t="${args[$i]}" # Target path currently being processed.
+    t="${t%/}"            # Strip trailing '/'.
+
+    args["$i"]="$tpfx/$t" # Apply prefix to target path.
+
+    echo "$(basename "$t") symlink=dir" >> "$sp/.gitattributes"
+  done
+
+  # Create the symlinks.
+  #
+  ln -s "${args[@]}" "$sp/"
+}
+
+# Symlink upstream directories.
+#
+symlink_dirs upstream/qtbase/mkspecs Qt5Moc/moc/
+symlink_dirs upstream/qtbase/src/3rdparty/{freebsd,sha1} \
+             Qt5Moc/moc/3rdparty/
+
+symlink_dirs upstream/qtbase/mkspecs Qt5Rcc/rcc/
+symlink_dirs upstream/qtbase/src/3rdparty/{freebsd,sha1} \
+             Qt5Rcc/rcc/3rdparty/
+
+symlink_dirs upstream/qtbase/mkspecs Qt5Uic/uic/
+symlink_dirs upstream/qtbase/src/3rdparty/{freebsd,sha1} \
+             Qt5Uic/uic/3rdparty/
+
+symlink_dirs upstream/qtbase/mkspecs libQt5Core/QtCore/
+symlink_dirs upstream/qtbase/src/3rdparty/{easing,freebsd,forkfd,md4,md5,rfc6234,sha1,sha3,harfbuzz} \
+             libQt5Core/3rdparty/
+
+symlink_dirs upstream/qtbase/mkspecs libQt5Gui/
+symlink_dirs upstream/qtbase/src/3rdparty/{icc,wintab} \
+             libQt5Gui/3rdparty/
+symlink_dirs upstream/qtbase/mkspecs libQt5GuiTests/
+
+symlink_dirs upstream/qtbase/mkspecs libQt5Widgets/
+symlink_dirs upstream/qtbase/mkspecs libQt5WidgetsTests/
 
 # Symlink the upstream third-party directories.
 #
-ln -s ../../../upstream/qtbase/src/3rdparty/{freebsd,sha1} \
-   Qt5Moc/moc/3rdparty/
-ln -s ../../../upstream/qtbase/src/3rdparty/{freebsd,sha1} \
-   Qt5Rcc/rcc/3rdparty/
-ln -s ../../../upstream/qtbase/src/3rdparty/{freebsd,sha1} \
-   Qt5Uic/uic/3rdparty/
-ln -s ../../upstream/qtbase/src/3rdparty/{easing,freebsd,forkfd,md4,md5,rfc6234,sha1,sha3,harfbuzz} \
-   libQt5Core/3rdparty/
-ln -s ../../upstream/qtbase/src/3rdparty/{icc,wintab} \
-   libQt5Gui/3rdparty/
+
 
 # Symlink an upstream source file into our project directory structure.
 #
@@ -247,17 +293,21 @@ function symlink_non_module () # <source-directory> <destination-directory>
   done
 }
 
-# Symlink all of the sources in a Qt module subdirectory into
-# <output-path-prefix>/<module-name>/<subdir>.
+# Symlink all of the sources and other files of interest in the upstream Qt
+# module subdirectory <subdir> into <output-path-prefix>/<module-name>/,
+# preserving subdirectories.
+#
+# <subdir> is a path of the following form:
+# upstream/qtbase/src/module/foo[/bar[/baz]].
 #
 # Note that we have to rearrange the upstream sources because they cannot be
-# built the way they're laid out in upstream/qtbase/src/<module> (the upstream
+# built the way they're laid out in upstream/qtbase/src/module (the upstream
 # build also rearranges them).
 #
 # From the upstream directory layout (after the repeated application of this
 # function to all of a module's subdirectories):
 #
-#   upstream/qtbase/src/modulename
+#   upstream/qtbase/src/module
 #   ├── foo
 #   │   ├── foo.cpp
 #   │   ├── foo.h
@@ -288,61 +338,84 @@ function symlink_non_module () # <source-directory> <destination-directory>
 #        ├── bar.h
 #        ...
 #
-function symlink_module_subdir ()
-# <output-path-prefix> <module-name> <subdir>
+function symlink_module_subdir () # <output-path-prefix> <module-name> <subdir>
 {
-  local opp="$1"   # Output path prefix.
-  local mod="$2"   # Qt module name.
-  local d="${3%/}" # Module subdirectory from upstream (strip trailing /).
+  local opp="$1"    # Output path prefix.
+  local mod="$2"    # Qt module name.
+  local sd="${3%/}" # Subdir path (with upstream/qtbase/src/module prefix).
 
-  # Project directory path: the relative path to get to the project directory
-  # from the output path prefix (`opp`). For example, from Qt5Moc/moc/ it
-  # would be `../..`.
+  # Unprefixed subdir path. For example, a <subdir> argument of
+  # "upstream/qtbase/src/corelib/kernel" becomes "kernel" and
+  # "upstream/qtbase/src/gui/platform/unix" becomes "platform/unix".
   #
-  local pdp="$(sed -E 's%[^/]+%..%g' <<<"$opp")"
-  local sdd="$opp/$mod/$(basename $d)" # Source file destination directory.
-  mkdir -p "$sdd"
+  local usd="$(sed -E 's%upstream/qtbase/src/[^/]+/%%' <<<"$sd")"
+
+  # Symlink target path prefix base: the relative path to get to the project
+  # directory from <output-path-prefix>.
+  #
+  # For example, "../../" for a <output-path-prefix> of Qt6Moc/moc/:
+  #
+  #   ln -s ../../upstream/qtbase/src/tools/moc/main.cpp Qt6Moc/moc/
+  #
+  local tpp_base="$(sed -E 's%[^/]+%..%g' <<<"$opp")"
+
+  # Portion of the symlink target path prefix corresponding to the unprefixed
+  # subdir path (that is, needs to be appended to `tpp_base`).
+  #
+  local tpp_sd="$(sed -E 's%[^/]+%..%g' <<<"$mod/$usd")"
+
+  # Create the output directory for non-header files.
+  #
+  mkdir -p "$opp/$mod/$usd"
 
   # All of the source files of interest are directly under one of
   # src/<module>/'s subdirectories (that is, nested no deeper).
   #
   local f
-  for f in "$d"/*; do
-    tpp= # Symlink target path prefix.
+  for f in "$sd"/*; do
+    tpp= # Target path prefix.
     spp= # Symlink path prefix.
 
     case "$f" in
       # Private header.
       #
       *_p.h)
-        tpp="$pdp/../../../.."
+        tpp="$tpp_base/../../../.."
         spp="$opp/$mod/private/$mod/private"
         ;;
       # Public header.
       #
       *.h)
-        tpp="$pdp/.."
+        tpp="$tpp_base/.."
         spp="$opp/$mod"
         ;;
-      # C++, Objective-C++, or C source file.
+      # Source files and other file types we are interested in.
       #
-      *.cpp | *.mm | *.c)
-        tpp="$pdp/../.."
-        spp="$sdd"
+      *.cpp | *.mm | *.c | *.xml | *.qsb)
+        tpp="$tpp_base/$tpp_sd"
+        spp="$opp/$mod/$usd"
         ;;
-      # Not a source file.
+      # Not an interesting file type. Recurse into subdirectories and skip
+      # regular files.
       #
-      *) continue ;;
+      *)
+        if [[ -d "$f" ]]; then
+          symlink_module_subdir "$opp" "$mod" "$sd/$(basename "$f")"
+        fi
+
+        continue
+        ;;
     esac
 
     symlink_source_file "$tpp/$f" "$spp"
   done
 
-  # Remove the source file destination directory if it is empty (which would
-  # be the case if the upstream directory contained no source files).
+  # Remove the output directory for non-header files if it is empty (which
+  # would be the case if the upstream directory contained no files of
+  # interest).
   #
-  if [[ -z "$(ls "$sdd")" ]]; then
-    rmdir "$sdd"
+  if [[ -z "$(ls "$opp/$mod/$usd")" ]]; then
+    rmdir "$opp/$mod/$usd"
   fi
 }
 
@@ -362,17 +435,14 @@ symlink_non_module upstream/qtbase/src/tools/uic \
 # buildfiles do not use wildcards).
 #
 for d in upstream/qtbase/src/corelib/*/; do
+  if [[ "$(basename "$d")" == doc ]]; then
+    continue
+  fi
   symlink_module_subdir Qt5Moc/moc QtCore "$d"
   symlink_module_subdir Qt5Rcc/rcc QtCore "$d"
   symlink_module_subdir Qt5Uic/uic QtCore "$d"
   symlink_module_subdir libQt5Core QtCore "$d"
 done
-
-# Symlink the upstream MIME type database source XML file into libQt5Core/.
-#
-ln -s ../../../../../\
-upstream/qtbase/src/corelib/mimetypes/mime/packages/freedesktop.org.xml \
-      libQt5Core/QtCore/mimetypes/mime/packages/
 
 # This is made necessary by the inclusion of
 # "../testlib/3rdparty/valgrind_p.h" by corelib/tools/qsimd.cpp.
@@ -382,6 +452,9 @@ ln -sf ../../upstream/qtbase/src/testlib libQt5Core/QtCore/
 # Symlink the upstream QtGui sources into libQt5Gui/.
 #
 for d in upstream/qtbase/src/gui/*/; do
+  if [[ "$(basename "$d")" == doc ]]; then
+    continue
+  fi
   symlink_module_subdir libQt5Gui QtGui "$d"
 done
 
@@ -398,8 +471,6 @@ mv libQt5Gui/QtGui/kernel/qguiapplication.cpp \
 # into libQt5Gui/.
 #
 ln -s ../../../upstream/qtbase/src/gui/painting/qpdf.qrc \
-      libQt5Gui/QtGui/painting/
-ln -s ../../../upstream/qtbase/src/gui/painting/qpdfa_metadata.xml \
       libQt5Gui/QtGui/painting/
 ln -s ../../../upstream/qtbase/src/gui/painting/webgradients.binaryjson \
       libQt5Gui/QtGui/painting/
@@ -421,16 +492,16 @@ symlink_non_module upstream/qtbase/src/plugins/platforms/windows/ \
 #
 ln -s ../../../../upstream/qtbase/src/plugins/platforms/cocoa/qcocoaresources.qrc \
       libQt5Gui/QtGuiPlugins/platforms/cocoa/
-ln -s ../../../../upstream/qtbase/src/plugins/platforms/cocoa/images/ \
-      libQt5Gui/QtGuiPlugins/platforms/cocoa/
+symlink_dirs upstream/qtbase/src/plugins/platforms/cocoa/images/ \
+             libQt5Gui/QtGuiPlugins/platforms/cocoa/
 
 # Symlink the Windows plugin's resource collection files and their associated
 # resources.
 #
 ln -s ../../../../upstream/qtbase/src/plugins/platforms/windows/cursors.qrc \
       libQt5Gui/QtGuiPlugins/platforms/windows/
-ln -s ../../../../upstream/qtbase/src/plugins/platforms/windows/images/ \
-      libQt5Gui/QtGuiPlugins/platforms/windows/
+symlink_dirs upstream/qtbase/src/plugins/platforms/windows/images/ \
+             libQt5Gui/QtGuiPlugins/platforms/windows/
 ln -s ../../../../upstream/qtbase/src/plugins/platforms/windows/openglblacklists.qrc \
       libQt5Gui/QtGuiPlugins/platforms/windows/
 
@@ -441,16 +512,15 @@ symlink_non_module \
 # Symlink directly to the imageformats plugins' directories (not their
 # contents).
 #
-ln -s ../../../upstream/qtbase/src/plugins/imageformats/gif \
-      libQt5Gui/QtGuiPlugins/imageformats/
-ln -s ../../../upstream/qtbase/src/plugins/imageformats/ico \
-      libQt5Gui/QtGuiPlugins/imageformats/
-ln -s ../../../upstream/qtbase/src/plugins/imageformats/jpeg \
-      libQt5Gui/QtGuiPlugins/imageformats/
+symlink_dirs upstream/qtbase/src/plugins/imageformats/{gif,ico,jpeg} \
+             libQt5Gui/QtGuiPlugins/imageformats/
 
 # Symlink the upstream QtWidgets sources into libQt5Widgets/.
 #
 for d in upstream/qtbase/src/widgets/*/; do
+  if [[ "$(basename "$d")" == doc ]]; then
+    continue
+  fi
   symlink_module_subdir libQt5Widgets QtWidgets "$d"
 done
 
@@ -464,12 +534,12 @@ ln -s ../../../upstream/qtbase/src/widgets/dialogs/qmessagebox.qrc \
       libQt5Widgets/QtWidgets/dialogs/
 ln -s ../../../upstream/qtbase/src/widgets/styles/qstyle.qrc \
       libQt5Widgets/QtWidgets/styles/
-ln -s ../../../upstream/qtbase/src/widgets/styles/images \
-      libQt5Widgets/QtWidgets/styles/
+symlink_dirs upstream/qtbase/src/widgets/styles/images \
+             libQt5Widgets/QtWidgets/styles/
 ln -s ../../../upstream/qtbase/src/widgets/dialogs/qfiledialog.ui \
       libQt5Widgets/QtWidgets/dialogs/
-ln -s ../../../upstream/qtbase/src/widgets/dialogs/images \
-      libQt5Widgets/QtWidgets/dialogs/
+symlink_dirs upstream/qtbase/src/widgets/dialogs/images \
+             libQt5Widgets/QtWidgets/dialogs/
 
 ln -s ../../upstream/qtbase/examples/widgets/widgets/spinboxes/window.h \
       libQt5WidgetsTests/widgets-app/
