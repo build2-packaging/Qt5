@@ -1,3 +1,5 @@
+#include <QtCore/qtcore-config.h>
+
 // "Provides support for parsing date-time texts."
 //
 #define QT_FEATURE_datetimeparser 1
@@ -13,6 +15,57 @@
 // generated).
 //
 #define QT_FEATURE_mimetype_database 1
+
+// Optimizes SHA3 for speed instead of size. Not conditional in the upstream
+// build so always enable.
+//
+#define QT_FEATURE_sha3_fast 1
+
+#define QT_FEATURE_icu 1
+
+// #define QT_FEATURE_iconv -1 // Moved to public.
+#define QT_FEATURE_posix_libiconv -1
+// #define QT_FEATURE_gnu_libiconv -1
+
+// #define QT_FEATURE_system_pcre2 1
+
+// #define QT_FEATURE_doubleconversion 1 // Moved to public
+
+// Use the build2-packaged doubleconversion.
+//
+// #define QT_FEATURE_system_doubleconversion 1
+
+// Need to have systemd development headers installed. Can't assume it's
+// present on all Linuxes and only way to detect is to compile a program (see
+// upstream build) so always disable. Maybe we can provide configuration
+// option to enable it. Note that Debian doesn't link to this library.
+//
+#define QT_FEATURE_journald -1
+// #define QT_FEATURE_glib -1  // Moved to public.
+#define QT_FEATURE_etw -1   // Event tracing (Windows).
+#define QT_FEATURE_lttng -1 // Event tracing (Linux).
+
+// QNX only so always disable.
+//
+#define QT_FEATURE_slog2 -1
+#define QT_FEATURE_qqnx_pps -1
+
+#ifdef __GLIBC__
+#  define QT_FEATURE_glibc 1
+#else
+#  define QT_FEATURE_glibc -1
+#endif
+
+// Upstream build disables autodetection (doesn't run its test) and so this
+// feature was left disabled. However, looking at the upstream code it should
+// work as expected if we enable this on non-Windows platforms. Maybe we can
+// provide configuration option to enable it.
+//
+#ifndef _WIN32
+#  define QT_FEATURE_syslog -1
+#else
+#  define QT_FEATURE_syslog -1
+#endif
 
 #undef qtcore_config_p_HAVE_CLOCK_GETTIME
 #ifdef qtcore_config_p_HAVE_CLOCK_GETTIME
@@ -55,18 +108,7 @@
 #  define QT_FEATURE_getentropy -1
 #endif
 
-#ifdef __GLIBC__
-#  define QT_FEATURE_glibc 1
-#else
-#  define QT_FEATURE_glibc -1
-#endif
-
-#undef qtcore_config_p_HAVE_INOTIFY
-#ifdef qtcore_config_p_HAVE_INOTIFY
-#  define QT_FEATURE_inotify 1
-#else
-#  define QT_FEATURE_inotify -1
-#endif
+// #define QT_FEATURE_inotify 1 // Moved to public.
 
 // Supported on multiple platforms but currently only used by upstream if on
 // Linux (see corelib/configure.json and
@@ -78,26 +120,6 @@
 #else
 #  define QT_FEATURE_linkat -1
 #endif
-
-// These are available as build2 packages.
-//
-#define QT_FEATURE_icu 1
-// #define QT_FEATURE_system_pcre2 1
-
-// This library provides routines to convert IEEE single and double floats to
-// and from string representations. Qt bundles their own copy under 3rdparty/
-// but we use the build2 package.
-//
-// #define QT_FEATURE_doubleconversion 1
-// #define QT_FEATURE_system_doubleconversion 1
-
-// Disabled upstream if ICU is used.
-//
-// NOTE: Remember QT_NO_ICONV in qtcore-config.h.in.
-//
-#define QT_FEATURE_iconv -1
-#define QT_FEATURE_posix_libiconv -1
-// #define QT_FEATURE_gnu_libiconv -1
 
 // Detect polling functions, in order of precedence: ppoll, pollts, poll,
 // select.
@@ -128,7 +150,6 @@
 
 #      if !defined(_WIN32)
 #        define QT_FEATURE_poll_select 1
-#        define QT_NO_NATIVE_POLL
 #      else
 #        define QT_FEATURE_poll_select -1
 #      endif
@@ -143,42 +164,9 @@
 #  define QT_FEATURE_renameat2 -1
 #endif
 
-// Optimizes SHA3 for speed instead of size. Not conditional in the upstream
-// build so always enable.
-//
-#define QT_FEATURE_sha3_fast 1
-
-// Logging library for QNX only so always disable.
-//
-#define QT_FEATURE_slog2 -1
-
-// Upstream build disables autodetection (doesn't run its test) and so this
-// feature was left disabled. However, looking at the upstream code it should
-// work as expected if we enable this on non-Windows platforms. Maybe we can
-// provide configuration option to enable it.
-//
-#ifndef _WIN32
-#  define QT_FEATURE_syslog -1
-#else
-#  define QT_FEATURE_syslog -1
-#endif
-
-// Need to have systemd development headers installed. Can't assume it's
-// present on all Linuxes and only way to detect is to compile a program (see
-// upstream build) so always disable. Maybe we can provide configuration
-// option to enable it. Note that Debian doesn't link to this library.
-//
-#define QT_FEATURE_journald -1
-
 #undef qtcore_config_p_HAVE_STATX
 #ifdef qtcore_config_p_HAVE_STATX
 #  define QT_FEATURE_statx 1
 #else
 #  define QT_FEATURE_statx -1
 #endif
-
-// Features we have decided not to enable.
-//
-#define QT_FEATURE_glib -1  // NOTE: Remember QT_NO_GLIB in qconfig.h.in.
-#define QT_FEATURE_etw -1   // Event tracing (Windows).
-#define QT_FEATURE_lttng -1 // Event tracing (Linux).
