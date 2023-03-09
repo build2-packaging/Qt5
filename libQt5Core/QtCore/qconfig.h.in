@@ -1,64 +1,69 @@
-// NOTE regarding the commented-out QT_FEATURE_* lines: if the build succeeds
-// then these features are not referenced in the code (see QT_CONFIG() in
-// qglobal.h) so leave as many as possible commented-out until we've packaged
-// all Qt libraries, at which point the remaining commented-out lines can be
-// deleted.
+#pragma once
+
+// Copied from qtconfigmacros.h. See README-DEV for an explanation.
+//
+#ifndef QT_CONFIG
+#define QT_CONFIG(feature) (1/QT_FEATURE_##feature == 1)
+#endif
 
 #define QT_VERSION_STR "$QT_VERSION_STR$"
 #define QT_VERSION_MAJOR $QT_VERSION_MAJOR$
 #define QT_VERSION_MINOR $QT_VERSION_MINOR$
 #define QT_VERSION_PATCH $QT_VERSION_PATCH$
 
-// NOTE: Remember QT_FEATURE_dbus and QT_FEATURE_dbus_linked in qconfig_p.h.in.
+// Disable the QtDBus module (has not been packaged for build2).
 //
-#define QT_NO_DBUS
+#define QT_FEATURE_dbus -1 // Moved from private
+#if !QT_CONFIG(dbus)
+#  define QT_NO_DBUS 1
+#endif
 
-// NOTE: Remember QT_FEATURE_glib in qtcore-config_p.h.in.
+// These are supported on all platforms other than WASM.
 //
-#define QT_NO_GLIB
+#define QT_FEATURE_thread 1
+#define QT_FEATURE_future 1
 
-// Upstream always defines this to 64 on all of our supported platforms.
-//
-// Note that this macro is not directly related to the _LARGEFILE_SOURCE or
-// _LARGEFILE64_SOURCE macros -- those are UNIX-only while this macro applies
-// to all platforms.
-//
-#define QT_LARGEFILE_SUPPORT 64
+#define QT_FEATURE_concurrent 1
+#if !QT_CONFIG(concurrent)
+#  define QT_NO_CONCURRENT 1
+#endif
 
-// If true and on a non-Windows platform, sets the values of the
-// Q_DECL_EXPORT, Q_DECL_IMPORT, and Q_DECL_HIDDEN macros to "default",
-// "default", and "hidden", respectively (values of the GCC `visibility`
-// attribute), otherwise they are left undefined. On Windows this macro is
-// ignored.
+// "Disables code that is not allowed in platform app stores"
 //
-#define QT_VISIBILITY_AVAILABLE true
+#define QT_FEATURE_appstore_compliant -1
 
-// Whether or not we're building the shared libraries.
+// Shared vs. static build.
 //
-// Enabled by default on most platforms. If enabled, QT_FEATURE_static is
-// disabled. So upstream never builds both shared and static libraries.
+// Upstream enables QT_FEATURE_shared by default on most platforms and
+// disables QT_FEATURE_static if QT_FEATURE_shared is enabled. So upstream
+// never builds both shared and static libraries.
 //
-// Note: not currently used (in QtCore, anyway) and the actual code checks
-// the QT_SHARED and QT_STATIC macros which we set in the buildfile.
+// Neither are currently used and the actual code checks the QT_SHARED and
+// QT_STATIC macros which we set in the buildfile.
+//
+// Note: Leave all shared and static features and macros commented-out so that
+//       we'll get a build failure the moment upstream code actually starts
+//       referencing these.
 //
 // #define QT_FEATURE_shared 1
-
-// Whether or not we're building the static libraries.
 //
-// Disabled if QT_FEATURE_shared is enabled.
-//
-// #define QT_FEATURE_static -1
+// #if !QT_CONFIG(shared)
+// #  define QT_FEATURE_static 1
+// #  define QT_STATIC 1 // Never uncomment this line!
+// #else
+// #  define QT_FEATURE_static -1
+// #endif
 
-// Mac OS frameworks. Depends on QT_FEATURE_shared.
+// Mac OS frameworks. Depends on QT_FEATURE_shared upstream but we use
+// QT_SHARED (defined by build2 when building the shared library).
 //
 #if defined(__APPLE__) && defined(QT_SHARED)
 #  define QT_FEATURE_framework 1
+#  define QT_MAC_FRAMEWORK_BUILD
 #else
 #  define QT_FEATURE_framework -1
 #endif
 
-// Note: some (most) of these are not referenced in the code.
-//
 // #define QT_FEATURE_simulator_and_device -1
 #define QT_FEATURE_debug_and_release -1
 // #define QT_FEATURE_force_asserts -1
@@ -68,9 +73,46 @@
 // #define QT_FEATURE_rpath 1
 // #define QT_FEATURE_pkg_config -1
 
+// Given that all that feature does is cause -Bsymbolic-functions to be passed
+// to the linker we probably won't ever want to enable it.
+//
+// #define QT_FEATURE_reduce_relocations -1 // Moved from private
+// #if QT_CONFIG(reduce_relocations)
+// #  define QT_REDUCE_RELOCATIONS true
+// #endif
+
+// QT_VISIBILITY_AVAILABLE: If true and on a non-Windows platform, sets the
+// values of the Q_DECL_EXPORT, Q_DECL_IMPORT, and Q_DECL_HIDDEN macros to
+// "default", "default", and "hidden", respectively (values of the GCC
+// `visibility` attribute), otherwise they are left undefined. On Windows this
+// macro is ignored.
+//
+#define QT_FEATURE_reduce_exports 1 // Moved from private
+#if QT_CONFIG(reduce_exports)
+#  define QT_VISIBILITY_AVAILABLE true
+#endif
+
+// #define QT_FEATURE_c__11 1
+// #define QT_FEATURE_c__14 1
+// #define QT_FEATURE_c__17 1
+// #define QT_FEATURE_c__1z 1
+// #define QT_FEATURE_c__2a -1
+// #define QT_FEATURE_c99 1
+// #define QT_FEATURE_c11 1
+
+// Upstream always defines this to 64 on all of our supported platforms.
+//
+// Depends on internal upstream feature "largefile".
+//
+// Note that this macro is not directly related to the _LARGEFILE_SOURCE or
+// _LARGEFILE64_SOURCE macros -- those are UNIX-only while this macro applies
+// to all platforms.
+//
+#define QT_LARGEFILE_SUPPORT 64
+
 #undef qconfig_HAVE_SIGNALING_NAN
 #ifdef qconfig_HAVE_SIGNALING_NAN
-#define QT_FEATURE_signaling_nan 1
+#  define QT_FEATURE_signaling_nan 1
 #else
 #  define QT_FEATURE_signaling_nan -1
 #endif
@@ -226,28 +268,3 @@
 // mobile and Xeon processors and only Zen in the case of AMD.
 //
 // #define QT_COMPILER_SUPPORTS_SHA 1
-
-// #define QT_FEATURE_c__11 1
-// #define QT_FEATURE_c__14 1
-// #define QT_FEATURE_c__17 1
-// #define QT_FEATURE_c__1z 1
-// #define QT_FEATURE_c__2a -1
-// #define QT_FEATURE_c99 1
-// #define QT_FEATURE_c11 1
-
-// These are supported on all platforms other than WASM.
-//
-#define QT_FEATURE_thread 1
-#define QT_FEATURE_future 1
-#define QT_FEATURE_concurrent 1
-
-// "Disables code that is not allowed in platform app stores"
-//
-#define QT_FEATURE_appstore_compliant -1
-
-// NOTE: if this macro is enabled, remember QT_FEATURE_reduce_relocations in
-// qconfig_p.h.in. (However, given that all that feature does is cause
-// -Bsymbolic-functions to be passed to the linker we probably won't ever want
-// to enable it.)
-//
-// #define QT_REDUCE_RELOCATIONS true

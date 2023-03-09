@@ -1,3 +1,10 @@
+// NOTE: Remember QT_FEATURE_glib in qtcore-config_p.h.in.
+//
+#define QT_FEATURE_glib -1 // Moved from private
+#if !QT_CONFIG(glib)
+#  define QT_NO_GLIB
+#endif
+
 // "Supports scripting Qt-based applications."
 //
 #define QT_FEATURE_properties 1
