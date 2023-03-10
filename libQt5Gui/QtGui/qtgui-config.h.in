@@ -1,93 +1,144 @@
-#define QT_QPA_DEFAULT_PLATFORM_NAME "@QT_QPA_DEFAULT_PLATFORM_NAME@"
-
-// Define macros for features disabled in qtgui-config_p.h.
-//
-// ATSPI is disabled for the time being. See
-// QT_FEATURE_accessibility_atspi_bridge in qtgui-config_p.h.
-//
-#define QT_NO_ACCESSIBILITY_ATSPI_BRIDGE 1
-#define QT_NO_DIRECTWRITE                1
-
-// Disable OpenGL, Angle, and Vulkan.
-//
-#define QT_FEATURE_opengl -1
-#define QT_NO_OPENGL       1
-#define QT_FEATURE_openvg -1
-
-#define QT_FEATURE_opengles3          -1
-#define QT_FEATURE_opengles31         -1
-#define QT_FEATURE_opengles32         -1
-#define QT_FEATURE_opengles2          -1
-#define QT_FEATURE_dynamicgl          -1
-#define QT_FEATURE_vulkan             -1
-#define QT_FEATURE_angle              -1
-#define QT_FEATURE_combined_angle_lib -1
+#pragma once
 
 // Accessibility.
 //
 #define QT_FEATURE_accessibility 1
+#if !QT_CONFIG(accessibility)
+#  define QT_NO_ACCESSIBILITY
+#endif
+
+#define QT_FEATURE_accessibility_atspi_bridge -1 // Moved from private.
+#if !QT_CONFIG(accessibility_atspi_bridge)
+#  define QT_NO_ACCESSIBILITY_ATSPI_BRIDGE
+#endif
+
+// "QAction/Provides widget actions."
+//
+#define QT_FEATURE_action 1
+#if !QT_CONFIG(action)
+#  define QT_NO_ACTION
+#endif
+
+// "Provides keyboard accelerators and shortcuts."
+//
+#define QT_FEATURE_shortcut 1
+#if !QT_CONFIG(shortcut)
+#  define QT_NO_SHORTCUT
+#endif
+
+// "Provides cut and paste operations."
+//
+#define QT_FEATURE_clipboard 1
+#if !QT_CONFIG(clipboard)
+#  define QT_NO_CLIPBOARD
+#endif
+
+// "Provides mouse cursors."
+//
+#define QT_FEATURE_cursor 1
+#if !QT_CONFIG(cursor)
+#  define QT_NO_CURSOR
+#endif
+
+// "Supports color names such as \"red\", used by QColor and by some HTML
+// documents."
+//
+#define QT_FEATURE_colornames 1
+#if !QT_CONFIG(colornames)
+#  define QT_NO_COLORNAMES
+#endif
+
+// "Provides a parser for Cascading Style Sheets."
+//
+#define QT_FEATURE_cssparser 1
+#if !QT_CONFIG(cssparser)
+#  define QT_NO_CSSPARSER
+#endif
+
+// "Provides methods for accessing common desktop services."
+//
+#define QT_FEATURE_desktopservices 1
+#if !QT_CONFIG(desktopservices)
+#  define QT_NO_DESKTOPSERVICES
+#endif
+
+// "Supports the drag and drop mechansim."
+//
+#define QT_FEATURE_draganddrop 1
+#if !QT_CONFIG(draganddrop)
+#  define QT_NO_DRAGANDDROP
+#endif
 
 // "Provides automatic scaling of DPI-unaware applications on high-DPI
 // displays."
 //
 #define QT_FEATURE_highdpiscaling 1
-
-// "Provides a base for writing a image format plugins."
-//
-#define QT_FEATURE_imageformatplugin 1
-
-// Note: QT_FEATURE_imageformat_foo does not affect the private
-//       QT_FEATURE_foo. The former is a user-level option while the latter is
-//       used internally in qmake build files.
-
-// Image formats with built-in support (so always enable).
-//
-#define QT_FEATURE_imageformat_bmp 1
-#define QT_FEATURE_imageformat_ppm 1
-#define QT_FEATURE_imageformat_xbm 1
-#define QT_FEATURE_imageformat_xpm 1
-
-// Image formats supported by build2-packaged libraries.
-//
-#define QT_FEATURE_imageformat_jpeg 1
-#define QT_FEATURE_imageformat_png  1
+#if !QT_CONFIG(highdpiscaling)
+#  define QT_NO_HIGHDPISCALING
+#endif
 
 // "Supports creating a 1-bpp heuristic mask for images."
 //
 #define QT_FEATURE_image_heuristic_mask 1
+#if !QT_CONFIG(image_heuristic_mask)
+#  define QT_NO_IMAGE_HEURISTIC_MASK
+#endif
 
 // "Supports image file text strings."
 //
 #define QT_FEATURE_image_text 1
+#if !QT_CONFIG(image_text)
+#  define QT_NO_IMAGE_TEXT
+#endif
+
+// "Image Text section loading".
+//
+#define QT_FEATURE_imageio_text_loading 1 // Moved from private header.
+#if !QT_CONFIG(imageio_text_loading)
+#  define QT_NO_IMAGEIO_TEXT_LOADING 1
+#endif
 
 // "Supports animated images."
 //
 #define QT_FEATURE_movie 1
+#if !QT_CONFIG(movie)
+#  define QT_NO_MOVIE
+#endif
+
+#define QT_FEATURE_pdf 1
+#if !QT_CONFIG(pdf)
+#  define QT_NO_PDF
+#endif
+
+// "Supports recording and replaying QPainter commands."
+//
+#define QT_FEATURE_picture 1
+#if !QT_CONFIG(picture)
+#  define QT_NO_PICTURE
+#endif
 
 // "Provides an interface to the windowing system's session management."
 // Enabled unconditionally upstream.
 //
 #define QT_FEATURE_sessionmanager 1
+#if !QT_CONFIG(sessionmanager)
+#  define QT_NO_SESSIONMANAGER
+#endif
 
 // "Provides a generic model for storing custom data."
 //
 #define QT_FEATURE_standarditemmodel 1
-
-// "Provides an icon for an application in the system tray."
-//
-#define QT_FEATURE_systemtrayicon 1
-
-#define QT_FEATURE_pdf 1
-
-// "Provides a parser for HTML."
-//
-#define QT_FEATURE_texthtmlparser 1
+#if !QT_CONFIG(standarditemmodel)
+#  define QT_NO_STANDARDITEMMODEL
+#endif
 
 // Markdown parser (libmd4c; build2-packaged).
 //
 #define QT_FEATURE_textmarkdownreader 1
 
 // Use the system libmd4c (that is, the build2 package).
+//
+// @@ Public upstream but I think that's a mistake.
 //
 #define QT_FEATURE_system_textmarkdownreader 1
 
@@ -100,18 +151,16 @@
 // "Provides an ODF writer."
 //
 #define QT_FEATURE_textodfwriter 1
+#if !QT_CONFIG(textodfwriter)
+#  define QT_NO_TEXTODFWRITER
+#endif
 
-// "Supports recording and replaying QPainter commands."
+// "Provides an icon for an application in the system tray."
 //
-#define QT_FEATURE_picture 1
-
-// "Supports validation of input text."
-//
-#define QT_FEATURE_validator 1
-
-// "Supports displaying \"What's this\" help."
-//
-#define QT_FEATURE_whatsthis 1
+#define QT_FEATURE_systemtrayicon 1
+#if !QT_CONFIG(systemtrayicon)
+#  define QT_NO_SYSTEMTRAYICON
+#endif
 
 // "Provides complex input methods."
 //
@@ -119,12 +168,8 @@
 #  define QT_FEATURE_im 1
 #else
 #  define QT_FEATURE_im -1
-#  define QT_NO_IM       1
+#  define QT_NO_IM
 #endif
-
-// "Supports wheel events."
-//
-#define QT_FEATURE_wheelevent 1
 
 // "Supports tablet events."
 //
@@ -132,37 +177,217 @@
 #  define QT_FEATURE_tabletevent  1
 #else
 #  define QT_FEATURE_tabletevent -1
+#  define QT_NO_TABLETEVENT
 #endif
 
-// "Supports the drag and drop mechansim."
+// "Provides a parser for HTML."
 //
-#define QT_FEATURE_draganddrop 1
+#define QT_FEATURE_texthtmlparser 1
+#if !QT_CONFIG(texthtmlparser)
+#  define QT_NO_TEXTHTMLPARSER
+#endif
 
-// "QAction/Provides widget actions."
+// "Supports validation of input text."
 //
-#define QT_FEATURE_action 1
+#define QT_FEATURE_validator 1
+#if !QT_CONFIG(validator)
+#  define QT_NO_VALIDATOR
+#endif
 
-// "Provides keyboard accelerators and shortcuts."
+// "Supports displaying \"What's this\" help."
 //
-#define QT_FEATURE_shortcut 1
+#define QT_FEATURE_whatsthis 1
+#if !QT_CONFIG(whatsthis)
+#  define QT_NO_WHATSTHIS
+#endif
 
-// "Provides cut and paste operations."
+// "Supports wheel events."
 //
-#define QT_FEATURE_clipboard 1
+#define QT_FEATURE_wheelevent 1
+#if !QT_CONFIG(wheelevent)
+#  define QT_NO_WHEELEVENT
+#endif
 
-// "Provides mouse cursors."
+// Image formats.
 //
-#define QT_FEATURE_cursor 1
+// Enable all image formats because we have build2 packages for those that do
+// not have built-in implementations (that is, no associated
+// QT_FEATURE_system_foo).
+//
+// Note that there is a lot of inconsistency across these image-related
+// features and their associated macros, as can be seen in the following
+// synopsis (note: all extant features/macros are included):
+//
+//   QT_FEATURE_jpeg             -1 -> define QT_NO_IMAGEFORMAT_JPEG
+//   QT_FEATURE_imageformat_jpeg -1 -> define QT_NO_IMAGEFORMAT_JPEG
+//
+//   QT_FEATURE_png              -1 -> define QT_NO_IMAGEFORMAT_PNG
+//   QT_FEATURE_imageformat_png  -1 -> define QT_NO_IMAGEFORMAT_PNG
+//
+//   QT_FEATURE_ico              -1 -> define QT_NO_ICO
+//
+//   QT_FEATURE_gif              -1 -> define QT_NO_IMAGEFORMAT_GIF
+//
+//   QT_FEATURE_imageformat_bmp  -1 -> define QT_NO_IMAGEFORMAT_BMP
+//   QT_FEATURE_imageformat_ppm  -1 -> define QT_NO_IMAGEFORMAT_PPM
+//   QT_FEATURE_imageformat_xbm  -1 -> define QT_NO_IMAGEFORMAT_XBM
+//   QT_FEATURE_imageformat_xpm  -1 -> define QT_NO_IMAGEFORMAT_XPM
+//
+// QT_FEATURE_imageformat_* are user-visible features used to conditionally
+// include or exclude source code.
+//
+// QT_FEATURE_{gif,ico,jpeg,png} are private features that are only used in
+// the upstream build files (for example, controlling whether or not the
+// corresponding plugins are built).
+//
+// QT_FEATURE_foo and QT_FEATURE_imageformat_foo are mostly unrelated in that
+// one can be enabled and the other disabled, and they affect different parts
+// of the build. QT_FEATURE_imageformat_foo does not disable QT_FEATURE_foo as
+// one might expect.
+//
+// QT_NO_IMAGEFORMAT_{PNG,BMP,PPM,XBM,XPM} are also used to conditionally
+// include or exclude source code.
+//
+// QT_NO_IMAGEFORMAT_{JPEG,GIF} are ignored everywhere upstream (they are
+// actually #undef'd if defined).
+//
 
-// "Supports color names such as \"red\", used by QColor and by some HTML
-// documents."
+// "Provides a base for writing a image format plugins."
 //
-#define QT_FEATURE_colornames 1
+#define QT_FEATURE_imageformatplugin 1
 
-// "Provides a parser for Cascading Style Sheets."
-//
-#define QT_FEATURE_cssparser 1
+#if QT_CONFIG(imageformatplugin)
+#  define QT_FEATURE_gif         1 // Moved from private.
+#  define QT_FEATURE_ico         1 // Moved from private.
+#  define QT_FEATURE_jpeg        1 // Moved from private.
+#else
+#  define QT_NO_IMAGEFORMATPLUGIN
+#  define QT_FEATURE_gif         -1
+#  define QT_FEATURE_ico         -1
+#  define QT_FEATURE_jpeg        -1
+#endif
 
-// "Provides methods for accessing common desktop services."
+// GIF
 //
-#define QT_FEATURE_desktopservices 1
+#if !QT_CONFIG(gif)
+#  define QT_NO_IMAGEFORMAT_GIF
+#endif
+
+// ICO
+//
+#if !QT_CONFIG(ico)
+#  define QT_NO_ICO
+#endif
+
+// JPEG
+//
+#define QT_FEATURE_imageformat_jpeg 1
+
+#if !QT_CONFIG(jpeg) || !QT_CONFIG(imageformat_jpeg)
+#  define QT_NO_IMAGEFORMAT_JPEG
+#endif
+
+// PNG
+//
+#define QT_FEATURE_imageformat_png  1
+#define QT_FEATURE_png              1 // Moved from private.
+
+#if !QT_CONFIG(png) || !QT_CONFIG(imageformat_png)
+#  define QT_NO_IMAGEFORMAT_PNG
+#endif
+
+// BMP, PPM, XBM, XPM
+//
+#define QT_FEATURE_imageformat_bmp 1
+#if !QT_CONFIG(imageformat_bmp)
+#  define QT_NO_IMAGEFORMAT_BMP
+#endif
+#define QT_FEATURE_imageformat_ppm 1
+#if !QT_CONFIG(imageformat_ppm)
+#  define QT_NO_IMAGEFORMAT_PPM
+#endif
+#define QT_FEATURE_imageformat_xbm 1
+#if !QT_CONFIG(imageformat_xbm)
+#  define QT_NO_IMAGEFORMAT_XBM
+#endif
+#define QT_FEATURE_imageformat_xpm 1
+#if !QT_CONFIG(imageformat_xpm)
+#  define QT_NO_IMAGEFORMAT_XPM
+#endif
+
+#define QT_QPA_DEFAULT_PLATFORM_NAME "@QT_QPA_DEFAULT_PLATFORM_NAME@"
+
+#define QT_FEATURE_freetype 1 // Moved from private.
+#if !QT_CONFIG(freetype)
+#  define QT_NO_FREETYPE
+#endif
+
+#ifndef BUILD2_AUTOCONF_MACOS
+#  define QT_FEATURE_fontconfig 1 // Referenced by plugins only.
+#else
+#  define QT_FEATURE_fontconfig -1
+#  define QT_NO_FONTCONFIG
+#endif
+
+// @@ TODO From gui/configure.json: "On OS X, AAT is supported only with
+//    `-qt-harfbuzz`." Presumably the latest harfbuzz which we've packaged
+//    should work properly on MacOS by now?
+//
+//    Update: the version Qt5 patches is 1.7.4; Qt6 uses version 2.9.0 and
+//    there is no patch; we've packaged version 4.2.0.
+//
+#define QT_FEATURE_harfbuzz 1 // Moved from private.
+#if !QT_CONFIG(harfbuzz)
+#  define QT_NO_HARFBUZZ
+#endif
+
+// @@ Defined by
+// upstream/qtbase/src/platformsupport/fontdatabases/windows/windows.pri.
+//
+#define QT_FEATURE_directwrite -1 // Moved from private.
+#if !QT_CONFIG(directwrite)
+#define QT_NO_DIRECTWRITE
+#endif
+
+#define QT_FEATURE_egl -1 // Moved from private.
+#if !QT_CONFIG(egl)
+#  define QT_NO_EGL
+#endif
+
+// Disable OpenGL, Angle, and Vulkan.
+//
+#define QT_FEATURE_opengl -1
+#if !QT_CONFIG(opengl)
+#  define QT_NO_OPENGL
+#endif
+#define QT_FEATURE_openvg -1
+
+#define QT_FEATURE_opengles3          -1
+#if QT_CONFIG(opengles3)
+#  define QT_OPENGL_ES_3
+#endif
+#define QT_FEATURE_opengles31         -1
+#if QT_CONFIG(opengles31)
+#  define QT_OPENGL_ES_3_1
+#endif
+#define QT_FEATURE_opengles32         -1
+#if QT_CONFIG(opengles32)
+#  define QT_OPENGL_ES_3_2
+#endif
+#define QT_FEATURE_opengles2          -1
+#if QT_CONFIG(opengles2)
+#  define QT_OPENGL_ES
+#  define QT_OPENGL_ES_2
+#endif
+#define QT_FEATURE_dynamicgl          -1
+#if QT_CONFIG(dynamicgl)
+#  define QT_OPENGL_DYNAMIC
+#endif
+#define QT_FEATURE_vulkan             -1
+#define QT_FEATURE_angle              -1
+#if QT_CONFIG(angle)
+#  define QT_OPENGL_ES_2_ANGLE
+#  define QT_FEATURE_combined_angle_lib 1
+#else
+#  define QT_FEATURE_combined_angle_lib -1
+#endif

@@ -1,3 +1,36 @@
+#include <QtGui/qtgui-config.h>
+
+// "Provides support for detecting the desktop environment, launching external
+// processes and opening URLs."
+//
+#define QT_FEATURE_multiprocess 1
+
+// "Internal painting support for 64 bit (16 bpc) rasterization." (QPainter).
+//
+#define QT_FEATURE_raster_64bit 1
+
+// #define QT_FEATURE_gif         1 // Moved to public.
+// #define QT_FEATURE_ico         1 // Moved to public.
+// #define QT_FEATURE_jpeg        1 // Moved to public.
+// #define QT_FEATURE_png         1 // Moved to public.
+// #define QT_FEATURE_imageio_text_loading 1 // Moved to public.
+
+// Use build2 libjpeg package.
+//
+#if QT_CONFIG(jpeg)
+#  define QT_FEATURE_system_jpeg 1
+#else
+#  define QT_FEATURE_system_jpeg -1
+#endif
+
+// Use build2 libpng package.
+//
+#if QT_CONFIG(png)
+#  define QT_FEATURE_system_png 1
+#else
+#  define QT_FEATURE_system_png -1
+#endif
+
 #define QT_FEATURE_vnc      -1
 #define QT_FEATURE_directfb -1
 #define QT_FEATURE_linuxfb  -1
@@ -29,6 +62,12 @@
 //
 #define QT_FEATURE_xcb_native_painting -1
 
+#if QT_CONFIG(xcb_native_painting)
+#  define QT_FEATURE_xrender 1
+#else
+#  define QT_FEATURE_xrender -1
+#endif
+
 // From https://doc.qt.io/qt-6/inputs-linux-device.html: "On your Embedded
 // Linux device, when there's no windowing system present, the mouse,
 // keyboard, and touch input are read directly via evdev or using helper
@@ -48,7 +87,7 @@
 #define QT_FEATURE_direct3d11       -1
 #define QT_FEATURE_direct3d11_1     -1
 #define QT_FEATURE_direct3d9        -1
-#define QT_FEATURE_directwrite      -1
+// #define QT_FEATURE_directwrite      -1 // Moved to public.
 #define QT_FEATURE_directwrite1     -1
 #define QT_FEATURE_directwrite2     -1
 #define QT_FEATURE_dxgi1_2          -1
@@ -57,7 +96,7 @@
 
 // Disable EGL/EGLFS.
 //
-#define QT_FEATURE_egl             -1
+// #define QT_FEATURE_egl          -1 // Moved to public.
 #define QT_FEATURE_eglfs           -1
 #define QT_FEATURE_egl_x11         -1
 #define QT_FEATURE_eglfs_brcm      -1
@@ -93,70 +132,41 @@
 //
 #define QT_FEATURE_tuiotouch 1 // "Provides the TuioTouch input plugin."
 
-// Image formats.
-//
-// Note that none of these are affected by the public QT_FEATURE_imageformat_
-// macros. While the public QT_FEATURE_imageformat_ macros are referenced in
-// Qt code, these below are only used internally in qmake buildfiles, for
-// example to decide whether the corresponding plugin should be built or
-// whether to use the bundled 3rdparty implementations or the system-installed
-// ones.
-//
-#define QT_FEATURE_gif         1
-#define QT_FEATURE_ico         1
-#define QT_FEATURE_jpeg        1
-#define QT_FEATURE_system_jpeg 1
-#define QT_FEATURE_png         1
-#define QT_FEATURE_system_png  1
-
-#define QT_FEATURE_freetype        1
-#define QT_FEATURE_system_freetype 1
-
-// @@ TODO From gui/configure.json: "On OS X, AAT is supported only with
-//    `-qt-harfbuzz`." Presumably the latest harfbuzz which we've packaged
-//    should work properly on MacOS by now?
-//
-//    Update: the version Qt5 patches is 1.7.4; Qt6 uses version 2.9.0 and
-//    there is no patch; we've packaged version 4.2.0.
-//
-#define QT_FEATURE_harfbuzz        1
-#define QT_FEATURE_system_harfbuzz 1
-
-#ifndef BUILD2_AUTOCONF_MACOS
-#  define QT_FEATURE_fontconfig 1 // Referenced by plugins only.
+// #define QT_FEATURE_freetype        1 // Moved to public
+#if QT_CONFIG(freetype)
+#  define QT_FEATURE_system_freetype 1
 #else
-#  define QT_FEATURE_fontconfig -1
+#  define QT_FEATURE_system_freetype -1
 #endif
 
-// "Image Text section loading".
-//
-#define QT_FEATURE_imageio_text_loading 1
+#if QT_CONFIG(harfbuzz)
+#  define QT_FEATURE_system_harfbuzz 1
+#else
+#  define QT_FEATURE_system_harfbuzz -1
+#endif
+
+// #define QT_FEATURE_fontconfig 1 // Moved to public.
 
 #if QT_CONFIG(libudev)
-# define QT_FEATURE_libinput          1
-# define QT_FEATURE_libinput_axis_api 1 // Depends on libinput.
+# define QT_FEATURE_libinput 1
 #else
-# define QT_FEATURE_libinput          -1
-# define QT_FEATURE_libinput_axis_api -1
+# define QT_FEATURE_libinput -1
 #endif
-
-// "Provides support for detecting the desktop environment, launching external
-// processes and opening URLs."
-//
-#define QT_FEATURE_multiprocess 1
-
-// "Internal painting support for 64 bit (16 bpc) rasterization." (QPainter).
-//
-#define QT_FEATURE_raster_64bit 1
+#if QT_CONFIG(libinput)
+#  define QT_FEATURE_libinput_axis_api 1
+#else
+#  define QT_FEATURE_libinput_axis_api -1
+#endif
 
 // Disable all Integrity features (unsupported platform).
 //
 #define QT_FEATURE_integrityfb  -1
 #define QT_FEATURE_integrityhid -1
 
-#define QT_FEATURE_accessibility_atspi_bridge -1
+//#define QT_FEATURE_accessibility_atspi_bridge -1 // Moved to public.
 
-// Qt's own Vulkan header generator. Not referenced in any Qt code so can
-// always be disabled.
+// Qt's own Vulkan header generator.
 //
-#define QT_FEATURE_vkgen -1
+// #define QT_FEATURE_vkgen -1
+
+#define QT_FEATURE_qqnx_imf -1 // QNX only.
