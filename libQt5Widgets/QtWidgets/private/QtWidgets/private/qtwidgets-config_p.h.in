@@ -1,3 +1,5 @@
+#include <QtWidgets/qtwidgets-config.h>
+
 #define QT_FEATURE_widgettextcontrol 1
 #define QT_FEATURE_effects 1
 #define QT_FEATURE_style_fusion 1
