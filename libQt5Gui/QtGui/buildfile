@@ -582,22 +582,34 @@ else
 # /usr/include/. Note that headers may be included with or without the
 # `QtGui/` prefix.
 #
-{hxx}{* Q*.}: install = include/qt5/QtGui/
-{hxx}{qpa/*}: install = include/qt5/QtGui/qpa/
+hxx{*}:
+{
+  install = include/qt5/QtGui/
+  install.subdirs = true
+}
 
-lib{Qt5Gui}: cxx.pkgconfig.include = include/qt5/ include/qt5/QtGui
+hxx{qtgui-config}: install = include_arch/qt5/QtGui/
+
+lib{Qt5Gui}: cxx.pkgconfig.include = include_arch/qt5 include_arch/qt5/QtGui \
+                                     include/qt5      include/qt5/QtGui
 
 # Install private headers into the qt5/QtGui/private/ subdirectory of, say,
 # /usr/include/, recreating subdirectories. Note that private headers may be
 # included prefixed with `QtGui/private/`, `private/`, or without a prefix.
 #
-{hxx}{private/*}:
+hxx{private/*}:
 {
   install = include/qt5/QtGui/private/
   install.subdirs = true
 }
 
-lib{Qt5GuiPrivate}:                                             \
-  cxx.pkgconfig.include = include/qt5/QtGui/private             \
-                          include/qt5/QtGui/private/QtGui       \
+private/QtGui/private/hxx{qtgui-config_p}: \
+  install = include_arch/qt5/QtGui/private/
+
+lib{Qt5GuiPrivate}:							\
+  cxx.pkgconfig.include = include_arch/qt5/QtGui/private		\
+                          include_arch/qt5/QtGui/private/QtGui		\
+                          include_arch/qt5/QtGui/private/QtGui/private	\
+                          include/qt5/QtGui/private			\
+                          include/qt5/QtGui/private/QtGui		\
                           include/qt5/QtGui/private/QtGui/private

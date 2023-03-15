@@ -1160,7 +1160,8 @@ else
 # `QtCore/` prefix.
 #
 {h hxx}{../3rdparty/* testlib/* mkspecs/*}: install = false
-{h hxx}{* Q*.}: install = include/qt5/QtCore/
+{h hxx}{*}:               install = include/qt5/QtCore/
+h{qconfig qtcore-config}: install = include_arch/qt5/QtCore/
 
 lib{Qt5Core}: cxx.pkgconfig.include = include/qt5/ include/qt5/QtCore
 
@@ -1173,6 +1174,9 @@ lib{Qt5Core}: cxx.pkgconfig.include = include/qt5/ include/qt5/QtCore
   install = include/qt5/QtCore/private/
   install.subdirs = true
 }
+
+private/QtCore/private/h{qconfig_p qtcore-config_p}: \
+  install = include_arch/qt5/QtCore/private/
 
 lib{Qt5CorePrivate}:                                            \
  cxx.pkgconfig.include = include/qt5/QtCore/private             \
