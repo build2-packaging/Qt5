@@ -118,6 +118,9 @@ supported by GNU gcc/g++. There is an open issue to add support
 (https://gcc.gnu.org/bugzilla/show_bug.cgi?id=78352) but it's stalled for what
 looks like licensing reasons (see comment 16).
 
+libQt5Gui and libQt5Widgets are not supported on FreeBSD because those CI VMs
+do not have the X Window System installed.
+
 6. Qt build
 
 6.1 Shared vs. static
