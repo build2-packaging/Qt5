@@ -223,6 +223,11 @@
 // #define QT_COMPILER_SUPPORTS_AVX512VBMI 1
 // #define QT_COMPILER_SUPPORTS_AVX512VL 1
 
+#undef qconfig_HAVE_NEON
+#ifdef qconfig_HAVE_NEON
+#  define QT_COMPILER_SUPPORTS_NEON 1
+#endif
+
 // Floating-point instructions (conversion between half- and single-precision
 // formats).
 //
