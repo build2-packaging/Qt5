@@ -2,6 +2,10 @@ import libs = libQt5Gui%lib{Qt5Gui}
 
 import! [metadata] moc = Qt5Moc%exe{qt5moc}
 
+# Static linking of plugins requires extra steps, which are still TODO.
+#
+./: exe{gui-app}: include = ($bin.lib != 'static')
+
 exe{gui-app}: hxx{rasterwindow} cxx{gui-app} $libs
 {
   # Close the window automatically after a few seconds.

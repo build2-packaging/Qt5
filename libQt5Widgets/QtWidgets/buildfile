@@ -219,6 +219,8 @@ gen_src  = $regex.apply($moc_hdr $moc_hdr_adhoc $macos_moc_hdr, \
                               util/qsystemtrayicon_qpa                  \
                               kernel/qopenglwidget}}
 
+# Make sure plugins are built if the shared Qt5Widgets library is built.
+#
 libs{Qt5Widgets}: ../QtWidgetsPlugins/alias{Qt5WidgetsPlugins}: \
   include = posthoc
 
