@@ -173,6 +173,4 @@ switch $cxx.target.class, $cxx.target.system
 
 # Installation.
 #
-hxx{*}: install = false
-
 ../lib{qwindows}: install = lib/qt5/plugins/platforms/

@@ -216,8 +216,6 @@ if ($linux || $bsd)
 
 # Installation.
 #
-hxx{*}: install = false
-
 # Note that lib{Qt5XcbQpa} is installed to lib/ along with lib{Qt5Core} and
 # lib{Qt5Gui} (unlike lib{qxcb}).
 #

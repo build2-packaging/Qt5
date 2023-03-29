@@ -53,7 +53,5 @@ if ($cxx.class == 'gcc')
 
 # Installation.
 #
-hxx{*}: install = false
-
 ../lib{composeplatforminputcontextplugin}: \
   install = lib/qt5/plugins/platforminputcontexts/

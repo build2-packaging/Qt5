@@ -185,6 +185,4 @@ cxx.poptions += -DQT_NO_FOREACH                 \
 
 # Installation.
 #
-hxx{*}: install = false
-
 ../lib{qcocoa}: install = lib/qt5/plugins/platforms/
