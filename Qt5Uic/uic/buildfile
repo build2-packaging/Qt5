@@ -1,4 +1,5 @@
-import libs = libtinycbor%lib{tinycbor}
+import libs  = libtinycbor%lib{tinycbor}
+import libs += libz%lib{z}
 
 # Target metadata, see also --build2-metadata in main.cpp.
 #
@@ -13,6 +14,8 @@ exe{qt5uic}:
 windows = ($cxx.target.class == 'windows')
 unix    = ($cxx.target.class != 'windows')
 macos   = ($cxx.target.class == 'macos')
+
+uic_src = $regex.apply({*.cpp cpp/*.cpp shared/*.cpp python/*.cpp}, '.cpp$', '')
 
 # The QtCore source files required to build the uic executable. (These all go
 # into the bootstrap library in the upstream build.)
@@ -33,17 +36,21 @@ core_src = QtCore/codecs/qlatincodec                    \
            QtCore/io/qdir                               \
            QtCore/io/qdiriterator                       \
            QtCore/io/qfile                              \
+           QtCore/io/qfiledevice                        \
            QtCore/io/qfileinfo                          \
-           QtCore/io/qfilesystementry                   \
            QtCore/io/qfilesystemengine                  \
+           QtCore/io/qfilesystementry                   \
            QtCore/io/qfsfileengine                      \
            QtCore/io/qfsfileengine_iterator             \
            QtCore/io/qiodevice                          \
            QtCore/io/qipaddress                         \
-           QtCore/io/qfiledevice                        \
-           QtCore/io/qtemporaryfile                     \
+           QtCore/io/qloggingcategory                   \
+           QtCore/io/qloggingregistry                   \
+           QtCore/io/qresource                          \
            QtCore/io/qsavefile                          \
            QtCore/io/qstandardpaths                     \
+           QtCore/io/qtemporarydir                      \
+           QtCore/io/qtemporaryfile                     \
            QtCore/io/qurl                               \
            QtCore/io/qurlidna                           \
            QtCore/io/qurlquery                          \
@@ -51,19 +58,21 @@ core_src = QtCore/codecs/qlatincodec                    \
            QtCore/kernel/qcoreapplication               \
            QtCore/kernel/qcoreglobaldata                \
            QtCore/kernel/qmetatype                      \
-           QtCore/kernel/qvariant                       \
+           QtCore/kernel/qsharedmemory                  \
            QtCore/kernel/qsystemerror                   \
+           QtCore/kernel/qsystemsemaphore               \
+           QtCore/kernel/qvariant                       \
            QtCore/plugin/quuid                          \
            QtCore/serialization/qcborcommon             \
            QtCore/serialization/qcborstreamwriter       \
            QtCore/serialization/qcborvalue              \
            QtCore/serialization/qdatastream             \
+           QtCore/serialization/qjsonarray              \
            QtCore/serialization/qjsoncbor               \
            QtCore/serialization/qjsondocument           \
            QtCore/serialization/qjsonobject             \
-           QtCore/serialization/qjsonarray              \
-           QtCore/serialization/qjsonvalue              \
            QtCore/serialization/qjsonparser             \
+           QtCore/serialization/qjsonvalue              \
            QtCore/serialization/qjsonwriter             \
            QtCore/serialization/qtextstream             \
            QtCore/serialization/qxmlstream              \
@@ -75,7 +84,10 @@ core_src = QtCore/codecs/qlatincodec                    \
            QtCore/text/qlocale_tools                    \
            QtCore/text/qregexp                          \
            QtCore/text/qstring                          \
+           QtCore/text/qstring_compat                   \
+           QtCore/text/qstringbuilder                   \
            QtCore/text/qstringlist                      \
+           QtCore/text/qstringview                      \
            QtCore/text/qvsnprintf                       \
            QtCore/time/qcalendar                        \
            QtCore/time/qdatetime                        \
@@ -83,22 +95,32 @@ core_src = QtCore/codecs/qlatincodec                    \
            QtCore/time/qromancalendar                   \
            QtCore/tools/qarraydata                      \
            QtCore/tools/qbitarray                       \
-           QtCore/tools/qcommandlineparser              \
            QtCore/tools/qcommandlineoption              \
+           QtCore/tools/qcommandlineparser              \
            QtCore/tools/qcryptographichash              \
            QtCore/tools/qhash                           \
+           QtCore/tools/qline                           \
            QtCore/tools/qlist                           \
            QtCore/tools/qmap                            \
+           QtCore/tools/qpoint                          \
+           QtCore/tools/qrect                           \
            QtCore/tools/qringbuffer                     \
+           QtCore/tools/qsize                           \
            QtCore/tools/qversionnumber
 
 # The UNIX-specific QtCore source files required to build uic. Note that
 # this includes Mac OS.
 #
-unix_core_src = QtCore/kernel/qcore_unix                \
-                QtCore/io/qfilesystemengine_unix        \
+unix_core_src = QtCore/io/qfilesystemengine_unix        \
                 QtCore/io/qfilesystemiterator_unix      \
-                QtCore/io/qfsfileengine_unix
+                QtCore/io/qfsfileengine_unix            \
+                QtCore/kernel/qcore_unix                \
+                QtCore/kernel/qsharedmemory_posix       \
+                QtCore/kernel/qsharedmemory_systemv     \
+                QtCore/kernel/qsharedmemory_unix        \
+                QtCore/kernel/qsystemsemaphore_posix    \
+                QtCore/kernel/qsystemsemaphore_systemv  \
+                QtCore/kernel/qsystemsemaphore_unix
 
 # The Windows-specific QtCore source files required to build uic.
 #
@@ -108,6 +130,8 @@ win_core_src = QtCore/global/qoperatingsystemversion_win        \
                QtCore/io/qfsfileengine_win                      \
                QtCore/io/qstandardpaths_win                     \
                QtCore/kernel/qcoreapplication_win               \
+               QtCore/kernel/qsharedmemory_win                  \
+               QtCore/kernel/qsystemsemaphore_win               \
                QtCore/kernel/qwinregistry                       \
                QtCore/plugin/qsystemlibrary
 
@@ -118,14 +142,23 @@ macos_core_src = QtCore/kernel/qcoreapplication_mac
 # The Mac OS-specific Objective-C++ QtCore source files required to build
 # uic.
 #
+# Note that qfilesystemengine_mac.mm is not compiled upstream resulting in
+# undefined symbols in the bootstrap library. However we're building an
+# executable here so can't have undefined symbols.
+#
 macos_core_src_mm = QtCore/global/qoperatingsystemversion_darwin        \
                     QtCore/io/qfilesystemengine_mac                     \
                     QtCore/io/qstandardpaths_mac                        \
                     QtCore/kernel/qcore_foundation                      \
                     QtCore/kernel/qcore_mac
 
-exe{qt5uic}: hxx{**}                                            \
-             cxx{* cpp/* shared/* python/*} cxx{$core_src}      \
+all_core_src = $core_src        \
+               $unix_core_src   \
+               $win_core_src    \
+               $macos_core_src $macos_core_src_mm
+
+exe{qt5uic}: hxx{**}                    \
+             cxx{$uic_src $core_src}    \
              $libs testscript
 
 exe{qt5uic}: cxx{$unix_core_src}:                include = $unix
@@ -158,18 +191,17 @@ cxx.poptions =+ "-I$src_base"                                   \
                 "-I$src_base/python"                            \
                 "-I$src_base/shared"
 
+# Macros common to the bootstrap library and moc.
+#
 cxx.poptions +=                                                         \
   -DQT_BOOTSTRAPPED                                                     \
-  -DQT_NO_CAST_TO_ASCII                                                 \
   -DQT_NO_CAST_FROM_ASCII                                               \
-  -DQT_NO_COMPRESS                                                      \
+  -DQT_NO_CAST_TO_ASCII                                                 \
   -DQT_NO_DEBUG                                                         \
-  -DQT_NO_EXCEPTIONS                                                    \
   -DQT_NO_FOREACH                                                       \
   -DQT_NO_JAVA_STYLE_ITERATORS                                          \
   -DQT_NO_LINKED_LIST                                                   \
   -DQT_NO_NARROWING_CONVERSIONS_IN_CONNECT                              \
-  -DQT_UIC                                                              \
   -DQT_USE_QSTRINGBUILDER                                               \
   -DQT_VERSION_STR="\"$version.major.$version.minor.$version.patch\""   \
   -DQT_VERSION_MAJOR="$version.major"                                   \
@@ -178,10 +210,10 @@ cxx.poptions +=                                                         \
 
 if $windows
 {
-  cxx.poptions += -D_CRT_SECURE_NO_WARNINGS     \
-                  -D_USE_MATH_DEFINES           \
-                  -DUNICODE                     \
-                  -D_UNICODE                    \
+  cxx.poptions += -D_CRT_SECURE_NO_WARNINGS \
+                  -D_USE_MATH_DEFINES       \
+                  -DUNICODE                 \
+                  -D_UNICODE                \
                   -DWIN32
 
   if ($cxx.target.system == 'mingw32')
@@ -208,6 +240,22 @@ else
                 -framework IOKit
 
   cxx.libs += -pthread
+}
+
+# Disable exceptions.
+#
+switch $cxx.class
+{
+  case 'gcc'
+  {
+    cxx.poptions += -DQT_NO_EXCEPTIONS
+    cxx.coptions += -fno-exceptions
+  }
+  case 'msvc'
+  {
+    cxx.poptions += -DQT_NO_EXCEPTIONS
+    cxx.coptions += /EHs- /EHc-
+  }
 }
 
 # Add platform-specific header directories, libraries, compilation options,
@@ -239,3 +287,21 @@ switch $cxx.target.class, $cxx.id, $cxx.target.system
   case 'windows', 'gcc', 'mingw32'
     cxx.poptions =+ "-I$src_root/uic/mkspecs/win32-g++"
 }
+
+# Bootstrap-specific options.
+#
+obj{$all_core_src}: cxx.poptions += -DQT_ASCII_CAST_WARNINGS                \
+                                    -DQT_BUILDING_QT                        \
+                                    -DQT_BUILD_BOOTSTRAP_LIB                \
+                                    -DQT_DEPRECATED_WARNINGS                \
+                                    -DQT_DEPRECATED_WARNINGS_SINCE=0x060000 \
+                                    -DQT_MOC_COMPAT
+
+if $windows
+  obj{$all_core_src}: cxx.poptions += -DQT_DISABLE_DEPRECATED_BEFORE=0x040800
+else
+  obj{$all_core_src}: cxx.poptions += -DQT_DISABLE_DEPRECATED_BEFORE=0x050000
+
+# Uic-specific options.
+#
+obj{$uic_src}: cxx.poptions += -DQT_UIC
