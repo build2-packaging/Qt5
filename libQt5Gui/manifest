@@ -1,6 +1,6 @@
 : 1
 name: libQt5Gui
-version: 5.15.7-a.0.z
+version: 5.15.8-a.0.z
 project: Qt5
 summary: Qt5 GUI library
 license: LGPL-3.0-only
