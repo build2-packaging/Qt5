@@ -1137,6 +1137,20 @@ switch $cxx.target.class, $cxx.id, $cxx.target.system
   }
 }
 
+# Embed an Info.plist into the library on macOS.
+#
+# In relocatable installations upstream uses the value of the
+# `CFBundleIdentifier` key to look up the path of the directory containing the
+# QtCore library (used to derive the path prefix).
+#
+libs{Qt5Core}: file{Info.plist}: include = ($macos ? adhoc : false)
+
+if ($macos && true) # @@ TODO $config.install.relocatable
+{
+  libs{Qt5Core}: cxx.loptions += \
+    -Wl,-sectcreate,__TEXT,__info_plist,"$src_base/Info.plist"
+}
+
 # Export options.
 #
 lib{Qt5Core}:
