@@ -180,10 +180,12 @@ exe{qt5rcc}: cxx{$win_core_src}:                 include = $windows
 #
 exe{qt5rcc}: 3rdparty/freebsd/file{strtoll.c strtoull.c}: include = adhoc
 
-exe{qt5rcc}: cxx{3rdparty/sha1/sha1             \
-                 QtCore/global/archdetect       \
-                 QtCore/text/qchar              \
-                 QtCore/text/qstringmatcher     \
+exe{qt5rcc}: cxx{3rdparty/sha1/sha1                     \
+                 QtCore/global/archdetect               \
+                 QtCore/serialization/qcborarray        \
+                 QtCore/serialization/qcbormap          \
+                 QtCore/text/qchar                      \
+                 QtCore/text/qstringmatcher             \
                  QtCore/text/qunicodetables}: include = adhoc
 
 cxx.poptions =+ "-I$src_root/rcc"                       \
