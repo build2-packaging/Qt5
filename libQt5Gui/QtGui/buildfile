@@ -432,7 +432,7 @@ for s: qrc{$qrc}
 
 # Ensure resources are distributed.
 #
-lib{Qt5Gui}: $rc
+lib{Qt5Gui}: $rc: include = adhoc
 
 lib{Qt5Gui}: libul{Qt5GuiMeta} $impl_libs
 
