@@ -169,8 +169,7 @@ static void set_thread_data(QThreadData *data)
 
 static void clear_thread_data()
 {
-    currentThreadData = nullptr;
-    pthread_setspecific(current_thread_data_key, nullptr);
+    set_thread_data(nullptr);
 }
 
 template <typename T>
@@ -296,11 +295,13 @@ void *QThreadPrivate::start(void *arg)
             QMutexLocker locker(&thr->d_func()->mutex);
 
             // do we need to reset the thread priority?
-            if (int(thr->d_func()->priority) & ThreadPriorityResetFlag) {
+            if (thr->d_func()->priority & ThreadPriorityResetFlag) {
                 thr->d_func()->setPriority(QThread::Priority(thr->d_func()->priority & ~ThreadPriorityResetFlag));
             }
 
-            data->threadId.storeRelaxed(to_HANDLE(pthread_self()));
+            // threadId is set in QThread::start()
+            Q_ASSERT(pthread_equal(from_HANDLE<pthread_t>(data->threadId.loadRelaxed()),
+                                   pthread_self()));
             set_thread_data(data);
 
             data->ref();
@@ -314,10 +315,10 @@ void *QThreadPrivate::start(void *arg)
             // Sets the name of the current thread. We can only do this
             // when the thread is starting, as we don't have a cross
             // platform way of setting the name of an arbitrary thread.
-            if (Q_LIKELY(thr->objectName().isEmpty()))
+            if (Q_LIKELY(thr->d_func()->objectName.isEmpty()))
                 setCurrentThreadName(thr->metaObject()->className());
             else
-                setCurrentThreadName(thr->objectName().toLocal8Bit());
+                setCurrentThreadName(std::exchange(thr->d_func()->objectName, {}).toLocal8Bit());
         }
 #endif
 
@@ -384,6 +385,8 @@ void QThreadPrivate::finish(void *arg)
         d->interruptionRequested = false;
 
         d->isInFinish = false;
+        d->data->threadId.storeRelaxed(nullptr);
+
         d->thread_done.wakeAll();
     }
 #ifndef QT_NO_EXCEPTIONS
@@ -698,7 +701,10 @@ void QThread::start(Priority priority)
         pthread_attr_setthreadname(&attr, metaObject()->className());
     else
         pthread_attr_setthreadname(&attr, objectName().toLocal8Bit());
+#else
+    d->objectName = objectName();
 #endif
+
     pthread_t threadId;
     int code = pthread_create(&threadId, &attr, QThreadPrivate::start, this);
     if (code == EPERM) {
@@ -755,6 +761,8 @@ bool QThread::wait(QDeadlineTimer deadline)
         if (!d->thread_done.wait(locker.mutex(), deadline))
             return false;
     }
+    Q_ASSERT(d->data->threadId.loadRelaxed() == nullptr);
+
     return true;
 }
 
