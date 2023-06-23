@@ -26,7 +26,8 @@ include ../../../QtGui/
 # Dependencies involving moc_qcomposeplatforminputcontext.cpp and
 # qcomposeplatforminputcontext.h (from which the former is generated).
 #
-../lib{composeplatforminputcontextplugin}: cxx{moc_qcomposeplatforminputcontext}
+../lib{composeplatforminputcontextplugin}: \
+  cxx{moc_qcomposeplatforminputcontext}: include = adhoc
 cxx{moc_qcomposeplatforminputcontext}: hxx{qcomposeplatforminputcontext} \
                                        libul{Qt5PluginsLibComposeMeta}
 

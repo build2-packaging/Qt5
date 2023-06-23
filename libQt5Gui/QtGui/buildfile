@@ -232,72 +232,77 @@ macos_mm = accessible/qaccessiblecache_mac      \
 
 # Headers to be moc'ed and output compiled.
 #
-moc_hdr = private/QtGui/private/qaccessiblecache_p              \
-          private/QtGui/private/qdnd_p                          \
-          private/QtGui/private/qhighdpiscaling_p               \
-          private/QtGui/private/qinputcontrol_p                 \
-          private/QtGui/private/qinputdevicemanager_p           \
-          private/QtGui/private/qinternalmimedata_p             \
-          private/QtGui/private/qkeymapper_p                    \
-          private/QtGui/private/qlayoutpolicy_p                 \
-          private/QtGui/private/qshaderlanguage_p               \
-          private/QtGui/private/qshapedpixmapdndwindow_p        \
-          private/QtGui/private/qtextimagehandler_p             \
-          private/QtGui/qpa/qplatforminputcontextplugin_p       \
-          qaccessible                                           \
-          qaccessiblebridge                                     \
-          qaccessibleplugin                                     \
-          qbrush                                                \
-          qclipboard                                            \
-          qcolorspace                                           \
-          qdrag                                                 \
-          qevent                                                \
-          qfont                                                 \
-          qfontdatabase                                         \
-          qgenericplugin                                        \
-          qiconengineplugin                                     \
-          qimage                                                \
-          qimageiohandler                                       \
-          qkeysequence                                          \
-          qoffscreensurface                                     \
-          qpaintdevicewindow                                    \
-          qpainter                                              \
-          qpalette                                              \
-          qpdfwriter                                            \
-          qpictureformatplugin                                  \
-          qpa/qplatformdialoghelper                             \
-          qpa/qplatformgraphicsbuffer                           \
-          qpa/qplatforminputcontext                             \
-          qpa/qplatformintegrationplugin                        \
-          qpa/qplatformmenu                                     \
-          qpa/qplatformnativeinterface                          \
-          qpa/qplatformservices                                 \
-          qpa/qplatformsharedgraphicscache                      \
-          qpa/qplatformthemeplugin                              \
-          qrasterwindow                                         \
-          qscreen                                               \
-          qsessionmanager                                       \
-          qstylehints                                           \
-          qsurface                                              \
-          qsurfaceformat                                        \
-          qtextdocument                                         \
-          qtextformat                                           \
-          qtextlist                                             \
-          qtextobject                                           \
-          qtexttable                                            \
-          qtouchdevice                                          \
-          qvalidator
+moc_hdr = private/QtGui/private/qshaderlanguage_p       \
+          qaccessible                                   \
+          qpa/qplatformservices                         \
+          qpictureformatplugin                          \
+          qtouchdevice
 
 # Headers to be moc'ed and output included.
 #
-moc_hdr_adhoc = private/QtGui/private/qtextdocumentlayout_p     \
+moc_hdr_adhoc = private/QtGui/private/qaccessiblecache_p        \
+                private/QtGui/private/qdnd_p                    \
+                private/QtGui/private/qhighdpiscaling_p         \
+                private/QtGui/private/qinputcontrol_p           \
+                private/QtGui/private/qinputdevicemanager_p     \
+                private/QtGui/private/qinternalmimedata_p       \
+                private/QtGui/private/qkeymapper_p              \
+                private/QtGui/private/qlayoutpolicy_p           \
+                private/QtGui/private/qshapedpixmapdndwindow_p  \
+                private/QtGui/private/qtextdocumentlayout_p     \
+                private/QtGui/private/qtextimagehandler_p       \
+                private/QtGui/qpa/qplatforminputcontextplugin_p \
                 qabstracttextdocumentlayout                     \
+                qaccessiblebridge                               \
+                qaccessibleplugin                               \
+                qbrush                                          \
+                qclipboard                                      \
+                qcolorspace                                     \
+                qdrag                                           \
+                qevent                                          \
+                qfont                                           \
+                qfontdatabase                                   \
+                qgenericplugin                                  \
                 qguiapplication                                 \
+                qiconengineplugin                               \
+                qimage                                          \
+                qimageiohandler                                 \
                 qinputmethod                                    \
+                qkeysequence                                    \
                 qmovie                                          \
+                qoffscreensurface                               \
+                qopenglcontext                                  \
+                qopengldebug                                    \
+                qopenglvertexarrayobject                        \
+                qpa/qplatformbackingstore                       \
+                qpa/qplatformdialoghelper                       \
+                qpa/qplatformgraphicsbuffer                     \
+                qpa/qplatforminputcontext                       \
+                qpa/qplatformintegrationplugin                  \
+                qpa/qplatformmenu                               \
+                qpa/qplatformnativeinterface                    \
+                qpa/qplatformsharedgraphicscache                \
                 qpa/qplatformsystemtrayicon                     \
+                qpa/qplatformthemeplugin                        \
+                qpaintdevicewindow                              \
+                qpainter                                        \
+                qpalette                                        \
+                qpdfwriter                                      \
+                qrasterwindow                                   \
+                qscreen                                         \
+                qsessionmanager                                 \
                 qstandarditemmodel                              \
+                qstylehints                                     \
+                qsurface                                        \
+                qsurfaceformat                                  \
                 qsyntaxhighlighter                              \
+                qtextdocument                                   \
+                qtextformat                                     \
+                qtextlist                                       \
+                qtextobject                                     \
+                qtexttable                                      \
+                qvalidator                                      \
+                qvulkanwindow                                   \
                 qwindow
 
 # C++ source files to be moc'ed and output included.

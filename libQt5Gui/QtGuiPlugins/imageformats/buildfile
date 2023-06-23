@@ -6,11 +6,11 @@ import impl_libs_jpeg = libjpeg-turbo%lib{jpeg}
 
 include ../../QtGui/
 
-./: lib{qgif}:  gif/hxx{main qgifhandler_p} \
+./: lib{qgif}:  gif/hxx{qgifhandler_p} \
                 gif/cxx{main qgifhandler}
-./: lib{qico}:  ico/hxx{main qicohandler} \
+./: lib{qico}:  ico/hxx{qicohandler} \
                 ico/cxx{main qicohandler}
-./: lib{qjpeg}: jpeg/hxx{main qjpeghandler_p} \
+./: lib{qjpeg}: jpeg/hxx{qjpeghandler_p} \
                 jpeg/cxx{main qjpeghandler}
 
 lib{qgif qico qjpeg}: ../../hxx{mkspecs/**}
@@ -29,15 +29,16 @@ lib{qjpeg}: jpeg/file{jpeg.json}: include = adhoc
 [rule_hint=cxx] libul{Qt5PluginsImageFormatsMeta}: \
                   ../../QtGui/lib{Qt5Gui Qt5GuiPrivate}
 
-# Dependencies involving moc_main.cpp and main.h (from which it is generated).
+# Dependencies involving main.moc and main.cpp (main.moc is generated from
+# main.cpp which then includes it).
 #
-lib{qgif}:  gif/cxx{moc_main}
-lib{qico}:  ico/cxx{moc_main}
-lib{qjpeg}: jpeg/cxx{moc_main}
+lib{qgif}:  gif/moc{main}: include = adhoc
+lib{qico}:  ico/moc{main}: include = adhoc
+lib{qjpeg}: jpeg/moc{main}: include = adhoc
 
-gif/cxx{moc_main}:  gif/hxx{main} libul{Qt5PluginsImageFormatsMeta}
-ico/cxx{moc_main}:  ico/hxx{main} libul{Qt5PluginsImageFormatsMeta}
-jpeg/cxx{moc_main}: jpeg/hxx{main} libul{Qt5PluginsImageFormatsMeta}
+gif/moc{main}:  gif/cxx{main} libul{Qt5PluginsImageFormatsMeta}
+ico/moc{main}:  ico/cxx{main} libul{Qt5PluginsImageFormatsMeta}
+jpeg/moc{main}: jpeg/cxx{main} libul{Qt5PluginsImageFormatsMeta}
 
 lib{qgif qico qjpeg}: libul{Qt5PluginsImageFormatsMeta}
 
@@ -50,11 +51,11 @@ cxx.poptions += -DQT_PLUGIN
 if ($cxx.class == 'gcc')
   cxx.coptions += -fvisibility=hidden -fvisibility-inlines-hidden
 
-gif/obj{main qgifhandler} gif/obj{moc_main}: \
+gif/obj{main qgifhandler}: \
   cxx.poptions =+ "-I$out_base/gif" "-I$src_base/gif"
-ico/obj{main qicohandler} ico/obj{moc_main}: \
+ico/obj{main qicohandler}: \
   cxx.poptions =+ "-I$out_base/ico" "-I$src_base/ico"
-jpeg/obj{main qjpeghandler} jpeg/obj{moc_main}: \
+jpeg/obj{main qjpeghandler}: \
   cxx.poptions =+ "-I$out_base/jpeg" "-I$src_base/jpeg"
 
 if ($cxx.target.class != 'windows')
