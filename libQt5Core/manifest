@@ -1,6 +1,6 @@
 : 1
 name: libQt5Core
-version: 5.15.8-a.0.z
+version: 5.15.10-a.0.z
 project: Qt5
 summary: Qt5 core library
 license: LGPL-3.0-only

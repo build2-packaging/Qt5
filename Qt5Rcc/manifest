@@ -1,6 +1,6 @@
 : 1
 name: Qt5Rcc
-version: 5.15.8-a.0.z
+version: 5.15.10-a.0.z
 project: Qt5
 summary: Qt resource compiler
 license: other: GPL-3.0-only-with-Qt-GPL-Exception-1.0

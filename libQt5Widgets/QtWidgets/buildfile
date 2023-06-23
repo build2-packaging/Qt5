@@ -47,6 +47,7 @@ moc_hdr_adhoc = private/QtWidgets/private/qabstractscrollarea_p         \
                 private/QtWidgets/private/qtoolbarseparator_p           \
                 private/QtWidgets/private/qtreewidget_p                 \
                 private/QtWidgets/private/qundostack_p                  \
+                private/QtWidgets/private/qwidget_p                     \
                 private/QtWidgets/private/qwidgetanimator_p             \
                 private/QtWidgets/private/qwidgetlinecontrol_p          \
                 private/QtWidgets/private/qwidgetresizehandler_p        \
@@ -164,7 +165,6 @@ moc_hdr_adhoc = private/QtWidgets/private/qabstractscrollarea_p         \
 # Headers to be moc'd and the outputs compiled.
 #
 moc_hdr = private/QtWidgets/private/qpixmapstyle_p      \
-          private/QtWidgets/private/qwidget_p           \
           private/QtWidgets/private/qwidgetrepaintmanager_p
 
 # Headers to be moc'd and the outputs compiled on macOS.
