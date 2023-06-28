@@ -1,1 +1,1 @@
-../../../../upstream/qtbase/src/plugins/platforms/windows/qwindowscombase.h
+../../../../downstream/qtbase/src/plugins/platforms/windows/qwindowscombase.h
