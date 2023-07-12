@@ -1,0 +1,8 @@
+: 1
+name: libQt5Gui
+version: 5.15.10
+project: Qt5
+summary: Qt5 GUI library
+license: LGPL-3.0-only
+license: GPL-2.0-or-later
+license: other: available source
