@@ -1,6 +1,6 @@
 : 1
 name: Qt5Uic
-version: 5.15.10-a.0.z
+version: 5.15.10
 project: Qt5
 summary: Qt user interface compiler
 license: other: GPL-3.0-only-with-Qt-GPL-Exception-1.0

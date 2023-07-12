@@ -1,6 +1,6 @@
 : 1
 name: libQt5Widgets
-version: 5.15.10-a.0.z
+version: 5.15.10
 project: Qt5
 summary: Qt5 GUI widgets library
 license: LGPL-3.0-only
