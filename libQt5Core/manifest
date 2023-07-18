@@ -1,6 +1,6 @@
 : 1
 name: libQt5Core
-version: 5.15.10
+version: 5.15.10+1
 project: Qt5
 summary: Qt5 core library
 license: LGPL-3.0-only
@@ -26,3 +26,8 @@ depends: libicui18n >= 65.1.0
 depends: libpcre2 ^10.38.0
 depends: libtinycbor ^0.6.0
 depends: libz ^1.2.1100
+
+# System package mapping.
+#
+debian-name: qtbase5-dev
+fedora-name: qt5-qtbase-devel

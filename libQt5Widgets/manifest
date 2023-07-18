@@ -1,6 +1,6 @@
 : 1
 name: libQt5Widgets
-version: 5.15.10
+version: 5.15.10+1
 project: Qt5
 summary: Qt5 GUI widgets library
 license: LGPL-3.0-only
@@ -25,3 +25,8 @@ depends: * Qt5Uic == $
 depends: libQt5Core == $
 depends: libQt5Gui == $
 tests: libQt5WidgetsTests == $
+
+# System package mapping.
+#
+debian-name: qtbase5-dev
+fedora-name: qt5-qtbase-devel

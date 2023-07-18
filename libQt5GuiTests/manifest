@@ -1,6 +1,6 @@
 : 1
 name: libQt5GuiTests
-version: 5.15.10
+version: 5.15.10+1
 project: Qt5
 summary: Tests for libQt5Gui
 license: MIT

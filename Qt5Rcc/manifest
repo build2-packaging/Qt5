@@ -1,6 +1,6 @@
 : 1
 name: Qt5Rcc
-version: 5.15.10
+version: 5.15.10+1
 project: Qt5
 summary: Qt resource compiler
 license: other: GPL-3.0-only-with-Qt-GPL-Exception-1.0
@@ -19,3 +19,8 @@ depends: * build2 >= 0.16.0
 depends: * bpkg >= 0.16.0
 depends: libz ^1.2.1100
 depends: libtinycbor ^0.6.0
+
+# System package mapping.
+#
+debian-name: qtbase5-dev-tools
+fedora-name: qt5-qtbase-devel
