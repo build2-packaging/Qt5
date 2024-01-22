@@ -232,8 +232,7 @@ macos_mm = accessible/qaccessiblecache_mac      \
 
 # Headers to be moc'ed and output compiled.
 #
-moc_hdr = private/QtGui/private/qshaderlanguage_p       \
-          qaccessible                                   \
+moc_hdr = qaccessible                                   \
           qpa/qplatformservices                         \
           qpictureformatplugin                          \
           qtouchdevice
@@ -248,6 +247,7 @@ moc_hdr_adhoc = private/QtGui/private/qaccessiblecache_p        \
                 private/QtGui/private/qinternalmimedata_p       \
                 private/QtGui/private/qkeymapper_p              \
                 private/QtGui/private/qlayoutpolicy_p           \
+                private/QtGui/private/qshaderlanguage_p         \
                 private/QtGui/private/qshapedpixmapdndwindow_p  \
                 private/QtGui/private/qtextdocumentlayout_p     \
                 private/QtGui/private/qtextimagehandler_p       \
