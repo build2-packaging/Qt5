@@ -274,7 +274,7 @@ function symlink_non_module () # <source-directory> <destination-directory>
   local t # Target file.
   for t in "$s"/*; do
     case "$t" in
-      *.h|*.cpp|*.mm|*.json)
+      *.h|*.cpp|*.c|*.mm|*.json)
         symlink_source_file "$tp/$t" "$d"
         ;;
       *)
