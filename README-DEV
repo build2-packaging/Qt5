@@ -259,9 +259,9 @@ Qt6. The KDE Patch Collection refers to the kde/5.15 branch which diverged
 from the upstream Qt 5.15 branch after version 5.15.2.
 
 The commits in the kde/5.15 branch are changes (fixes only -- no new features)
-are cherry-picked from the upstream dev branch (note: Qt6). Some (most?) of
-the back-ported changes are made by KDE Patch Collection developers but
-presumably they also back-port changes by Qt developers.
+cherry-picked from the upstream dev branch (note: Qt6). Some (most?) of the
+back-ported changes are made by KDE Patch Collection developers but presumably
+they also back-port changes by Qt developers.
 
 There are no releases. Because the commits are mere fixes which have been
 applied to the upstream Qt6 dev branch they should be quite stable so assume
