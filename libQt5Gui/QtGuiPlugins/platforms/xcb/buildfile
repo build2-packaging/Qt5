@@ -40,6 +40,10 @@ src = gl_integrations/qxcbglintegrationfactory          \
       qxcbwmsupport                                     \
       qxcbxsettings
 
+# C source files.
+#
+src_c = qt_xlib_wrapper
+
 # C++ headers to be moc'd (foo.h -> moc_foo.cpp) and the output compiled.
 #
 moc_hdr = gl_integrations/qxcbglintegrationplugin
@@ -75,7 +79,7 @@ moc_src = qxcbclipboard qxcbsessionmanager
                       ../../hxx{QtPlatformHeaders/**                            \
                                 QtPlatformHeaders/QPlatformHeaderHelper.        \
                                 Qt*Support/**}                                  \
-                    hxx{**} cxx{$src}
+                    hxx{**} cxx{$src} c{$src_c}
 
 # The "metadata library": its purpose is to make sure all the imported
 # libraries are resolved for the ad hoc moc compilation rules below.
@@ -156,18 +160,18 @@ moc{qxcbmain}: cxx{qxcbmain} libul{Qt5PluginsXcbMeta}
 # Note: headers in gl_integrations/ are included unconditionally so cannot be
 #       excluded even if OpenGL is disabled.
 #
-cxx.poptions =+ "-I$out_base" "-I$src_base"     \
+cc.poptions =+ "-I$out_base" "-I$src_base"      \
                 "-I$src_base/gl_integrations"   \
                 "-I$src_root/QtGuiPlugins/QtThemeSupport"
 
 # Define macros.
 #
-cxx.poptions += -DQT_NO_FOREACH                 \
-                -DQT_EDID_SUPPORT_LIB           \
-                -DQT_FONTDATABASE_SUPPORT_LIB   \
-                -DQT_SERVICE_SUPPORT_LIB        \
-                -DQT_THEME_SUPPORT_LIB          \
-                -DQT_XKBCOMMON_SUPPORT_LIB
+cc.poptions += -DQT_NO_FOREACH                  \
+               -DQT_EDID_SUPPORT_LIB            \
+               -DQT_FONTDATABASE_SUPPORT_LIB    \
+               -DQT_SERVICE_SUPPORT_LIB         \
+               -DQT_THEME_SUPPORT_LIB           \
+               -DQT_XKBCOMMON_SUPPORT_LIB
 
 # The XCB plugin objects and moc outputs. Note that there is no need to set
 # anything on obj{$moc_src} because those files (.moc) are all included
@@ -178,11 +182,11 @@ cxx.poptions += -DQT_NO_FOREACH                 \
 # QT_XCB_QPA_LIB_LIB is not referenced anywhere that matters. But define them
 # anyway just in case something changes.
 #
-obj{$src $moc_gen_src} moc{$moc_src} cxx{$moc_gen_src}: \
-  cxx.poptions += $platforms_poptions                   \
-                  -DQT_BUILD_XCB_PLUGIN -DQT_BUILD_XCB_QPA_LIB_LIB
+obj{$src $src_c $moc_gen_src} moc{$moc_src} cxx{$moc_gen_src}:  \
+  cc.poptions += $platforms_poptions                            \
+                 -DQT_BUILD_XCB_PLUGIN -DQT_BUILD_XCB_QPA_LIB_LIB
 
-{obj moc}{qxcbmain}: cxx.poptions += -DQT_PLUGIN -DQT_XCB_QPA_LIB_LIB
+{obj moc}{qxcbmain}: cc.poptions += -DQT_PLUGIN -DQT_XCB_QPA_LIB_LIB
 
 if ($linux || $bsd)
 {
