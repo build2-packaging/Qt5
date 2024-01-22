@@ -1,6 +1,6 @@
 : 1
 name: libQt5WidgetsTests
-version: 5.15.10+1
+version: 5.15.12-a.0.z
 project: Qt5
 summary: Tests for libQt5Widgets
 license: MIT
