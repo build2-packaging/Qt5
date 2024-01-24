@@ -1,6 +1,6 @@
 : 1
 name: Qt5Moc
-version: 5.15.12-a.0.z
+version: 5.15.12
 project: Qt5
 summary: Qt meta object compiler
 license: other: GPL-3.0-only-with-Qt-GPL-Exception-1.0
