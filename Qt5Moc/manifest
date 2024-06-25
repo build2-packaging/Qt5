@@ -1,6 +1,6 @@
 : 1
 name: Qt5Moc
-version: 5.15.12
+version: 5.15.12+1
 project: Qt5
 summary: Qt meta object compiler
 license: other: GPL-3.0-only-with-Qt-GPL-Exception-1.0
@@ -11,7 +11,11 @@ src-url: https://invent.kde.org/qt/qt/qtbase
 package-url: https://github.com/build2-packaging/Qt5
 email: interest@qt-project.org      ; Mailing list for developers using Qt.
 package-email: packaging@build2.org ; Mailing list.
-build-error-email: builds@build2.org
+
+# Commented out because this package is no longer maintained.
+#
+# build-error-email: builds@build2.org
+
 builds: host : &default
 builds: -( +macos &gcc ) ; Not supported by upstream.
 builds: -wasm            ; Not supported.

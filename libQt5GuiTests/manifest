@@ -1,13 +1,17 @@
 : 1
 name: libQt5GuiTests
-version: 5.15.12
+version: 5.15.12+1
 project: Qt5
 summary: Tests for libQt5Gui
 license: MIT
 description-file: README.md
 url: https://github.com/build2-packaging/Qt5
 email: packaging@build2.org ; Mailing list.
-build-error-email: builds@build2.org
+
+# Commented out because this package is no longer maintained.
+#
+# build-error-email: builds@build2.org
+
 builds: default
 builds: -( +macos &gcc ) ; See README-DEV.
 depends: * build2 >= 0.16.0
